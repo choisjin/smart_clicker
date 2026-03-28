@@ -11,7 +11,7 @@ from PyQt6.QtWidgets import (
     QSlider, QGroupBox, QGridLayout
 )
 from PyQt6.QtCore import Qt, QPoint, QRect, pyqtSignal
-from PyQt6.QtGui import QImage, QPixmap, QPainter, QPen, QColor
+from PyQt6.QtGui import QImage, QPixmap, QPainter, QPen, QColor, QIcon
 
 
 class ScreenshotLabel(QLabel):
@@ -217,7 +217,7 @@ class TrackingSetupDialog(QDialog):
                 btn.setIconSize(pm.size())
                 btn.setStyleSheet("background-color: #1a1a1a; border: 2px solid #4a9eff;")
             else:
-                btn.setIcon(QPixmap())
+                btn.setIcon(QIcon())
                 btn.setStyleSheet("background-color: #1a1a1a; border: 1px solid #444;")
 
         self._preset_group.setTitle(f"프리셋 ({len(self._crop_images)}/8)")
