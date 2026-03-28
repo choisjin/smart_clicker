@@ -622,6 +622,10 @@ class RemoteAgent:
                     self.active_window = win_id
                     # 창을 앞으로 가져오기
                     self.captures[win_id].bring_to_front()
+                    # 마우스 위치 추적 무효화 (외부에서 마우스가 이동됐을 수 있음)
+                    if self.hid:
+                        self.hid._mouse_x = None
+                        self.hid._mouse_y = None
                     response["success"] = True
                     response["active_window"] = win_id
                 else:
