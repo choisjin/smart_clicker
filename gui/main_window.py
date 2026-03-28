@@ -32,7 +32,8 @@ from target_finder import TargetFinder, SmartClicker
 class ScreenWidget(QLabel):
     """Agent 화면 표시 위젯"""
 
-    clicked = pyqtSignal(int, int)  # 클릭 좌표 시그널
+    clicked = pyqtSignal(int, int)  # 좌클릭 좌표 시그널
+    right_clicked = pyqtSignal(int, int)  # 우클릭 좌표 시그널
 
     def __init__(self, agent_name: str = ""):
         super().__init__()
@@ -68,31 +69,36 @@ class ScreenWidget(QLabel):
                                Qt.TransformationMode.SmoothTransformation)
         self.setPixmap(scaled)
 
+    def _map_to_original(self, event) -> tuple:
+        """위젯 좌표 → 원본 이미지 좌표 변환. 실패 시 None 반환"""
+        pixmap = self.pixmap()
+        if not pixmap or self.original_width <= 0:
+            return None
+
+        widget_w, widget_h = self.width(), self.height()
+        pixmap_w, pixmap_h = pixmap.width(), pixmap.height()
+
+        # 중앙 정렬 오프셋
+        offset_x = (widget_w - pixmap_w) // 2
+        offset_y = (widget_h - pixmap_h) // 2
+
+        click_x = event.position().x() - offset_x
+        click_y = event.position().y() - offset_y
+
+        if 0 <= click_x < pixmap_w and 0 <= click_y < pixmap_h:
+            scale_x = self.original_width / pixmap_w
+            scale_y = self.original_height / pixmap_h
+            return int(click_x * scale_x), int(click_y * scale_y)
+        return None
+
     def mousePressEvent(self, event):
-        """마우스 클릭 이벤트"""
-        if event.button() == Qt.MouseButton.LeftButton:
-            # 위젯 좌표 → 실제 화면 좌표 변환
-            pixmap = self.pixmap()
-            if pixmap and self.original_width > 0:
-                # 스케일 계산
-                widget_w, widget_h = self.width(), self.height()
-                pixmap_w, pixmap_h = pixmap.width(), pixmap.height()
-
-                # 중앙 정렬 오프셋
-                offset_x = (widget_w - pixmap_w) // 2
-                offset_y = (widget_h - pixmap_h) // 2
-
-                # 클릭 좌표 (pixmap 기준)
-                click_x = event.position().x() - offset_x
-                click_y = event.position().y() - offset_y
-
-                if 0 <= click_x < pixmap_w and 0 <= click_y < pixmap_h:
-                    # 원본 크기로 변환
-                    scale_x = self.original_width / pixmap_w
-                    scale_y = self.original_height / pixmap_h
-                    real_x = int(click_x * scale_x)
-                    real_y = int(click_y * scale_y)
-                    self.clicked.emit(real_x, real_y)
+        """마우스 클릭 이벤트 (좌클릭 + 우클릭)"""
+        coords = self._map_to_original(event)
+        if coords:
+            if event.button() == Qt.MouseButton.LeftButton:
+                self.clicked.emit(*coords)
+            elif event.button() == Qt.MouseButton.RightButton:
+                self.right_clicked.emit(*coords)
 
 
 class AgentPanel(QGroupBox):
@@ -139,21 +145,22 @@ class AgentPanel(QGroupBox):
         """창 위젯 생성 또는 가져오기"""
         if window_id not in self.screen_widgets:
             screen = ScreenWidget(f"{self.name}:{window_id}")
-            screen.clicked.connect(lambda x, y, wid=window_id: self.on_screen_click(wid, x, y))
+            screen.clicked.connect(lambda x, y, wid=window_id: self.on_screen_click(wid, x, y, "LEFT"))
+            screen.right_clicked.connect(lambda x, y, wid=window_id: self.on_screen_click(wid, x, y, "RIGHT"))
             self.screen_widgets[window_id] = screen
             self.screens_layout.addWidget(screen)
         return self.screen_widgets[window_id]
 
-    def on_screen_click(self, window_id: str, x: int, y: int):
+    def on_screen_click(self, window_id: str, x: int, y: int, button: str = "LEFT"):
         """화면 클릭 시 - 해당 창을 활성화하고 클릭"""
         if self.btn_click.isChecked():
-            print(f"[{self.name}:{window_id}] 클릭 명령 전송: ({x}, {y})")
-            # 해당 창을 활성화하고 클릭
-            success = self.ctrl.send_click_to_window(self.name, window_id, x, y)
+            btn_label = "우클릭" if button == "RIGHT" else "좌클릭"
+            print(f"[{self.name}:{window_id}] {btn_label} 명령 전송: ({x}, {y})")
+            success = self.ctrl.send_click_to_window(self.name, window_id, x, y, button=button)
             if success:
-                print(f"[{self.name}:{window_id}] 클릭 성공!")
+                print(f"[{self.name}:{window_id}] {btn_label} 성공!")
             else:
-                print(f"[{self.name}:{window_id}] 클릭 실패 (Leonardo 미연결?)")
+                print(f"[{self.name}:{window_id}] {btn_label} 실패 (Leonardo 미연결?)")
 
     def update_frame(self, window_id: str, frame: np.ndarray, title: str = "", active: bool = False):
         """창별 프레임 업데이트"""

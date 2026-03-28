@@ -33,6 +33,10 @@ class LeonardoHID:
         self.ser = serial.Serial(port, baudrate, timeout=timeout)
         time.sleep(2)  # Leonardo 리셋 대기
 
+        # 마우스 위치 추적 (None = 위치 불명 → 첫 이동 시 원점 리셋)
+        self._mouse_x: int = None
+        self._mouse_y: int = None
+
         # READY 메시지 확인
         ready = self._read_response()
         if "READY" not in ready:
@@ -114,23 +118,41 @@ class LeonardoHID:
     def mouse_move(self, dx: int, dy: int):
         """마우스 상대 이동 (현재 위치 기준)"""
         self._send(f"MOUSE_MOVE:{dx},{dy}")
+        if self._mouse_x is not None:
+            self._mouse_x += dx
+            self._mouse_y += dy
 
     def mouse_move_to(self, x: int, y: int, screen_w: int = 1920, screen_h: int = 1080):
-        """
-        마우스 절대 좌표 이동 (근사)
-        원점(0,0)으로 리셋 후 목표 좌표로 이동
-        """
-        self._send(f"MOUSE_ABS:{x},{y},{screen_w},{screen_h}")
+        """마우스 절대 좌표 이동 - 이전 위치에서 상대 이동 (위치 불명 시 원점 리셋)"""
+        if self._mouse_x is None:
+            # 첫 이동: 원점 리셋 후 절대 이동
+            self._send(f"MOUSE_ABS:{x},{y},{screen_w},{screen_h}")
+        else:
+            # 현재 위치에서 상대 이동
+            dx = x - self._mouse_x
+            dy = y - self._mouse_y
+            if dx != 0 or dy != 0:
+                self._send(f"MOUSE_MOVE:{dx},{dy}")
+        self._mouse_x = x
+        self._mouse_y = y
+
+    def mouse_reset_position(self, screen_w: int = 1920, screen_h: int = 1080):
+        """마우스 위치 추적 리셋 (원점으로 강제 이동)"""
+        self._send(f"MOUSE_ABS:0,0,{screen_w},{screen_h}")
+        self._mouse_x = 0
+        self._mouse_y = 0
 
     def mouse_click(self, button: str = "LEFT"):
-        """마우스 클릭 (LEFT / RIGHT / MIDDLE)"""
-        self._send(f"MOUSE_CLICK:{button}")
+        """마우스 클릭 (MOUSE_DOWN + 유지 + MOUSE_UP)"""
+        self._send(f"MOUSE_DOWN:{button}")
+        time.sleep(0.05)
+        self._send(f"MOUSE_UP:{button}")
 
     def mouse_double_click(self, button: str = "LEFT"):
         """더블 클릭"""
-        self._send(f"MOUSE_CLICK:{button}")
-        time.sleep(0.05)
-        self._send(f"MOUSE_CLICK:{button}")
+        self.mouse_click(button)
+        time.sleep(0.08)
+        self.mouse_click(button)
 
     def mouse_down(self, button: str = "LEFT"):
         """마우스 버튼 누르기 (드래그 시작)"""
@@ -271,7 +293,8 @@ class LeonardoHID:
 
     def mouse_move_to_human(self, x: int, y: int, screen_w: int = 1920, screen_h: int = 1080):
         """
-        사람처럼 마우스 이동 (매번 다른 경로, 속도, 곡률)
+        사람처럼 마우스 이동 (현재 위치 → 목표 위치, 베지어 곡선)
+        위치 불명 시에만 원점 리셋
         """
         profile = self._get_mouse_profile()
 
@@ -279,12 +302,27 @@ class LeonardoHID:
         if random.random() < 0.3:
             time.sleep(random.uniform(0.02, 0.1))
 
-        # 원점으로 리셋
-        self._send(f"MOUSE_ABS:0,0,{screen_w},{screen_h}")
-        time.sleep(random.uniform(0.03, 0.08))
+        # 위치 불명이면 원점 리셋
+        if self._mouse_x is None:
+            self._send(f"MOUSE_ABS:0,0,{screen_w},{screen_h}")
+            time.sleep(random.uniform(0.03, 0.08))
+            self._mouse_x = 0
+            self._mouse_y = 0
+
+        # 현재 위치 → 목표 위치의 상대 이동량
+        rel_x = x - self._mouse_x
+        rel_y = y - self._mouse_y
 
         # 거리에 따른 단계 수 (불규칙)
-        distance = math.sqrt(x**2 + y**2)
+        distance = math.sqrt(rel_x**2 + rel_y**2)
+        if distance < 3:
+            # 이동 거리가 너무 짧으면 직접 이동
+            if rel_x != 0 or rel_y != 0:
+                self._send(f"MOUSE_MOVE:{rel_x},{rel_y}")
+            self._mouse_x = x
+            self._mouse_y = y
+            return
+
         base_steps = int(distance / 30)
         steps = max(10, min(40, base_steps + random.randint(-5, 10)))
 
@@ -292,12 +330,12 @@ class LeonardoHID:
         duration = (distance / 1500) * profile['speed_factor']
         duration = max(0.2, min(1.2, duration))
 
-        # 베지어 제어점들 (여러 개로 더 복잡한 곡선)
+        # 베지어 제어점들 (상대 이동량 기준)
         intensity = profile['curve_intensity']
-        ctrl1_x = int(x * random.uniform(0.2, 0.5) + random.uniform(-50, 50) * intensity)
-        ctrl1_y = int(y * random.uniform(0.1, 0.4) + random.uniform(-50, 50) * intensity)
-        ctrl2_x = int(x * random.uniform(0.5, 0.8) + random.uniform(-30, 30) * intensity)
-        ctrl2_y = int(y * random.uniform(0.6, 0.9) + random.uniform(-30, 30) * intensity)
+        ctrl1_x = int(rel_x * random.uniform(0.2, 0.5) + random.uniform(-50, 50) * intensity)
+        ctrl1_y = int(rel_y * random.uniform(0.1, 0.4) + random.uniform(-50, 50) * intensity)
+        ctrl2_x = int(rel_x * random.uniform(0.5, 0.8) + random.uniform(-30, 30) * intensity)
+        ctrl2_y = int(rel_y * random.uniform(0.6, 0.9) + random.uniform(-30, 30) * intensity)
 
         prev_px, prev_py = 0, 0
 
@@ -306,10 +344,10 @@ class LeonardoHID:
             t = i / steps
             t = t * t * (3 - 2 * t)  # smoothstep
 
-            # 3차 베지어 곡선
+            # 3차 베지어 곡선 (상대 좌표)
             mt = 1 - t
-            px = int(mt**3 * 0 + 3*mt**2*t * ctrl1_x + 3*mt*t**2 * ctrl2_x + t**3 * x)
-            py = int(mt**3 * 0 + 3*mt**2*t * ctrl1_y + 3*mt*t**2 * ctrl2_y + t**3 * y)
+            px = int(mt**3 * 0 + 3*mt**2*t * ctrl1_x + 3*mt*t**2 * ctrl2_x + t**3 * rel_x)
+            py = int(mt**3 * 0 + 3*mt**2*t * ctrl1_y + 3*mt*t**2 * ctrl2_y + t**3 * rel_y)
 
             # 랜덤 흔들림 (마지막 3단계 제외)
             if i < steps - 2:
@@ -342,6 +380,9 @@ class LeonardoHID:
             self._send(f"MOUSE_MOVE:{-overshoot_x},{-overshoot_y}")
             time.sleep(random.uniform(0.02, 0.06))
 
+        self._mouse_x = x
+        self._mouse_y = y
+
     def mouse_click_human(self, button: str = "LEFT"):
         """사람처럼 클릭 (불규칙한 타이밍)"""
         # 클릭 전 미세 대기 (가우시안)
@@ -357,7 +398,11 @@ class LeonardoHID:
                 self._send(f"MOUSE_MOVE:{jitter_x},{jitter_y}")
                 time.sleep(random.uniform(0.01, 0.03))
 
-        self._send(f"MOUSE_CLICK:{button}")
+        self._send(f"MOUSE_DOWN:{button}")
+        hold = abs(random.gauss(0.08, 0.03))
+        hold = max(0.04, min(0.15, hold))
+        time.sleep(hold)
+        self._send(f"MOUSE_UP:{button}")
 
         # 클릭 후 딜레이 (불규칙)
         post_delay = abs(random.gauss(0.12, 0.06))
@@ -370,14 +415,18 @@ class LeonardoHID:
         if random.random() < 0.3:
             time.sleep(random.uniform(0.02, 0.08))
 
-        self._send(f"MOUSE_CLICK:{button}")
+        self._send(f"MOUSE_DOWN:{button}")
+        time.sleep(abs(random.gauss(0.06, 0.02)))
+        self._send(f"MOUSE_UP:{button}")
 
         # 더블클릭 간격 (사람마다 다름, 60~180ms 범위)
         interval = abs(random.gauss(0.1, 0.03))
         interval = max(0.05, min(0.18, interval))
         time.sleep(interval)
 
-        self._send(f"MOUSE_CLICK:{button}")
+        self._send(f"MOUSE_DOWN:{button}")
+        time.sleep(abs(random.gauss(0.06, 0.02)))
+        self._send(f"MOUSE_UP:{button}")
 
         # 더블클릭 후 대기
         post_delay = abs(random.gauss(0.15, 0.07))
