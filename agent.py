@@ -130,8 +130,8 @@ class WindowCapture:
             if w <= 0 or h <= 0:
                 return None
 
-            # 디바이스 컨텍스트 생성
-            hwnd_dc = win32gui.GetWindowDC(self.hwnd)
+            # 디바이스 컨텍스트 생성 (클라이언트 영역 DC)
+            hwnd_dc = win32gui.GetDC(self.hwnd)
             mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
             save_dc = mfc_dc.CreateCompatibleDC()
 
@@ -140,8 +140,8 @@ class WindowCapture:
             bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
             save_dc.SelectObject(bitmap)
 
-            # PrintWindow로 캡처 (PW_RENDERFULLCONTENT = 2)
-            result = windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 2)
+            # PrintWindow로 캡처 (PW_CLIENTONLY | PW_RENDERFULLCONTENT = 3)
+            result = windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 3)
 
             if result == 0:
                 # PrintWindow 실패 시 BitBlt 시도
@@ -172,7 +172,7 @@ class WindowCapture:
         """
         mss로 창 캡처 (빠르지만 가려진 창은 캡처 불가)
         """
-        rect = self.get_window_rect()
+        rect = self.get_client_rect() if self.hwnd else None
         if not rect:
             # 창이 없으면 전체 화면 캡처
             monitor = self.sct.monitors[1]
@@ -226,7 +226,7 @@ class WindowCapture:
                 if w <= 0 or h <= 0:
                     return None
 
-                hwnd_dc = win32gui.GetWindowDC(self.hwnd)
+                hwnd_dc = win32gui.GetDC(self.hwnd)
                 mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
                 save_dc = mfc_dc.CreateCompatibleDC()
 
@@ -234,7 +234,7 @@ class WindowCapture:
                 bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
                 save_dc.SelectObject(bitmap)
 
-                windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 2)
+                windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 3)
 
                 bmp_info = bitmap.GetInfo()
                 bmp_bits = bitmap.GetBitmapBits(True)
@@ -251,8 +251,8 @@ class WindowCapture:
             except Exception as e:
                 pass  # mss로 폴백
 
-        # mss 방식
-        rect = self.get_window_rect()
+        # mss 방식 (클라이언트 영역만 캡처)
+        rect = self.get_client_rect() if self.hwnd else None
         if not rect:
             monitor = self.sct.monitors[1]
             rect = (monitor["left"], monitor["top"], monitor["width"], monitor["height"])
@@ -472,7 +472,7 @@ class RemoteAgent:
                 for win_id, cap in self.captures.items():
                     frame_data = cap.capture(quality=self.quality)
                     if frame_data:
-                        rect = cap.get_window_rect()
+                        rect = cap.get_client_rect()
                         message = {
                             "type": "frame",
                             "window_id": win_id,

@@ -1,0 +1,8 @@
+numpy
+opencv-python
+Pillow
+pyserial
+websockets
+mss
+pywin32
+PyQt6

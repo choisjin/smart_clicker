@@ -1,0 +1,81 @@
+{
+  "version": "3.0",
+  "lastUpdated": "2026-03-28T15:38:08.322Z",
+  "activeFeatures": [
+    "smart_clicker"
+  ],
+  "primaryFeature": "smart_clicker",
+  "features": {
+    "smart_clicker": {
+      "phase": "do",
+      "phaseNumber": 3,
+      "matchRate": null,
+      "iterationCount": 0,
+      "requirements": [],
+      "documents": {},
+      "timestamps": {
+        "started": "2026-03-28T15:37:47.742Z",
+        "lastUpdated": "2026-03-28T15:38:08.322Z"
+      },
+      "lastFile": "E:/Project/smart_clicker/agent.py"
+    }
+  },
+  "pipeline": {
+    "currentPhase": 1,
+    "level": "Dynamic",
+    "phaseHistory": []
+  },
+  "session": {
+    "startedAt": "2026-03-28T15:26:21.711Z",
+    "onboardingCompleted": false,
+    "lastActivity": "2026-03-28T15:38:08.322Z"
+  },
+  "history": [
+    {
+      "timestamp": "2026-03-28T15:37:47.742Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T15:37:52.939Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T15:37:58.789Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T15:38:05.277Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T15:38:08.322Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    }
+  ],
+  "stateMachine": {
+    "defaultWorkflow": "default",
+    "activeWorkflows": {},
+    "totalTransitions": 0
+  },
+  "automation": {
+    "globalLevel": 2,
+    "trustScore": 40,
+    "pendingApprovals": 0,
+    "lastGateResult": null
+  },
+  "team": {
+    "enabled": true,
+    "stateFile": ".bkit/runtime/agent-state.json",
+    "eventsFile": ".bkit/runtime/agent-events.jsonl"
+  }
+}
