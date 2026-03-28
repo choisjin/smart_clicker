@@ -21,7 +21,7 @@ from PyQt6.QtWidgets import (
     QComboBox, QMessageBox, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, pyqtSignal, QThread
-from PyQt6.QtGui import QImage, QPixmap, QAction, QFont
+from PyQt6.QtGui import QImage, QPixmap, QAction, QFont, QPainter, QPen, QColor
 
 import numpy as np
 
@@ -75,11 +75,15 @@ class ScreenWidget(QLabel):
         self.original_height = 0
         self._manual_mode = False
 
+        # 추적 오버레이
+        self._tracker: Optional['UnitTracker'] = None
+        self._last_matches = []
+
         # 실시간 마우스 추적 (절대 좌표 → 60Hz 전송)
         self._pending_pos = None
         self._mouse_timer = QTimer()
         self._mouse_timer.timeout.connect(self._flush_mouse_pos)
-        self._mouse_timer.setInterval(16)  # ~60Hz (SetCursorPos는 시리얼 불필요)
+        self._mouse_timer.setInterval(16)  # ~60Hz
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -109,8 +113,14 @@ class ScreenWidget(QLabel):
             self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
         self.manual_mode_changed.emit(enabled)
 
+    def set_tracker(self, tracker: Optional['UnitTracker']):
+        """추적기 설정/해제"""
+        self._tracker = tracker
+        if not tracker:
+            self._last_matches = []
+
     def update_frame(self, frame: np.ndarray):
-        """프레임 업데이트"""
+        """프레임 업데이트 + 추적 오버레이"""
         if frame is None:
             return
 
@@ -119,9 +129,50 @@ class ScreenWidget(QLabel):
         self.original_height = h
         bytes_per_line = ch * w
 
-        # RGB → QImage
+        # 추적 매칭 (추적기가 설정된 경우)
+        if self._tracker and self._tracker.has_target():
+            try:
+                # RGB→BGR 변환 (OpenCV용)
+                bgr = frame[:, :, ::-1].copy() if ch == 3 else frame
+                self._last_matches = self._tracker.find_matches(bgr)
+            except Exception:
+                self._last_matches = []
+
+        # RGB → QImage → QPixmap
         img = QImage(frame.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(img)
+
+        # 추적 박스 오버레이 그리기
+        if self._last_matches:
+            painter = QPainter(pixmap)
+            # 화면 중앙 좌표
+            cx, cy = w // 2, h // 2
+            nearest_idx = 0
+            nearest_dist = float('inf')
+
+            for i, m in enumerate(self._last_matches):
+                mx = m.x + m.w // 2
+                my = m.y + m.h // 2
+                dist = ((mx - cx) ** 2 + (my - cy) ** 2) ** 0.5
+                if dist < nearest_dist:
+                    nearest_dist = dist
+                    nearest_idx = i
+
+            for i, m in enumerate(self._last_matches):
+                if i == nearest_idx:
+                    # 최근접 유닛: 빨간 박스 + 두꺼운 선
+                    pen = QPen(QColor(255, 50, 50), 3)
+                else:
+                    # 기타 유닛: 초록 박스
+                    pen = QPen(QColor(50, 255, 50), 2)
+                painter.setPen(pen)
+                painter.drawRect(m.x, m.y, m.w, m.h)
+
+                # score 텍스트
+                painter.setPen(QColor(255, 255, 255))
+                painter.drawText(m.x, m.y - 3, f"{m.score:.2f}")
+
+            painter.end()
 
         # 위젯 크기에 맞게 스케일
         scaled = pixmap.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatio,
@@ -332,8 +383,11 @@ class AgentPanel(QGroupBox):
             screen.manual_mode_changed.connect(lambda on, b=btn_manual: b.setChecked(on))
 
             btn_track = QPushButton(f"추적 셋팅")
-            btn_track.setStyleSheet("padding: 4px;")
-            btn_track.clicked.connect(lambda _, wid=window_id: self._open_tracking_setup(wid))
+            btn_track.setCheckable(True)
+            btn_track.setStyleSheet(
+                "padding: 4px; QPushButton:checked { background-color: #cc8800; color: white; }")
+            btn_track.clicked.connect(lambda checked, wid=window_id, b=btn_track:
+                self._toggle_tracking(wid, checked, b))
 
             btn_row = QHBoxLayout()
             btn_row.addWidget(btn_manual)
@@ -359,38 +413,64 @@ class AgentPanel(QGroupBox):
 
         return self.screen_widgets[window_id]
 
+    def _toggle_tracking(self, window_id: str, checked: bool, btn: QPushButton):
+        """추적 토글 — ON: 셋팅 다이얼로그, OFF: 추적 중지"""
+        if checked:
+            self._open_tracking_setup(window_id)
+            # 다이얼로그에서 취소했으면 버튼 해제
+            if not hasattr(self, '_tracking_active') or not self._tracking_active.get(window_id):
+                btn.setChecked(False)
+            else:
+                btn.setText("추적 중지")
+                btn.setStyleSheet("background-color: #cc8800; color: white; padding: 4px;")
+        else:
+            self.stop_tracking(window_id)
+            btn.setText("추적 셋팅")
+            btn.setStyleSheet("padding: 4px;")
+
     def _open_tracking_setup(self, window_id: str):
         """추적 셋팅 다이얼로그 열기"""
-        # 현재 프레임 가져오기
         windows = self.ctrl.get_windows(self.name)
         if window_id not in windows or windows[window_id].frame is None:
             print(f"[{self.name}:{window_id}] 프레임 없음")
             return
 
         frame = windows[window_id].frame.copy()
+        # RGB→BGR (OpenCV용 특징 추출)
+        frame_bgr = frame[:, :, ::-1].copy() if len(frame.shape) == 3 else frame
+
         dialog = TrackingSetupDialog(frame, parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
             result = dialog.get_result()
             if result:
-                # 추적기 설정
                 if not hasattr(self, '_trackers'):
                     self._trackers = {}
                     self._tracking_active = {}
 
                 tracker = UnitTracker()
-                tracker.set_target(frame, result["roi"])
+                tracker.set_target(frame_bgr, result["roi"])
                 tracker.match_threshold = result["threshold"]
                 self._trackers[window_id] = tracker
                 self._tracking_active[window_id] = True
 
+                # ScreenWidget에 추적기 연결 → 오버레이 자동 표시
+                if window_id in self.screen_widgets:
+                    self.screen_widgets[window_id].set_tracker(tracker)
+
                 print(f"[{self.name}:{window_id}] 추적 시작 (임계값: {result['threshold']:.2f})")
 
-                # 추적 루프 시작 (별도 스레드)
+                # 자동 우클릭 루프 (별도 스레드)
                 threading.Thread(
                     target=self._tracking_loop, args=(window_id,),
                     daemon=True
                 ).start()
+        else:
+            # 취소 → 추적 해제
+            if hasattr(self, '_tracking_active'):
+                self._tracking_active[window_id] = False
+            if window_id in self.screen_widgets:
+                self.screen_widgets[window_id].set_tracker(None)
 
     def _tracking_loop(self, window_id: str):
         """추적 루프 — 프레임마다 매칭 + 가장 가까운 유닛 우클릭"""
@@ -431,7 +511,9 @@ class AgentPanel(QGroupBox):
         """추적 중지"""
         if hasattr(self, '_tracking_active'):
             self._tracking_active[window_id] = False
-            print(f"[{self.name}:{window_id}] 추적 중지")
+        if window_id in self.screen_widgets:
+            self.screen_widgets[window_id].set_tracker(None)
+        print(f"[{self.name}:{window_id}] 추적 중지")
 
     def on_screen_click(self, window_id: str, x: int, y: int,
                         button: str = "LEFT", modifiers: list = None):
