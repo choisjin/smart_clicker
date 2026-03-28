@@ -36,6 +36,15 @@ from PIL import Image
 
 from leonardo_controller import LeonardoHID
 
+# DPI 인식 설정 (물리 픽셀 좌표 사용 - Win32 API와 캡처 이미지 좌표 일치시킴)
+try:
+    windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
+except Exception:
+    try:
+        windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
 try:
     import websockets
 except ImportError:
@@ -405,6 +414,9 @@ class RemoteAgent:
         self.quality = 70
         self.clients = set()
 
+        # 마우스 속도 보정 계수 (mickey → pixel 변환)
+        self.mouse_speed_factor = self._detect_mouse_speed_factor()
+
         # Leonardo 연결
         if leonardo_port:
             try:
@@ -412,6 +424,35 @@ class RemoteAgent:
                 print(f"[OK] Leonardo 연결됨: {leonardo_port}")
             except Exception as e:
                 print(f"[WARN] Leonardo 연결 실패: {e}")
+
+    def _detect_mouse_speed_factor(self) -> float:
+        """Windows 마우스 포인터 속도 설정에 따른 보정 계수 (mickey → pixel)"""
+        try:
+            speed = ctypes.c_int(0)
+            # SPI_GETMOUSESPEED = 0x0070, 반환값 1~20 (기본 10)
+            windll.user32.SystemParametersInfoW(0x0070, 0, ctypes.byref(speed), 0)
+            speed_val = speed.value
+            # 속도별 mickey→pixel 변환 계수 (속도 10 = 1:1)
+            factors = [
+                0, 0.03125, 0.0625, 0.125, 0.25, 0.375,
+                0.5, 0.625, 0.75, 0.875, 1.0,
+                1.25, 1.5, 1.75, 2.0, 2.25,
+                2.5, 2.75, 3.0, 3.25, 3.5
+            ]
+            factor = factors[speed_val] if 1 <= speed_val <= 20 else 1.0
+            print(f"[INFO] 마우스 속도: {speed_val}/20, 보정 계수: {factor}")
+            if factor != 1.0:
+                print(f"[INFO] 마우스 속도가 기본값(10)이 아닙니다. 좌표 보정 적용됨")
+            return factor
+        except Exception as e:
+            print(f"[WARN] 마우스 속도 감지 실패: {e}, 기본값(1.0) 사용")
+            return 1.0
+
+    def _pixels_to_mickeys(self, px: int, py: int) -> tuple:
+        """화면 픽셀 좌표 → HID mickey 좌표 변환"""
+        if self.mouse_speed_factor == 1.0:
+            return px, py
+        return int(px / self.mouse_speed_factor), int(py / self.mouse_speed_factor)
 
     async def handle_client(self, websocket):
         """클라이언트 연결 처리"""
@@ -610,15 +651,17 @@ class RemoteAgent:
                     client_rect = cap.get_client_rect()
                     if client_rect:
                         win_x, win_y, win_w, win_h = client_rect
-                        # 창 위치 + 클릭 좌표 = 화면 절대 좌표
                         x = win_x + x
                         y = win_y + y
-                        print(f"[DEBUG] 좌표 변환: 창({win_x},{win_y}) + 클릭({params['x']},{params['y']}) = 절대({x},{y})")
+
+                # 마우스 속도 보정 (pixel → mickey)
+                mx, my = self._pixels_to_mickeys(x, y)
+                print(f"[DEBUG] 좌표 변환: 이미지({params['x']},{params['y']}) → 화면({x},{y}) → mickey({mx},{my}) [속도계수:{self.mouse_speed_factor}]")
 
                 if human_like:
-                    self.hid.mouse_move_to_human(x, y)
+                    self.hid.mouse_move_to_human(mx, my)
                 else:
-                    self.hid.mouse_move_to(x, y)
+                    self.hid.mouse_move_to(mx, my)
 
             elif action == "mouse_click":
                 button = params.get("button", "LEFT")
@@ -638,6 +681,9 @@ class RemoteAgent:
             elif action == "mouse_drag":
                 from_x, from_y = params["from_x"], params["from_y"]
                 to_x, to_y = params["to_x"], params["to_y"]
+                # 마우스 속도 보정
+                from_x, from_y = self._pixels_to_mickeys(from_x, from_y)
+                to_x, to_y = self._pixels_to_mickeys(to_x, to_y)
                 if human_like:
                     self.hid.mouse_drag_human(from_x, from_y, to_x, to_y)
                 else:
