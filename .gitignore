@@ -20,7 +20,7 @@ ENV/
 Thumbs.db
 
 # Project specific
-*.log
+
 templates/
 actions/*.png
 nul
