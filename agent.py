@@ -580,6 +580,14 @@ class RemoteAgent:
         response = {"type": "response", "success": False}
 
         try:
+            # 실시간 마우스 (응답 안 보냄 - 저지연)
+            if cmd_type == "realtime_mouse_move":
+                if self.hid:
+                    dx, dy = params.get("dx", 0), params.get("dy", 0)
+                    if dx != 0 or dy != 0:
+                        await asyncio.to_thread(self.hid._send, f"MOUSE_MOVE:{dx},{dy}")
+                return  # 응답 전송 생략
+
             if cmd_type == "command":
                 if not self.hid:
                     response["error"] = "Leonardo not connected"

@@ -337,6 +337,24 @@ class RemoteController:
         # 2. 클릭
         return self.send_click(name, x, y, button, human_like)
 
+    # ── 실시간 마우스 (fire-and-forget) ──
+
+    async def _send_fire_and_forget(self, agent: 'AgentInfo', cmd: dict):
+        """명령 전송 (응답 안 기다림)"""
+        if agent.connected and agent.cmd_ws:
+            try:
+                await agent.cmd_ws.send(json.dumps(cmd))
+            except Exception:
+                pass
+
+    def send_realtime_mouse_move(self, name: str, dx: int, dy: int):
+        """실시간 마우스 상대 이동 (fire-and-forget, 응답 안 기다림)"""
+        if name not in self.agents or not self._loop:
+            return
+        agent = self.agents[name]
+        cmd = {"type": "realtime_mouse_move", "params": {"dx": dx, "dy": dy}}
+        asyncio.run_coroutine_threadsafe(self._send_fire_and_forget(agent, cmd), self._loop)
+
     # ── 화면 수신 ──
 
     def get_frame(self, name: str, window_id: str = None) -> Optional[np.ndarray]:
