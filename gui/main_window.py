@@ -9,6 +9,7 @@ PyQt6 기반 관제 화면
 import sys
 import json
 import os
+import time as _time
 import threading
 from typing import Optional, Dict
 
@@ -28,6 +29,8 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from controller import RemoteController
 from target_finder import TargetFinder, SmartClicker
+from tracking import UnitTracker
+from gui.tracking_dialog import TrackingSetupDialog
 
 
 class ScreenWidget(QLabel):
@@ -322,15 +325,23 @@ class AgentPanel(QGroupBox):
                     target=self.ctrl.send_command, args=(self.name, "release_all", {}),
                     kwargs={"human_like": False}, daemon=True).start())
 
-            btn = QPushButton(f"수동 조작 [{title or window_id}]")
-            btn.setCheckable(True)
-            btn.setStyleSheet("QPushButton:checked { background-color: #cc3333; color: white; }")
-            btn.toggled.connect(lambda checked, s=screen: s.set_manual_mode(checked))
-            screen.manual_mode_changed.connect(lambda on, b=btn: b.setChecked(on))
+            btn_manual = QPushButton(f"수동 조작 [{title or window_id}]")
+            btn_manual.setCheckable(True)
+            btn_manual.setStyleSheet("QPushButton:checked { background-color: #cc3333; color: white; }")
+            btn_manual.toggled.connect(lambda checked, s=screen: s.set_manual_mode(checked))
+            screen.manual_mode_changed.connect(lambda on, b=btn_manual: b.setChecked(on))
+
+            btn_track = QPushButton(f"추적 셋팅")
+            btn_track.setStyleSheet("padding: 4px;")
+            btn_track.clicked.connect(lambda _, wid=window_id: self._open_tracking_setup(wid))
+
+            btn_row = QHBoxLayout()
+            btn_row.addWidget(btn_manual)
+            btn_row.addWidget(btn_track)
 
             container = QVBoxLayout()
             container.addWidget(screen)
-            container.addWidget(btn)
+            container.addLayout(btn_row)
             container.setContentsMargins(0, 0, 0, 0)
 
             new_widget = QWidget()
@@ -344,9 +355,83 @@ class AgentPanel(QGroupBox):
             self.slot_containers[slot_idx] = new_widget
 
             self.screen_widgets[window_id] = screen
-            self.manual_buttons[window_id] = btn
+            self.manual_buttons[window_id] = btn_manual
 
         return self.screen_widgets[window_id]
+
+    def _open_tracking_setup(self, window_id: str):
+        """추적 셋팅 다이얼로그 열기"""
+        # 현재 프레임 가져오기
+        windows = self.ctrl.get_windows(self.name)
+        if window_id not in windows or windows[window_id].frame is None:
+            print(f"[{self.name}:{window_id}] 프레임 없음")
+            return
+
+        frame = windows[window_id].frame.copy()
+        dialog = TrackingSetupDialog(frame, parent=None)
+
+        if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
+            result = dialog.get_result()
+            if result:
+                # 추적기 설정
+                if not hasattr(self, '_trackers'):
+                    self._trackers = {}
+                    self._tracking_active = {}
+
+                tracker = UnitTracker()
+                tracker.set_target(frame, result["roi"])
+                tracker.match_threshold = result["threshold"]
+                self._trackers[window_id] = tracker
+                self._tracking_active[window_id] = True
+
+                print(f"[{self.name}:{window_id}] 추적 시작 (임계값: {result['threshold']:.2f})")
+
+                # 추적 루프 시작 (별도 스레드)
+                threading.Thread(
+                    target=self._tracking_loop, args=(window_id,),
+                    daemon=True
+                ).start()
+
+    def _tracking_loop(self, window_id: str):
+        """추적 루프 — 프레임마다 매칭 + 가장 가까운 유닛 우클릭"""
+        cooldown = 1.0  # 우클릭 후 대기 시간
+        last_click = 0
+
+        while self._tracking_active.get(window_id, False):
+            try:
+                tracker = self._trackers.get(window_id)
+                if not tracker or not tracker.has_target():
+                    break
+
+                windows = self.ctrl.get_windows(self.name)
+                if window_id not in windows or windows[window_id].frame is None:
+                    _time.sleep(0.1)
+                    continue
+
+                frame = windows[window_id].frame
+
+                # 화면 중앙 최근접 매칭
+                match = tracker.find_nearest_to_center(frame)
+
+                if match and (_time.time() - last_click) >= cooldown:
+                    click_x = match.x + match.w // 2
+                    click_y = match.y + match.h // 2
+                    print(f"[추적:{window_id}] 유닛 발견 ({click_x},{click_y}) score={match.score:.2f} → 우클릭")
+                    self.ctrl.send_click_to_window(
+                        self.name, window_id, click_x, click_y, button="RIGHT")
+                    last_click = _time.time()
+
+                _time.sleep(0.1)  # 10Hz 매칭 주기
+
+            except Exception as e:
+                print(f"[추적:{window_id}] 오류: {e}")
+                _time.sleep(0.5)
+
+    def stop_tracking(self, window_id: str):
+        """추적 중지"""
+        if hasattr(self, '_tracking_active'):
+            self._tracking_active[window_id] = False
+            print(f"[{self.name}:{window_id}] 추적 중지")
 
     def on_screen_click(self, window_id: str, x: int, y: int,
                         button: str = "LEFT", modifiers: list = None):
