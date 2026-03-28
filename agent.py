@@ -276,35 +276,30 @@ class WindowCapture:
             return None
 
     def bring_to_front(self):
-        """창을 앞으로 가져오기 (최선 노력, 실패해도 계속)"""
-        if self.hwnd:
-            success = False
+        """창을 앞으로 가져오기 (SPI_SETFOREGROUNDLOCKTIMEOUT 우회)"""
+        if not self.hwnd:
+            return False
+
+        try:
+            placement = win32gui.GetWindowPlacement(self.hwnd)
+            if placement[1] == win32con.SW_SHOWMINIMIZED:
+                win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
+        except:
+            pass
+
+        try:
+            # foreground lock timeout을 0으로 설정하여 제한 해제
+            SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001
+            ctypes.windll.user32.SystemParametersInfoW(
+                SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0)
+            win32gui.SetForegroundWindow(self.hwnd)
+        except:
             try:
-                # 최소화 상태면 복원
-                placement = win32gui.GetWindowPlacement(self.hwnd)
-                if placement[1] == win32con.SW_SHOWMINIMIZED:
-                    win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
-                    success = True
+                win32gui.ShowWindow(self.hwnd, win32con.SW_SHOWNA)
             except:
                 pass
 
-            try:
-                # 방법 1: ShowWindow
-                win32gui.ShowWindow(self.hwnd, win32con.SW_SHOW)
-                success = True
-            except:
-                pass
-
-            try:
-                win32gui.BringWindowToTop(self.hwnd)
-                win32gui.SetForegroundWindow(self.hwnd)
-                success = True
-            except:
-                pass
-
-            # 실패해도 True 반환 (클릭은 계속 진행)
-            return True
-        return False
+        return True
 
     def get_client_rect(self) -> Optional[tuple]:
         """창 클라이언트 영역 위치 (x, y, width, height) - 타이틀바 제외"""
