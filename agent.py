@@ -496,11 +496,11 @@ class RemoteAgent:
             # 스트리밍 시작
             stream_task = asyncio.create_task(self.stream_to_client(websocket))
 
-            # 명령 수신 루프
+            # 명령 수신 루프 (블로킹 없이 태스크로 처리)
             async for message in websocket:
                 try:
                     cmd = json.loads(message)
-                    await self.handle_command(cmd, websocket)
+                    asyncio.create_task(self.handle_command(cmd, websocket))
                 except json.JSONDecodeError:
                     await websocket.send(json.dumps({"error": "Invalid JSON"}))
 
@@ -530,34 +530,42 @@ class RemoteAgent:
         }
         await websocket.send(json.dumps(info))
 
+    def _capture_all_frames(self) -> list:
+        """모든 창 캡처 (스레드에서 실행 - 블로킹 I/O)"""
+        frames = []
+        for win_id, cap in self.captures.items():
+            frame_data = cap.capture(quality=self.quality)
+            if frame_data:
+                rect = cap.get_client_rect()
+                frames.append({
+                    "type": "frame",
+                    "window_id": win_id,
+                    "window_title": cap.window_title or "전체화면",
+                    "data": base64.b64encode(frame_data).decode("utf-8"),
+                    "rect": {
+                        "x": rect[0] if rect else 0,
+                        "y": rect[1] if rect else 0,
+                        "w": rect[2] if rect else 1920,
+                        "h": rect[3] if rect else 1080
+                    },
+                    "active": win_id == self.active_window,
+                    "timestamp": time.time()
+                })
+        return frames
+
     async def stream_to_client(self, websocket):
-        """다중 창 스트리밍"""
+        """다중 창 스트리밍 (캡처는 스레드, 전송은 비동기)"""
         interval = 1.0 / self.fps
 
         while True:
             try:
                 start = time.time()
 
-                # 모든 창 캡처 및 전송
-                for win_id, cap in self.captures.items():
-                    frame_data = cap.capture(quality=self.quality)
-                    if frame_data:
-                        rect = cap.get_client_rect()
-                        message = {
-                            "type": "frame",
-                            "window_id": win_id,
-                            "window_title": cap.window_title or "전체화면",
-                            "data": base64.b64encode(frame_data).decode("utf-8"),
-                            "rect": {
-                                "x": rect[0] if rect else 0,
-                                "y": rect[1] if rect else 0,
-                                "w": rect[2] if rect else 1920,
-                                "h": rect[3] if rect else 1080
-                            },
-                            "active": win_id == self.active_window,
-                            "timestamp": time.time()
-                        }
-                        await websocket.send(json.dumps(message))
+                # 캡처를 별도 스레드에서 실행 → 이벤트 루프 블로킹 방지
+                frames = await asyncio.to_thread(self._capture_all_frames)
+
+                for message in frames:
+                    await websocket.send(json.dumps(message))
 
                 # FPS 유지
                 elapsed = time.time() - start
