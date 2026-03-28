@@ -296,12 +296,8 @@ class WindowCapture:
                 pass
 
             try:
-                # 방법 2: SetForegroundWindow (Alt 키 트릭)
-                import ctypes
-                user32 = ctypes.windll.user32
-                user32.keybd_event(0x12, 0, 0, 0)  # Alt down
+                win32gui.BringWindowToTop(self.hwnd)
                 win32gui.SetForegroundWindow(self.hwnd)
-                user32.keybd_event(0x12, 0, 2, 0)  # Alt up
                 success = True
             except:
                 pass
@@ -422,6 +418,7 @@ class RemoteAgent:
         if leonardo_port:
             try:
                 self.hid = LeonardoHID(leonardo_port)
+                self.hid.release_all()  # 이전 세션에서 눌린 키 해제
                 print(f"[OK] Leonardo 연결됨: {leonardo_port}")
             except Exception as e:
                 print(f"[WARN] Leonardo 연결 실패: {e}")
