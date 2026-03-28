@@ -1,0 +1,5966 @@
+[
+  {
+    "id": 21,
+    "name": "삼문",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/21.webp"
+  },
+  {
+    "id": 180,
+    "name": "기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/180.webp"
+  },
+  {
+    "id": 460,
+    "name": "이교도 치유사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/460.webp"
+  },
+  {
+    "id": 835,
+    "name": "대장 왜구",
+    "element_type": null,
+    "element_value": null,
+    "image_url": "monster/835.webp"
+  },
+  {
+    "id": 22,
+    "name": "고획조",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/22.webp"
+  },
+  {
+    "id": 23,
+    "name": "고획조新",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/23.webp"
+  },
+  {
+    "id": 24,
+    "name": "오문",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/24.webp"
+  },
+  {
+    "id": 25,
+    "name": "추적자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/25.webp"
+  },
+  {
+    "id": 26,
+    "name": "추적자鬼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/26.webp"
+  },
+  {
+    "id": 27,
+    "name": "친위대(釀)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/27.webp"
+  },
+  {
+    "id": 28,
+    "name": "현령 장로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/28.webp"
+  },
+  {
+    "id": 29,
+    "name": "암흑사냥개",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/29.webp"
+  },
+  {
+    "id": 182,
+    "name": "변질된마적두목",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/182.webp"
+  },
+  {
+    "id": 385,
+    "name": "화조",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/385.webp"
+  },
+  {
+    "id": 386,
+    "name": "연옥동자",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/386.webp"
+  },
+  {
+    "id": 387,
+    "name": "호웅동자",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/387.webp"
+  },
+  {
+    "id": 388,
+    "name": "바쿠",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/388.webp"
+  },
+  {
+    "id": 389,
+    "name": "거미요괴",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/389.webp"
+  },
+  {
+    "id": 390,
+    "name": "무면귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/390.webp"
+  },
+  {
+    "id": 391,
+    "name": "무덤무사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/391.webp"
+  },
+  {
+    "id": 392,
+    "name": "까마귀천구",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/392.webp"
+  },
+  {
+    "id": 30,
+    "name": "야수조련사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/30.webp"
+  },
+  {
+    "id": 393,
+    "name": "백안귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/393.webp"
+  },
+  {
+    "id": 394,
+    "name": "태상천구",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/394.webp"
+  },
+  {
+    "id": 395,
+    "name": "원숭이주술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/395.webp"
+  },
+  {
+    "id": 396,
+    "name": "원숭이전사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/396.webp"
+  },
+  {
+    "id": 397,
+    "name": "백면구미호",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/397.webp"
+  },
+  {
+    "id": 462,
+    "name": "인도표범",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/462.webp"
+  },
+  {
+    "id": 463,
+    "name": "쌍두사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/463.webp"
+  },
+  {
+    "id": 464,
+    "name": "육지거북",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/464.webp"
+  },
+  {
+    "id": 465,
+    "name": "사향고양이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/465.webp"
+  },
+  {
+    "id": 466,
+    "name": "정글살쾡이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/466.webp"
+  },
+  {
+    "id": 467,
+    "name": "해적포병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/467.webp"
+  },
+  {
+    "id": 468,
+    "name": "사막전갈병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/468.webp"
+  },
+  {
+    "id": 469,
+    "name": "사막독전갈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/469.webp"
+  },
+  {
+    "id": 839,
+    "name": "잠식된혼간지",
+    "element_type": 1,
+    "element_value": 320,
+    "image_url": "monster/839.webp"
+  },
+  {
+    "id": 840,
+    "name": "잠식된유방",
+    "element_type": 2,
+    "element_value": 320,
+    "image_url": "monster/840.webp"
+  },
+  {
+    "id": 31,
+    "name": "중독된삼문",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/31.webp"
+  },
+  {
+    "id": 32,
+    "name": "주둔지파수꾼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/32.webp"
+  },
+  {
+    "id": 33,
+    "name": "구지모마녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/33.webp"
+  },
+  {
+    "id": 34,
+    "name": "중독된사문",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/34.webp"
+  },
+  {
+    "id": 35,
+    "name": "집행자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/35.webp"
+  },
+  {
+    "id": 65,
+    "name": "백호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/65.webp"
+  },
+  {
+    "id": 470,
+    "name": "고기잡이살쾡이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/470.webp"
+  },
+  {
+    "id": 841,
+    "name": "잠식된맹호",
+    "element_type": 3,
+    "element_value": 320,
+    "image_url": "monster/841.webp"
+  },
+  {
+    "id": 842,
+    "name": "잠식된미실",
+    "element_type": 4,
+    "element_value": 320,
+    "image_url": "monster/842.webp"
+  },
+  {
+    "id": 843,
+    "name": "잠식된도철",
+    "element_type": 1,
+    "element_value": 395,
+    "image_url": "monster/843.webp"
+  },
+  {
+    "id": 844,
+    "name": "잠식된궁기",
+    "element_type": 2,
+    "element_value": 395,
+    "image_url": "monster/844.webp"
+  },
+  {
+    "id": 845,
+    "name": "잠식된도올",
+    "element_type": 3,
+    "element_value": 395,
+    "image_url": "monster/845.webp"
+  },
+  {
+    "id": 846,
+    "name": "잠식돈혼돈",
+    "element_type": 4,
+    "element_value": 395,
+    "image_url": "monster/846.webp"
+  },
+  {
+    "id": 66,
+    "name": "두신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/66.webp"
+  },
+  {
+    "id": 471,
+    "name": "황금자칼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/471.webp"
+  },
+  {
+    "id": 67,
+    "name": "사악한구렁이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/67.webp"
+  },
+  {
+    "id": 87,
+    "name": "박수무당",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/87.webp"
+  },
+  {
+    "id": 398,
+    "name": "요도히메",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/398.webp"
+  },
+  {
+    "id": 472,
+    "name": "바마나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/472.webp"
+  },
+  {
+    "id": 473,
+    "name": "황소괴물",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/473.webp"
+  },
+  {
+    "id": 474,
+    "name": "수문장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/474.webp"
+  },
+  {
+    "id": 475,
+    "name": "수문장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/475.webp"
+  },
+  {
+    "id": 476,
+    "name": "비충",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/476.webp"
+  },
+  {
+    "id": 477,
+    "name": "수리야",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/477.webp"
+  },
+  {
+    "id": 399,
+    "name": "원한신",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/399.webp"
+  },
+  {
+    "id": 478,
+    "name": "칼리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/478.webp"
+  },
+  {
+    "id": 479,
+    "name": "스칸다",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/479.webp"
+  },
+  {
+    "id": 836,
+    "name": "왜구 총감독관",
+    "element_type": null,
+    "element_value": null,
+    "image_url": "monster/836.webp"
+  },
+  {
+    "id": 837,
+    "name": "해적 선장",
+    "element_type": null,
+    "element_value": null,
+    "image_url": "monster/837.webp"
+  },
+  {
+    "id": 838,
+    "name": "해적왕",
+    "element_type": null,
+    "element_value": null,
+    "image_url": "monster/838.webp"
+  },
+  {
+    "id": 36,
+    "name": "인면조",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/36.webp"
+  },
+  {
+    "id": 37,
+    "name": "석인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/37.webp"
+  },
+  {
+    "id": 38,
+    "name": "유령술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/38.webp"
+  },
+  {
+    "id": 136,
+    "name": "되살아난무슈후슈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/136.webp"
+  },
+  {
+    "id": 137,
+    "name": "얼음해골군주",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/137.webp"
+  },
+  {
+    "id": 138,
+    "name": "되살아난파오",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/138.webp"
+  },
+  {
+    "id": 247,
+    "name": "진묘수",
+    "element_type": 4,
+    "element_value": 150,
+    "image_url": "monster/247.webp"
+  },
+  {
+    "id": 248,
+    "name": "지식의고룡",
+    "element_type": 2,
+    "element_value": 80,
+    "image_url": "monster/248.webp"
+  },
+  {
+    "id": 249,
+    "name": "강철의맹공",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/249.webp"
+  },
+  {
+    "id": 250,
+    "name": "강철의궁기",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/250.webp"
+  },
+  {
+    "id": 251,
+    "name": "투척병오문",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/251.webp"
+  },
+  {
+    "id": 480,
+    "name": "아그니",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/480.webp"
+  },
+  {
+    "id": 481,
+    "name": "미트라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/481.webp"
+  },
+  {
+    "id": 482,
+    "name": "아이라바타",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/482.webp"
+  },
+  {
+    "id": 495,
+    "name": "티아메트",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/495.webp"
+  },
+  {
+    "id": 496,
+    "name": "브리트라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/496.webp"
+  },
+  {
+    "id": 497,
+    "name": "노예간수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/497.webp"
+  },
+  {
+    "id": 498,
+    "name": "경비견망치",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/498.webp"
+  },
+  {
+    "id": 499,
+    "name": "거대수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/499.webp"
+  },
+  {
+    "id": 514,
+    "name": "악룡카리아",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/514.webp"
+  },
+  {
+    "id": 515,
+    "name": "문지기 요승",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/515.webp"
+  },
+  {
+    "id": 516,
+    "name": "수행자 요승",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/516.webp"
+  },
+  {
+    "id": 39,
+    "name": "두르가",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/39.webp"
+  },
+  {
+    "id": 139,
+    "name": "되살아난챠우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/139.webp"
+  },
+  {
+    "id": 252,
+    "name": "무인정찰기",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/252.webp"
+  },
+  {
+    "id": 253,
+    "name": "강철상병",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/253.webp"
+  },
+  {
+    "id": 517,
+    "name": "장로 요승",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/517.webp"
+  },
+  {
+    "id": 518,
+    "name": "흡혈박쥐",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/518.webp"
+  },
+  {
+    "id": 519,
+    "name": "아크샤",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/519.webp"
+  },
+  {
+    "id": 520,
+    "name": "거대코끼리석상",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/520.webp"
+  },
+  {
+    "id": 521,
+    "name": "락샤사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/521.webp"
+  },
+  {
+    "id": 140,
+    "name": "아마쿠사타루",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/140.webp"
+  },
+  {
+    "id": 158,
+    "name": "별가사리(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/157.webp"
+  },
+  {
+    "id": 159,
+    "name": "황금별가사리",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/159.webp"
+  },
+  {
+    "id": 161,
+    "name": "검은상단_창수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/161.webp"
+  },
+  {
+    "id": 162,
+    "name": "무당개구리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/162.webp"
+  },
+  {
+    "id": 163,
+    "name": "마룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/163.webp"
+  },
+  {
+    "id": 164,
+    "name": "우산귀신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/164.webp"
+  },
+  {
+    "id": 254,
+    "name": "복수자샤오링",
+    "element_type": 3,
+    "element_value": 80,
+    "image_url": "monster/254.webp"
+  },
+  {
+    "id": 255,
+    "name": "진보의사문",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/255.webp"
+  },
+  {
+    "id": 256,
+    "name": "진보의삼문",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/256.webp"
+  },
+  {
+    "id": 500,
+    "name": "인면지주(武)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/500.webp"
+  },
+  {
+    "id": 501,
+    "name": "외눈박이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/501.webp"
+  },
+  {
+    "id": 502,
+    "name": "사막여왕거미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/502.webp"
+  },
+  {
+    "id": 40,
+    "name": "마오",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/40.webp"
+  },
+  {
+    "id": 41,
+    "name": "챠우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/41.webp"
+  },
+  {
+    "id": 165,
+    "name": "온천원숭이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/165.webp"
+  },
+  {
+    "id": 42,
+    "name": "챠우眞",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/42.webp"
+  },
+  {
+    "id": 43,
+    "name": "석사자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/43.webp"
+  },
+  {
+    "id": 166,
+    "name": "도둑고양이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/166.webp"
+  },
+  {
+    "id": 167,
+    "name": "대만오리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/167.webp"
+  },
+  {
+    "id": 44,
+    "name": "낭장의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/44.webp"
+  },
+  {
+    "id": 45,
+    "name": "칠숙의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/45.webp"
+  },
+  {
+    "id": 168,
+    "name": "대만왕벌",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/168.webp"
+  },
+  {
+    "id": 169,
+    "name": "악덕상인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/169.webp"
+  },
+  {
+    "id": 46,
+    "name": "이사부의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/46.webp"
+  },
+  {
+    "id": 68,
+    "name": "사악한이무기",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/68.webp"
+  },
+  {
+    "id": 82,
+    "name": "사령무녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/82.webp"
+  },
+  {
+    "id": 83,
+    "name": "무녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/83.webp"
+  },
+  {
+    "id": 84,
+    "name": "아우타",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/84.webp"
+  },
+  {
+    "id": 85,
+    "name": "사령무녀(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/82.webp"
+  },
+  {
+    "id": 86,
+    "name": "무녀(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/83.webp"
+  },
+  {
+    "id": 88,
+    "name": "사령무당",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/88.webp"
+  },
+  {
+    "id": 95,
+    "name": "염마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/95.webp"
+  },
+  {
+    "id": 47,
+    "name": "유신랑의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/47.webp"
+  },
+  {
+    "id": 48,
+    "name": "미생의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/48.webp"
+  },
+  {
+    "id": 49,
+    "name": "설원랑의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/49.webp"
+  },
+  {
+    "id": 50,
+    "name": "미실의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/50.webp"
+  },
+  {
+    "id": 51,
+    "name": "구망의사념",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/51.webp"
+  },
+  {
+    "id": 52,
+    "name": "불가사리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/52.webp"
+  },
+  {
+    "id": 53,
+    "name": "도깨비",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/53.webp"
+  },
+  {
+    "id": 183,
+    "name": "어린도철",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/183.webp"
+  },
+  {
+    "id": 184,
+    "name": "도철",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/184.webp"
+  },
+  {
+    "id": 185,
+    "name": "해적선장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/185.webp"
+  },
+  {
+    "id": 186,
+    "name": "바다의사신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/186.webp"
+  },
+  {
+    "id": 187,
+    "name": "청랑",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/187.webp"
+  },
+  {
+    "id": 188,
+    "name": "검은상단사육사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/188.webp"
+  },
+  {
+    "id": 189,
+    "name": "인면지주",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/189.webp"
+  },
+  {
+    "id": 257,
+    "name": "무장도깨비",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/257.webp"
+  },
+  {
+    "id": 258,
+    "name": "강철거병",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/258.webp"
+  },
+  {
+    "id": 259,
+    "name": "감시거미",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/259.webp"
+  },
+  {
+    "id": 260,
+    "name": "화염방사차",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/260.webp"
+  },
+  {
+    "id": 522,
+    "name": "쿠베라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/522.webp"
+  },
+  {
+    "id": 523,
+    "name": "라바나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/523.webp"
+  },
+  {
+    "id": 524,
+    "name": "무굴제국수색병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/524.webp"
+  },
+  {
+    "id": 525,
+    "name": "무굴제국기마병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/525.webp"
+  },
+  {
+    "id": 526,
+    "name": "무굴제국소총수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/526.webp"
+  },
+  {
+    "id": 545,
+    "name": "가네샤의 사제",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/545.webp"
+  },
+  {
+    "id": 546,
+    "name": "불량토끼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/546.webp"
+  },
+  {
+    "id": 547,
+    "name": "비행고슴도치",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/547.webp"
+  },
+  {
+    "id": 548,
+    "name": "쥐며느리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/548.webp"
+  },
+  {
+    "id": 549,
+    "name": "가출한쥐",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/549.webp"
+  },
+  {
+    "id": 551,
+    "name": "괴목",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/551.webp"
+  },
+  {
+    "id": 552,
+    "name": "종유망량",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/552.webp"
+  },
+  {
+    "id": 553,
+    "name": "무지기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/553.webp"
+  },
+  {
+    "id": 554,
+    "name": "나쁜늑대",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/554.webp"
+  },
+  {
+    "id": 555,
+    "name": "계낭",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/555.webp"
+  },
+  {
+    "id": 556,
+    "name": "불의나한",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/556.webp"
+  },
+  {
+    "id": 557,
+    "name": "물의나한",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/557.webp"
+  },
+  {
+    "id": 558,
+    "name": "해태",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/558.webp"
+  },
+  {
+    "id": 559,
+    "name": "길조",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/559.webp"
+  },
+  {
+    "id": 847,
+    "name": "설원랑의혼(强)",
+    "element_type": 4,
+    "element_value": null,
+    "image_url": "monster/847.webp"
+  },
+  {
+    "id": 848,
+    "name": "미생의혼(强)",
+    "element_type": 4,
+    "element_value": null,
+    "image_url": "monster/848.webp"
+  },
+  {
+    "id": 849,
+    "name": "타메토모의혼(强)",
+    "element_type": 1,
+    "element_value": null,
+    "image_url": "monster/849.webp"
+  },
+  {
+    "id": 54,
+    "name": "동굴 도마뱀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/54.webp"
+  },
+  {
+    "id": 55,
+    "name": "동굴 두꺼비",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/55.webp"
+  },
+  {
+    "id": 56,
+    "name": "동굴 청사초롱",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/56.webp"
+  },
+  {
+    "id": 57,
+    "name": "독각귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/57.webp"
+  },
+  {
+    "id": 58,
+    "name": "수상한 보부상",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/58.webp"
+  },
+  {
+    "id": 59,
+    "name": "수상한 도깨비",
+    "element_type": 1,
+    "element_value": 0,
+    "image_url": "monster/59.webp"
+  },
+  {
+    "id": 60,
+    "name": "수상한 도깨비",
+    "element_type": 2,
+    "element_value": 0,
+    "image_url": "monster/60.webp"
+  },
+  {
+    "id": 61,
+    "name": "수상한 도깨비",
+    "element_type": 4,
+    "element_value": 0,
+    "image_url": "monster/61.webp"
+  },
+  {
+    "id": 369,
+    "name": "바유의혼",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/369.webp"
+  },
+  {
+    "id": 370,
+    "name": "아디티",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/370.webp"
+  },
+  {
+    "id": 371,
+    "name": "코끼리전사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/371.webp"
+  },
+  {
+    "id": 62,
+    "name": "수상한 도깨비",
+    "element_type": 3,
+    "element_value": 0,
+    "image_url": "monster/62.webp"
+  },
+  {
+    "id": 63,
+    "name": "구미호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/63.webp"
+  },
+  {
+    "id": 64,
+    "name": "처녀귀신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/64.webp"
+  },
+  {
+    "id": 850,
+    "name": "시마즈의혼(强)",
+    "element_type": 1,
+    "element_value": null,
+    "image_url": "monster/850.webp"
+  },
+  {
+    "id": 372,
+    "name": "코끼리주술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/372.webp"
+  },
+  {
+    "id": 373,
+    "name": "루드라의혼",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/373.webp"
+  },
+  {
+    "id": 374,
+    "name": "야차의혼",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/374.webp"
+  },
+  {
+    "id": 375,
+    "name": "원망신",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/375.webp"
+  },
+  {
+    "id": 147,
+    "name": "불타는도도메키",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/147.webp"
+  },
+  {
+    "id": 376,
+    "name": "원망신",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/376.webp"
+  },
+  {
+    "id": 377,
+    "name": "원망신",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/377.webp"
+  },
+  {
+    "id": 378,
+    "name": "원망신",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/378.webp"
+  },
+  {
+    "id": 261,
+    "name": "신기전차",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/261.webp"
+  },
+  {
+    "id": 262,
+    "name": "진묘수",
+    "element_type": 2,
+    "element_value": 150,
+    "image_url": "monster/262.webp"
+  },
+  {
+    "id": 491,
+    "name": "훔바바",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/491.webp"
+  },
+  {
+    "id": 492,
+    "name": "바루나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/492.webp"
+  },
+  {
+    "id": 598,
+    "name": "광목천왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/598.webp"
+  },
+  {
+    "id": 599,
+    "name": "신수청룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/599.webp"
+  },
+  {
+    "id": 766,
+    "name": "이랑진군",
+    "element_type": 2,
+    "element_value": 330,
+    "image_url": "monster/766.webp"
+  },
+  {
+    "id": 767,
+    "name": "진 이랑진군",
+    "element_type": 3,
+    "element_value": 350,
+    "image_url": "monster/767.webp"
+  },
+  {
+    "id": 69,
+    "name": "거미요괴",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/69.webp"
+  },
+  {
+    "id": 70,
+    "name": "도굴꾼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/70.webp"
+  },
+  {
+    "id": 101,
+    "name": "갓파",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/101.webp"
+  },
+  {
+    "id": 102,
+    "name": "털가면",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/102.webp"
+  },
+  {
+    "id": 493,
+    "name": "아난타",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/493.webp"
+  },
+  {
+    "id": 494,
+    "name": "인드라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/494.webp"
+  },
+  {
+    "id": 600,
+    "name": "증장천왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/600.webp"
+  },
+  {
+    "id": 601,
+    "name": "사막거미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/601.webp"
+  },
+  {
+    "id": 851,
+    "name": "번쾌의혼(强)",
+    "element_type": 2,
+    "element_value": null,
+    "image_url": "monster/851.webp"
+  },
+  {
+    "id": 852,
+    "name": "한신의혼(强)",
+    "element_type": 2,
+    "element_value": null,
+    "image_url": "monster/852.webp"
+  },
+  {
+    "id": 263,
+    "name": "진묘수",
+    "element_type": 3,
+    "element_value": 150,
+    "image_url": "monster/263.webp"
+  },
+  {
+    "id": 264,
+    "name": "철랑",
+    "element_type": 2,
+    "element_value": 40,
+    "image_url": "monster/264.webp"
+  },
+  {
+    "id": 853,
+    "name": "야만수색병(强)",
+    "element_type": 3,
+    "element_value": null,
+    "image_url": "monster/853.webp"
+  },
+  {
+    "id": 854,
+    "name": "야만근위병(强)",
+    "element_type": 3,
+    "element_value": null,
+    "image_url": "monster/854.webp"
+  },
+  {
+    "id": 265,
+    "name": "철랑",
+    "element_type": 3,
+    "element_value": 40,
+    "image_url": "monster/264.webp"
+  },
+  {
+    "id": 328,
+    "name": "새끼송어인",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/328.webp"
+  },
+  {
+    "id": 329,
+    "name": "어린수인",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/329.webp"
+  },
+  {
+    "id": 330,
+    "name": "어린수룡",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/330.webp"
+  },
+  {
+    "id": 331,
+    "name": "꿀벌",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/331.webp"
+  },
+  {
+    "id": 332,
+    "name": "어린비호",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/332.webp"
+  },
+  {
+    "id": 333,
+    "name": "풍구",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/333.webp"
+  },
+  {
+    "id": 334,
+    "name": "부랑자섭",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/334.webp"
+  },
+  {
+    "id": 335,
+    "name": "떠돌이악사가인",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/335.webp"
+  },
+  {
+    "id": 560,
+    "name": "산",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/560.webp"
+  },
+  {
+    "id": 561,
+    "name": "거산",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/561.webp"
+  },
+  {
+    "id": 71,
+    "name": "무관의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/71.webp"
+  },
+  {
+    "id": 72,
+    "name": "신검의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/72.webp"
+  },
+  {
+    "id": 73,
+    "name": "변질된신검의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/73.webp"
+  },
+  {
+    "id": 74,
+    "name": "어린혼돈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/74.webp"
+  },
+  {
+    "id": 103,
+    "name": "견신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/103.webp"
+  },
+  {
+    "id": 104,
+    "name": "각다귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/104.webp"
+  },
+  {
+    "id": 105,
+    "name": "설인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/105.webp"
+  },
+  {
+    "id": 131,
+    "name": "얼음누에",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/131.webp"
+  },
+  {
+    "id": 132,
+    "name": "얼음술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/132.webp"
+  },
+  {
+    "id": 133,
+    "name": "거대얼음나무",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/133.webp"
+  },
+  {
+    "id": 134,
+    "name": "얼음해골무사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/134.webp"
+  },
+  {
+    "id": 336,
+    "name": "낭인배객",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/336.webp"
+  },
+  {
+    "id": 562,
+    "name": "백룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/562.webp"
+  },
+  {
+    "id": 563,
+    "name": "맹공",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/563.webp"
+  },
+  {
+    "id": 564,
+    "name": "강시",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/564.webp"
+  },
+  {
+    "id": 565,
+    "name": "유령해골",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/201.webp"
+  },
+  {
+    "id": 566,
+    "name": "유령무녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/566.webp"
+  },
+  {
+    "id": 567,
+    "name": "유령해골병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/202.webp"
+  },
+  {
+    "id": 568,
+    "name": "유령해저왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/568.webp"
+  },
+  {
+    "id": 75,
+    "name": "기마창수의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/75.webp"
+  },
+  {
+    "id": 76,
+    "name": "혼돈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/76.webp"
+  },
+  {
+    "id": 77,
+    "name": "반달곰",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/77.webp"
+  },
+  {
+    "id": 78,
+    "name": "멧돼지",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/78.webp"
+  },
+  {
+    "id": 135,
+    "name": "설녀여왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/135.webp"
+  },
+  {
+    "id": 79,
+    "name": "대장반달곰",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/79.webp"
+  },
+  {
+    "id": 80,
+    "name": "백웅",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/80.webp"
+  },
+  {
+    "id": 81,
+    "name": "적고적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/81.webp"
+  },
+  {
+    "id": 141,
+    "name": "식귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/141.webp"
+  },
+  {
+    "id": 142,
+    "name": "오니",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/142.webp"
+  },
+  {
+    "id": 143,
+    "name": "독지네",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/143.webp"
+  },
+  {
+    "id": 89,
+    "name": "적고적우두머리",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/89.webp"
+  },
+  {
+    "id": 90,
+    "name": "광풍의아우타",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/90.webp"
+  },
+  {
+    "id": 92,
+    "name": "황룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/92.webp"
+  },
+  {
+    "id": 144,
+    "name": "화룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/144.webp"
+  },
+  {
+    "id": 145,
+    "name": "불타는오니",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/145.webp"
+  },
+  {
+    "id": 146,
+    "name": "불타는해골",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/146.webp"
+  },
+  {
+    "id": 91,
+    "name": "돌하루방",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/91.webp"
+  },
+  {
+    "id": 93,
+    "name": "불도마뱀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/93.webp"
+  },
+  {
+    "id": 94,
+    "name": "화희",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/94.webp"
+  },
+  {
+    "id": 96,
+    "name": "홍작",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/96.webp"
+  },
+  {
+    "id": 97,
+    "name": "너구리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/97.webp"
+  },
+  {
+    "id": 98,
+    "name": "왜구",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/98.webp"
+  },
+  {
+    "id": 160,
+    "name": "수인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/160.webp"
+  },
+  {
+    "id": 170,
+    "name": "구렁이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/170.webp"
+  },
+  {
+    "id": 266,
+    "name": "늪지감시자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/266.webp"
+  },
+  {
+    "id": 267,
+    "name": "뿌리괴물",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/267.webp"
+  },
+  {
+    "id": 268,
+    "name": "사인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/268.webp"
+  },
+  {
+    "id": 269,
+    "name": "늪지이무기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/269.webp"
+  },
+  {
+    "id": 644,
+    "name": "악몽지기",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/644.webp"
+  },
+  {
+    "id": 645,
+    "name": "태초의궁기",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/645.webp"
+  },
+  {
+    "id": 99,
+    "name": "사마귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/99.webp"
+  },
+  {
+    "id": 646,
+    "name": "태초의도올",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/646.webp"
+  },
+  {
+    "id": 647,
+    "name": "낙귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/647.webp"
+  },
+  {
+    "id": 648,
+    "name": "추격귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/648.webp"
+  },
+  {
+    "id": 171,
+    "name": "해적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/171.webp"
+  },
+  {
+    "id": 172,
+    "name": "흑백무상",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/172.webp"
+  },
+  {
+    "id": 270,
+    "name": "독룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/270.webp"
+  },
+  {
+    "id": 379,
+    "name": "절망신",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/379.webp"
+  },
+  {
+    "id": 401,
+    "name": "원한신",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/401.webp"
+  },
+  {
+    "id": 402,
+    "name": "원한신",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/402.webp"
+  },
+  {
+    "id": 403,
+    "name": "진시황릉도굴꾼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/403.webp"
+  },
+  {
+    "id": 404,
+    "name": "문지기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/404.webp"
+  },
+  {
+    "id": 405,
+    "name": "기마병마용",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/405.webp"
+  },
+  {
+    "id": 406,
+    "name": "진흙병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/406.webp"
+  },
+  {
+    "id": 407,
+    "name": "진흙전차",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/407.webp"
+  },
+  {
+    "id": 408,
+    "name": "불사조",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/408.webp"
+  },
+  {
+    "id": 513,
+    "name": "히란나약사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/513.webp"
+  },
+  {
+    "id": 569,
+    "name": "유령코끼리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/569.webp"
+  },
+  {
+    "id": 570,
+    "name": "유령해적선장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/570.webp"
+  },
+  {
+    "id": 649,
+    "name": "염귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/649.webp"
+  },
+  {
+    "id": 100,
+    "name": "조총왜구",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/100.webp"
+  },
+  {
+    "id": 106,
+    "name": "귀묘",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/106.webp"
+  },
+  {
+    "id": 107,
+    "name": "아귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/107.webp"
+  },
+  {
+    "id": 108,
+    "name": "요술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/108.webp"
+  },
+  {
+    "id": 109,
+    "name": "천구",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/109.webp"
+  },
+  {
+    "id": 110,
+    "name": "요술사령",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/108.webp"
+  },
+  {
+    "id": 111,
+    "name": "아마쿠사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/111.webp"
+  },
+  {
+    "id": 112,
+    "name": "누에",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/112.webp"
+  },
+  {
+    "id": 148,
+    "name": "킨따로의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/148.webp"
+  },
+  {
+    "id": 149,
+    "name": "미나모토의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/149.webp"
+  },
+  {
+    "id": 150,
+    "name": "타메토모의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/150.webp"
+  },
+  {
+    "id": 151,
+    "name": "시마즈의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/151.webp"
+  },
+  {
+    "id": 152,
+    "name": "혼간지의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/152.webp"
+  },
+  {
+    "id": 571,
+    "name": "유령사무라이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/571.webp"
+  },
+  {
+    "id": 572,
+    "name": "저승사자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/572.webp"
+  },
+  {
+    "id": 153,
+    "name": "오로치의하수인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/153.webp"
+  },
+  {
+    "id": 154,
+    "name": "오로치",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/154.webp"
+  },
+  {
+    "id": 155,
+    "name": "바다게",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/155.webp"
+  },
+  {
+    "id": 156,
+    "name": "왕거머리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/156.webp"
+  },
+  {
+    "id": 157,
+    "name": "별가사리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/157.webp"
+  },
+  {
+    "id": 173,
+    "name": "마두인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/173.webp"
+  },
+  {
+    "id": 573,
+    "name": "이무기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/573.webp"
+  },
+  {
+    "id": 574,
+    "name": "염라대왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/574.webp"
+  },
+  {
+    "id": 575,
+    "name": "화염거인",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/575.webp"
+  },
+  {
+    "id": 576,
+    "name": "화염전갈",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/576.webp"
+  },
+  {
+    "id": 174,
+    "name": "광우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/174.webp"
+  },
+  {
+    "id": 175,
+    "name": "독전갈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/175.webp"
+  },
+  {
+    "id": 176,
+    "name": "화산의불꽃",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/176.webp"
+  },
+  {
+    "id": 177,
+    "name": "용암괴물",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/177.webp"
+  },
+  {
+    "id": 178,
+    "name": "엄마광우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/174.webp"
+  },
+  {
+    "id": 179,
+    "name": "마적두목",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/179.webp"
+  },
+  {
+    "id": 181,
+    "name": "타우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/181.webp"
+  },
+  {
+    "id": 190,
+    "name": "광호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/190.webp"
+  },
+  {
+    "id": 191,
+    "name": "야만검병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/191.webp"
+  },
+  {
+    "id": 192,
+    "name": "야만창병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/192.webp"
+  },
+  {
+    "id": 193,
+    "name": "야만상병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/193.webp"
+  },
+  {
+    "id": 194,
+    "name": "야만투척병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/194.webp"
+  },
+  {
+    "id": 195,
+    "name": "페르난도의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/195.webp"
+  },
+  {
+    "id": 503,
+    "name": "마츠야",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/503.webp"
+  },
+  {
+    "id": 504,
+    "name": "쿠르마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/504.webp"
+  },
+  {
+    "id": 505,
+    "name": "바라하",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/505.webp"
+  },
+  {
+    "id": 506,
+    "name": "파라슈라마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/506.webp"
+  },
+  {
+    "id": 507,
+    "name": "나라심하",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/507.webp"
+  },
+  {
+    "id": 508,
+    "name": "라마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/508.webp"
+  },
+  {
+    "id": 509,
+    "name": "크리슈나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/509.webp"
+  },
+  {
+    "id": 510,
+    "name": "칼키",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/510.webp"
+  },
+  {
+    "id": 511,
+    "name": "카리아의하수인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/511.webp"
+  },
+  {
+    "id": 512,
+    "name": "아가수라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/512.webp"
+  },
+  {
+    "id": 602,
+    "name": "타르바간",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/602.webp"
+  },
+  {
+    "id": 662,
+    "name": "태초의도철",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/662.webp"
+  },
+  {
+    "id": 663,
+    "name": "태초의혼돈",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/663.webp"
+  },
+  {
+    "id": 196,
+    "name": "야만수색병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/196.webp"
+  },
+  {
+    "id": 197,
+    "name": "야만근위병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/197.webp"
+  },
+  {
+    "id": 198,
+    "name": "욕수의사념",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/198.webp"
+  },
+  {
+    "id": 199,
+    "name": "맹호의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/199.webp"
+  },
+  {
+    "id": 200,
+    "name": "갈고리해적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/200.webp"
+  },
+  {
+    "id": 201,
+    "name": "해골",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/201.webp"
+  },
+  {
+    "id": 202,
+    "name": "해골병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/202.webp"
+  },
+  {
+    "id": 203,
+    "name": "거북궁사",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/203.webp"
+  },
+  {
+    "id": 204,
+    "name": "해마기사",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/204.webp"
+  },
+  {
+    "id": 205,
+    "name": "유령해골저격수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/205.webp"
+  },
+  {
+    "id": 206,
+    "name": "유령해골대포병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/206.webp"
+  },
+  {
+    "id": 207,
+    "name": "유령해골장군",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/207.webp"
+  },
+  {
+    "id": 208,
+    "name": "해적선장잭",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/208.webp"
+  },
+  {
+    "id": 664,
+    "name": "도사_성",
+    "element_type": 1,
+    "element_value": 120,
+    "image_url": "monster/664.webp"
+  },
+  {
+    "id": 665,
+    "name": "도사_귀",
+    "element_type": 1,
+    "element_value": 90,
+    "image_url": "monster/665.webp"
+  },
+  {
+    "id": 666,
+    "name": "도사_진",
+    "element_type": 1,
+    "element_value": 90,
+    "image_url": "monster/666.webp"
+  },
+  {
+    "id": 667,
+    "name": "도사_정",
+    "element_type": 1,
+    "element_value": 80,
+    "image_url": "monster/667.webp"
+  },
+  {
+    "id": 668,
+    "name": "영수_장",
+    "element_type": 1,
+    "element_value": 50,
+    "image_url": "monster/668.webp"
+  },
+  {
+    "id": 669,
+    "name": "영수_익",
+    "element_type": 1,
+    "element_value": 50,
+    "image_url": "monster/669.webp"
+  },
+  {
+    "id": 670,
+    "name": "도사_저",
+    "element_type": 4,
+    "element_value": 120,
+    "image_url": "monster/670.webp"
+  },
+  {
+    "id": 671,
+    "name": "도사_각",
+    "element_type": 4,
+    "element_value": 90,
+    "image_url": "monster/671.webp"
+  },
+  {
+    "id": 672,
+    "name": "도사_방",
+    "element_type": 4,
+    "element_value": 90,
+    "image_url": "monster/672.webp"
+  },
+  {
+    "id": 683,
+    "name": "도사_벽",
+    "element_type": 2,
+    "element_value": 90,
+    "image_url": "monster/683.webp"
+  },
+  {
+    "id": 684,
+    "name": "영수_위",
+    "element_type": 2,
+    "element_value": 80,
+    "image_url": "monster/684.webp"
+  },
+  {
+    "id": 209,
+    "name": "차우차우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/209.webp"
+  },
+  {
+    "id": 210,
+    "name": "총수마적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/210.webp"
+  },
+  {
+    "id": 211,
+    "name": "졸개마적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/211.webp"
+  },
+  {
+    "id": 212,
+    "name": "망치마적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/212.webp"
+  },
+  {
+    "id": 213,
+    "name": "살무사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/213.webp"
+  },
+  {
+    "id": 214,
+    "name": "눈도마뱀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/214.webp"
+  },
+  {
+    "id": 215,
+    "name": "괴물덩굴손",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/215.webp"
+  },
+  {
+    "id": 216,
+    "name": "표범",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/216.webp"
+  },
+  {
+    "id": 217,
+    "name": "북방올빼미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/217.webp"
+  },
+  {
+    "id": 218,
+    "name": "족제비",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/218.webp"
+  },
+  {
+    "id": 219,
+    "name": "식인악어",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/219.webp"
+  },
+  {
+    "id": 220,
+    "name": "원주민",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/220.webp"
+  },
+  {
+    "id": 221,
+    "name": "원주민무당",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/221.webp"
+  },
+  {
+    "id": 222,
+    "name": "적안해저인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/222.webp"
+  },
+  {
+    "id": 224,
+    "name": "원공",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/224.webp"
+  },
+  {
+    "id": 271,
+    "name": "흉노전사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/271.webp"
+  },
+  {
+    "id": 272,
+    "name": "흉노기궁병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/272.webp"
+  },
+  {
+    "id": 400,
+    "name": "원한신",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/400.webp"
+  },
+  {
+    "id": 550,
+    "name": "화령",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/550.webp"
+  },
+  {
+    "id": 577,
+    "name": "불타는화룡",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/577.webp"
+  },
+  {
+    "id": 603,
+    "name": "수호대랑",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/603.webp"
+  },
+  {
+    "id": 604,
+    "name": "모래거인",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/604.webp"
+  },
+  {
+    "id": 605,
+    "name": "사막비호",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/605.webp"
+  },
+  {
+    "id": 606,
+    "name": "육지거대게",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/606.webp"
+  },
+  {
+    "id": 607,
+    "name": "칸의대전사",
+    "element_type": null,
+    "element_value": 20,
+    "image_url": "monster/607.webp"
+  },
+  {
+    "id": 608,
+    "name": "칸의기마창수",
+    "element_type": null,
+    "element_value": 20,
+    "image_url": "monster/608.webp"
+  },
+  {
+    "id": 609,
+    "name": "칸의기마궁수",
+    "element_type": null,
+    "element_value": 20,
+    "image_url": "monster/609.webp"
+  },
+  {
+    "id": 610,
+    "name": "텡그리",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/610.webp"
+  },
+  {
+    "id": 611,
+    "name": "화포장오문",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/611.webp"
+  },
+  {
+    "id": 612,
+    "name": "술사의혼",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/612.webp"
+  },
+  {
+    "id": 613,
+    "name": "구지모대장로",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/613.webp"
+  },
+  {
+    "id": 617,
+    "name": "구지모시녀장",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/617.webp"
+  },
+  {
+    "id": 618,
+    "name": "궁기사육사",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/618.webp"
+  },
+  {
+    "id": 620,
+    "name": "사막벌레",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/620.webp"
+  },
+  {
+    "id": 621,
+    "name": "칸의황비",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/621.webp"
+  },
+  {
+    "id": 622,
+    "name": "사막기린",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/622.webp"
+  },
+  {
+    "id": 770,
+    "name": "이랑진군",
+    "element_type": 4,
+    "element_value": 330,
+    "image_url": "monster/770.webp"
+  },
+  {
+    "id": 578,
+    "name": "조련된기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/180.webp"
+  },
+  {
+    "id": 579,
+    "name": "조련된두신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/66.webp"
+  },
+  {
+    "id": 580,
+    "name": "조련된누에",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/112.webp"
+  },
+  {
+    "id": 581,
+    "name": "황수구금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/581.webp"
+  },
+  {
+    "id": 771,
+    "name": "요도히메",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/771.webp"
+  },
+  {
+    "id": 582,
+    "name": "대신력금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/582.webp"
+  },
+  {
+    "id": 583,
+    "name": "흉포한도철",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/583.webp"
+  },
+  {
+    "id": 585,
+    "name": "정제재금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/585.webp"
+  },
+  {
+    "id": 586,
+    "name": "냉혹한궁기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/586.webp"
+  },
+  {
+    "id": 587,
+    "name": "벽독금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/587.webp"
+  },
+  {
+    "id": 588,
+    "name": "자현신금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/588.webp"
+  },
+  {
+    "id": 589,
+    "name": "끈질긴도올",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/589.webp"
+  },
+  {
+    "id": 590,
+    "name": "백수정금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/590.webp"
+  },
+  {
+    "id": 591,
+    "name": "적성화금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/591.webp"
+  },
+  {
+    "id": 592,
+    "name": "광기의혼돈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/592.webp"
+  },
+  {
+    "id": 593,
+    "name": "신수주작",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/593.webp"
+  },
+  {
+    "id": 594,
+    "name": "지국천왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/594.webp"
+  },
+  {
+    "id": 595,
+    "name": "신수현무",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/595.webp"
+  },
+  {
+    "id": 596,
+    "name": "다문천왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/596.webp"
+  },
+  {
+    "id": 597,
+    "name": "신수백호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/597.webp"
+  },
+  {
+    "id": 722,
+    "name": "미후궁",
+    "element_type": 1,
+    "element_value": 240,
+    "image_url": "monster/722.webp"
+  },
+  {
+    "id": 723,
+    "name": "아랑궁",
+    "element_type": 1,
+    "element_value": 230,
+    "image_url": "monster/723.webp"
+  },
+  {
+    "id": 724,
+    "name": "악선궁",
+    "element_type": 2,
+    "element_value": 280,
+    "image_url": "monster/724.webp"
+  },
+  {
+    "id": 725,
+    "name": "교룡궁",
+    "element_type": 2,
+    "element_value": 240,
+    "image_url": "monster/725.webp"
+  },
+  {
+    "id": 726,
+    "name": "천구궁",
+    "element_type": 2,
+    "element_value": 230,
+    "image_url": "monster/726.webp"
+  },
+  {
+    "id": 727,
+    "name": "검귀궁",
+    "element_type": 3,
+    "element_value": 280,
+    "image_url": "monster/727.webp"
+  },
+  {
+    "id": 728,
+    "name": "흉맥궁",
+    "element_type": 3,
+    "element_value": 240,
+    "image_url": "monster/728.webp"
+  },
+  {
+    "id": 729,
+    "name": "저파궁",
+    "element_type": 3,
+    "element_value": 230,
+    "image_url": "monster/729.webp"
+  },
+  {
+    "id": 730,
+    "name": "사수궁",
+    "element_type": 4,
+    "element_value": 280,
+    "image_url": "monster/730.webp"
+  },
+  {
+    "id": 623,
+    "name": "사막구렁이",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/623.webp"
+  },
+  {
+    "id": 624,
+    "name": "칸의주술사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/624.webp"
+  },
+  {
+    "id": 625,
+    "name": "타락한도철",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/625.webp"
+  },
+  {
+    "id": 626,
+    "name": "수룡",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/626.webp"
+  },
+  {
+    "id": 650,
+    "name": "듀랑",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/650.webp"
+  },
+  {
+    "id": 651,
+    "name": "잠식귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/651.webp"
+  },
+  {
+    "id": 652,
+    "name": "흑사접",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/652.webp"
+  },
+  {
+    "id": 653,
+    "name": "악몽무사",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/653.webp"
+  },
+  {
+    "id": 654,
+    "name": "악몽아귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/654.webp"
+  },
+  {
+    "id": 655,
+    "name": "악몽무녀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/655.webp"
+  },
+  {
+    "id": 656,
+    "name": "거구귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/656.webp"
+  },
+  {
+    "id": 657,
+    "name": "잠식귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/657.webp"
+  },
+  {
+    "id": 658,
+    "name": "오염된수호룡",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/658.webp"
+  },
+  {
+    "id": 659,
+    "name": "태초의안",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/659.webp"
+  },
+  {
+    "id": 660,
+    "name": "무간귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/660.webp"
+  },
+  {
+    "id": 661,
+    "name": "악몽귀",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/661.webp"
+  },
+  {
+    "id": 673,
+    "name": "영수_미",
+    "element_type": 4,
+    "element_value": 80,
+    "image_url": "monster/673.webp"
+  },
+  {
+    "id": 674,
+    "name": "도사_기",
+    "element_type": 4,
+    "element_value": 50,
+    "image_url": "monster/674.webp"
+  },
+  {
+    "id": 675,
+    "name": "영수_항",
+    "element_type": 4,
+    "element_value": 50,
+    "image_url": "monster/675.webp"
+  },
+  {
+    "id": 676,
+    "name": "도사_자",
+    "element_type": 3,
+    "element_value": 70,
+    "image_url": "monster/676.webp"
+  },
+  {
+    "id": 677,
+    "name": "영수_실",
+    "element_type": 2,
+    "element_value": 70,
+    "image_url": "monster/677.webp"
+  },
+  {
+    "id": 678,
+    "name": "악령_염옥",
+    "element_type": 1,
+    "element_value": 170,
+    "image_url": "monster/678.webp"
+  },
+  {
+    "id": 679,
+    "name": "악령_전이",
+    "element_type": 4,
+    "element_value": 170,
+    "image_url": "monster/679.webp"
+  },
+  {
+    "id": 680,
+    "name": "혼돈랑",
+    "element_type": 4,
+    "element_value": 50,
+    "image_url": "monster/680.webp"
+  },
+  {
+    "id": 681,
+    "name": "도사_여",
+    "element_type": 2,
+    "element_value": 120,
+    "image_url": "monster/681.webp"
+  },
+  {
+    "id": 682,
+    "name": "도사_허",
+    "element_type": 2,
+    "element_value": 90,
+    "image_url": "monster/682.webp"
+  },
+  {
+    "id": 705,
+    "name": "구지모_사령사",
+    "element_type": 2,
+    "element_value": 220,
+    "image_url": "monster/705.webp"
+  },
+  {
+    "id": 706,
+    "name": "염매귀",
+    "element_type": 2,
+    "element_value": 210,
+    "image_url": "monster/706.webp"
+  },
+  {
+    "id": 707,
+    "name": "제사장_허독",
+    "element_type": 3,
+    "element_value": 250,
+    "image_url": "monster/707.webp"
+  },
+  {
+    "id": 708,
+    "name": "괴저귀",
+    "element_type": 3,
+    "element_value": 150,
+    "image_url": "monster/708.webp"
+  },
+  {
+    "id": 709,
+    "name": "구지모_강령사",
+    "element_type": 3,
+    "element_value": 220,
+    "image_url": "monster/709.webp"
+  },
+  {
+    "id": 710,
+    "name": "무고귀",
+    "element_type": 3,
+    "element_value": 210,
+    "image_url": "monster/710.webp"
+  },
+  {
+    "id": 711,
+    "name": "공작원_다령",
+    "element_type": 4,
+    "element_value": 250,
+    "image_url": "monster/711.webp"
+  },
+  {
+    "id": 712,
+    "name": "친위대원_육문",
+    "element_type": 4,
+    "element_value": 220,
+    "image_url": "monster/712.webp"
+  },
+  {
+    "id": 713,
+    "name": "청룡단원_주태",
+    "element_type": 4,
+    "element_value": 210,
+    "image_url": "monster/713.webp"
+  },
+  {
+    "id": 273,
+    "name": "흉노기마병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/273.webp"
+  },
+  {
+    "id": 274,
+    "name": "징키스칸혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/274.webp"
+  },
+  {
+    "id": 731,
+    "name": "대호궁",
+    "element_type": 4,
+    "element_value": 240,
+    "image_url": "monster/731.webp"
+  },
+  {
+    "id": 732,
+    "name": "뇌우궁",
+    "element_type": 4,
+    "element_value": 230,
+    "image_url": "monster/732.webp"
+  },
+  {
+    "id": 275,
+    "name": "적군모",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/275.webp"
+  },
+  {
+    "id": 276,
+    "name": "청군모",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/276.webp"
+  },
+  {
+    "id": 277,
+    "name": "삼두룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/277.webp"
+  },
+  {
+    "id": 278,
+    "name": "검은상단투척병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/278.webp"
+  },
+  {
+    "id": 279,
+    "name": "얼음벌레",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/279.webp"
+  },
+  {
+    "id": 280,
+    "name": "백귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/280.webp"
+  },
+  {
+    "id": 685,
+    "name": "도사_우",
+    "element_type": 2,
+    "element_value": 50,
+    "image_url": "monster/685.webp"
+  },
+  {
+    "id": 686,
+    "name": "영수_두",
+    "element_type": 2,
+    "element_value": 50,
+    "image_url": "monster/686.webp"
+  },
+  {
+    "id": 687,
+    "name": "도사_필",
+    "element_type": 3,
+    "element_value": 120,
+    "image_url": "monster/687.webp"
+  },
+  {
+    "id": 688,
+    "name": "도사_삼",
+    "element_type": 3,
+    "element_value": 90,
+    "image_url": "monster/688.webp"
+  },
+  {
+    "id": 689,
+    "name": "도사_위",
+    "element_type": 3,
+    "element_value": 90,
+    "image_url": "monster/689.webp"
+  },
+  {
+    "id": 690,
+    "name": "도사_규",
+    "element_type": 3,
+    "element_value": 80,
+    "image_url": "monster/690.webp"
+  },
+  {
+    "id": 691,
+    "name": "도사_루",
+    "element_type": 3,
+    "element_value": 50,
+    "image_url": "monster/691.webp"
+  },
+  {
+    "id": 692,
+    "name": "영수_묘",
+    "element_type": 3,
+    "element_value": 50,
+    "image_url": "monster/692.webp"
+  },
+  {
+    "id": 693,
+    "name": "도사_류",
+    "element_type": 1,
+    "element_value": 70,
+    "image_url": "monster/693.webp"
+  },
+  {
+    "id": 733,
+    "name": "백록궁",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/733.webp"
+  },
+  {
+    "id": 734,
+    "name": "짐조궁",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/734.webp"
+  },
+  {
+    "id": 742,
+    "name": "나문신장",
+    "element_type": 1,
+    "element_value": 270,
+    "image_url": "monster/742.webp"
+  },
+  {
+    "id": 743,
+    "name": "적의신장",
+    "element_type": 1,
+    "element_value": 260,
+    "image_url": "monster/743.webp"
+  },
+  {
+    "id": 744,
+    "name": "상문신장",
+    "element_type": 2,
+    "element_value": 310,
+    "image_url": "monster/744.webp"
+  },
+  {
+    "id": 745,
+    "name": "두문신장",
+    "element_type": 2,
+    "element_value": 270,
+    "image_url": "monster/745.webp"
+  },
+  {
+    "id": 746,
+    "name": "운일조",
+    "element_type": 2,
+    "element_value": 260,
+    "image_url": "monster/746.webp"
+  },
+  {
+    "id": 747,
+    "name": "개문신장",
+    "element_type": 3,
+    "element_value": 310,
+    "image_url": "monster/747.webp"
+  },
+  {
+    "id": 694,
+    "name": "도사_심",
+    "element_type": 4,
+    "element_value": 70,
+    "image_url": "monster/694.webp"
+  },
+  {
+    "id": 695,
+    "name": "오운_소",
+    "element_type": 3,
+    "element_value": 90,
+    "image_url": "monster/695.webp"
+  },
+  {
+    "id": 696,
+    "name": "오운_염",
+    "element_type": 1,
+    "element_value": 90,
+    "image_url": "monster/696.webp"
+  },
+  {
+    "id": 697,
+    "name": "오운_전",
+    "element_type": 2,
+    "element_value": 90,
+    "image_url": "monster/697.webp"
+  },
+  {
+    "id": 698,
+    "name": "오운_태",
+    "element_type": 4,
+    "element_value": 90,
+    "image_url": "monster/698.webp"
+  },
+  {
+    "id": 699,
+    "name": "악령_풍마",
+    "element_type": 3,
+    "element_value": 170,
+    "image_url": "monster/699.webp"
+  },
+  {
+    "id": 700,
+    "name": "악령_수령",
+    "element_type": 2,
+    "element_value": 170,
+    "image_url": "monster/700.webp"
+  },
+  {
+    "id": 701,
+    "name": "현진_장로",
+    "element_type": 1,
+    "element_value": 250,
+    "image_url": "monster/701.webp"
+  },
+  {
+    "id": 702,
+    "name": "집행대원_육문",
+    "element_type": 1,
+    "element_value": 220,
+    "image_url": "monster/702.webp"
+  },
+  {
+    "id": 748,
+    "name": "생문신장",
+    "element_type": 3,
+    "element_value": 270,
+    "image_url": "monster/748.webp"
+  },
+  {
+    "id": 749,
+    "name": "녹의신장",
+    "element_type": 3,
+    "element_value": 260,
+    "image_url": "monster/749.webp"
+  },
+  {
+    "id": 750,
+    "name": "사문신장",
+    "element_type": 4,
+    "element_value": 310,
+    "image_url": "monster/750.webp"
+  },
+  {
+    "id": 751,
+    "name": "휴문신장",
+    "element_type": 4,
+    "element_value": 270,
+    "image_url": "monster/751.webp"
+  },
+  {
+    "id": 752,
+    "name": "황의신장",
+    "element_type": 4,
+    "element_value": 260,
+    "image_url": "monster/752.webp"
+  },
+  {
+    "id": 753,
+    "name": "백영록(弱)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/753.webp"
+  },
+  {
+    "id": 754,
+    "name": "운일조(弱)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/746.webp"
+  },
+  {
+    "id": 755,
+    "name": "경문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/755.webp"
+  },
+  {
+    "id": 756,
+    "name": "경문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/756.webp"
+  },
+  {
+    "id": 757,
+    "name": "상문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/757.webp"
+  },
+  {
+    "id": 758,
+    "name": "상문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/758.webp"
+  },
+  {
+    "id": 759,
+    "name": "개문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/759.webp"
+  },
+  {
+    "id": 760,
+    "name": "개문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/760.webp"
+  },
+  {
+    "id": 761,
+    "name": "사문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/761.webp"
+  },
+  {
+    "id": 762,
+    "name": "사문신장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/762.webp"
+  },
+  {
+    "id": 763,
+    "name": "진 이랑진군",
+    "element_type": 1,
+    "element_value": 350,
+    "image_url": "monster/763.webp"
+  },
+  {
+    "id": 764,
+    "name": "이랑진군",
+    "element_type": 1,
+    "element_value": 330,
+    "image_url": "monster/764.webp"
+  },
+  {
+    "id": 765,
+    "name": "진 이랑진군",
+    "element_type": 2,
+    "element_value": 350,
+    "image_url": "monster/765.webp"
+  },
+  {
+    "id": 768,
+    "name": "이랑진군",
+    "element_type": 3,
+    "element_value": 330,
+    "image_url": "monster/768.webp"
+  },
+  {
+    "id": 769,
+    "name": "진 이랑진군",
+    "element_type": 4,
+    "element_value": 350,
+    "image_url": "monster/769.webp"
+  },
+  {
+    "id": 772,
+    "name": "루드라의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/772.webp"
+  },
+  {
+    "id": 773,
+    "name": "야차의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/773.webp"
+  },
+  {
+    "id": 774,
+    "name": "백면구미호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/774.webp"
+  },
+  {
+    "id": 775,
+    "name": "조국구",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/775.webp"
+  },
+  {
+    "id": 776,
+    "name": "람채화",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/776.webp"
+  },
+  {
+    "id": 777,
+    "name": "악선철괴리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/777.webp"
+  },
+  {
+    "id": 803,
+    "name": "염우귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/803.webp"
+  },
+  {
+    "id": 804,
+    "name": "염우귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/804.webp"
+  },
+  {
+    "id": 805,
+    "name": "암흑명왕",
+    "element_type": 3,
+    "element_value": 380,
+    "image_url": "monster/805.webp"
+  },
+  {
+    "id": 806,
+    "name": "암흑 육자명왕",
+    "element_type": 3,
+    "element_value": 400,
+    "image_url": "monster/806.webp"
+  },
+  {
+    "id": 807,
+    "name": "암흑명왕",
+    "element_type": 4,
+    "element_value": 380,
+    "image_url": "monster/807.webp"
+  },
+  {
+    "id": 808,
+    "name": "암흑 마두명왕",
+    "element_type": 4,
+    "element_value": 400,
+    "image_url": "monster/808.webp"
+  },
+  {
+    "id": 809,
+    "name": "염마의진묵",
+    "element_type": 1,
+    "element_value": 335,
+    "image_url": "monster/809.webp"
+  },
+  {
+    "id": 810,
+    "name": "암시장감시자",
+    "element_type": 1,
+    "element_value": 295,
+    "image_url": "monster/810.webp"
+  },
+  {
+    "id": 1,
+    "name": "사슴",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/1.webp"
+  },
+  {
+    "id": 2,
+    "name": "꼬마산적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/2.webp"
+  },
+  {
+    "id": 3,
+    "name": "궁수산적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/3.webp"
+  },
+  {
+    "id": 4,
+    "name": "독나방",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/4.webp"
+  },
+  {
+    "id": 5,
+    "name": "산적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/5.webp"
+  },
+  {
+    "id": 6,
+    "name": "요수목",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/6.webp"
+  },
+  {
+    "id": 7,
+    "name": "철퇴산적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/7.webp"
+  },
+  {
+    "id": 8,
+    "name": "호랑이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/8.webp"
+  },
+  {
+    "id": 778,
+    "name": "호선미랑",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/778.webp"
+  },
+  {
+    "id": 779,
+    "name": "악몽지기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/779.webp"
+  },
+  {
+    "id": 780,
+    "name": "흉몽귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/780.webp"
+  },
+  {
+    "id": 781,
+    "name": "무간귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/781.webp"
+  },
+  {
+    "id": 782,
+    "name": "악몽귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/782.webp"
+  },
+  {
+    "id": 783,
+    "name": "투적귀",
+    "element_type": 1,
+    "element_value": 320,
+    "image_url": "monster/783.webp"
+  },
+  {
+    "id": 784,
+    "name": "검홍귀",
+    "element_type": 1,
+    "element_value": 280,
+    "image_url": "monster/784.webp"
+  },
+  {
+    "id": 785,
+    "name": "암무귀",
+    "element_type": 1,
+    "element_value": 270,
+    "image_url": "monster/785.webp"
+  },
+  {
+    "id": 786,
+    "name": "수확귀",
+    "element_type": 2,
+    "element_value": 320,
+    "image_url": "monster/786.webp"
+  },
+  {
+    "id": 9,
+    "name": "두억시니",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/9.webp"
+  },
+  {
+    "id": 10,
+    "name": "비호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/10.webp"
+  },
+  {
+    "id": 11,
+    "name": "천둥새",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/11.webp"
+  },
+  {
+    "id": 12,
+    "name": "식인목",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/12.webp"
+  },
+  {
+    "id": 13,
+    "name": "검은상단도부수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/13.webp"
+  },
+  {
+    "id": 14,
+    "name": "혼마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/14.webp"
+  },
+  {
+    "id": 15,
+    "name": "박쥐",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/15.webp"
+  },
+  {
+    "id": 16,
+    "name": "독두꺼비",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/16.webp"
+  },
+  {
+    "id": 17,
+    "name": "해마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/17.webp"
+  },
+  {
+    "id": 18,
+    "name": "바다거북이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/18.webp"
+  },
+  {
+    "id": 19,
+    "name": "해저왕",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/19.webp"
+  },
+  {
+    "id": 20,
+    "name": "백의개",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/20.webp"
+  },
+  {
+    "id": 281,
+    "name": "얼어붙은병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/281.webp"
+  },
+  {
+    "id": 735,
+    "name": "나바타카바차",
+    "element_type": 1,
+    "element_value": 320,
+    "image_url": "monster/735.webp"
+  },
+  {
+    "id": 736,
+    "name": "나바타카바차",
+    "element_type": 2,
+    "element_value": 320,
+    "image_url": "monster/736.webp"
+  },
+  {
+    "id": 737,
+    "name": "나바타카바차",
+    "element_type": 4,
+    "element_value": 320,
+    "image_url": "monster/737.webp"
+  },
+  {
+    "id": 738,
+    "name": "나바타카바차",
+    "element_type": 3,
+    "element_value": 320,
+    "image_url": "monster/738.webp"
+  },
+  {
+    "id": 739,
+    "name": "망각의잔재",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/739.webp"
+  },
+  {
+    "id": 740,
+    "name": "망각의메아리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/740.webp"
+  },
+  {
+    "id": 741,
+    "name": "경문신장",
+    "element_type": 1,
+    "element_value": 310,
+    "image_url": "monster/741.webp"
+  },
+  {
+    "id": 811,
+    "name": "암시장집행자",
+    "element_type": 1,
+    "element_value": 285,
+    "image_url": "monster/811.webp"
+  },
+  {
+    "id": 812,
+    "name": "궁극의영수",
+    "element_type": 2,
+    "element_value": 335,
+    "image_url": "monster/812.webp"
+  },
+  {
+    "id": 813,
+    "name": "암시장척후병",
+    "element_type": 2,
+    "element_value": 295,
+    "image_url": "monster/813.webp"
+  },
+  {
+    "id": 814,
+    "name": "정찰올빼미",
+    "element_type": 2,
+    "element_value": 285,
+    "image_url": "monster/814.webp"
+  },
+  {
+    "id": 815,
+    "name": "탐욕의염후",
+    "element_type": 3,
+    "element_value": 335,
+    "image_url": "monster/815.webp"
+  },
+  {
+    "id": 816,
+    "name": "암시장감별사",
+    "element_type": 3,
+    "element_value": 295,
+    "image_url": "monster/816.webp"
+  },
+  {
+    "id": 817,
+    "name": "암시장수행자",
+    "element_type": 3,
+    "element_value": 285,
+    "image_url": "monster/817.webp"
+  },
+  {
+    "id": 113,
+    "name": "요술사령(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/108.webp"
+  },
+  {
+    "id": 114,
+    "name": "천구(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/109.webp"
+  },
+  {
+    "id": 115,
+    "name": "어린궁기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/115.webp"
+  },
+  {
+    "id": 116,
+    "name": "변질된아마쿠사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/116.webp"
+  },
+  {
+    "id": 117,
+    "name": "벼락의천구",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/117.webp"
+  },
+  {
+    "id": 118,
+    "name": "벼락의사령술사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/118.webp"
+  },
+  {
+    "id": 119,
+    "name": "번개거인",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/119.webp"
+  },
+  {
+    "id": 282,
+    "name": "얼어붙은궁수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/282.webp"
+  },
+  {
+    "id": 283,
+    "name": "창수의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/283.webp"
+  },
+  {
+    "id": 284,
+    "name": "연노수의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/284.webp"
+  },
+  {
+    "id": 285,
+    "name": "번쾌의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/285.webp"
+  },
+  {
+    "id": 301,
+    "name": "원로고주",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/301.webp"
+  },
+  {
+    "id": 302,
+    "name": "구지모시녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/302.webp"
+  },
+  {
+    "id": 286,
+    "name": "장량의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/286.webp"
+  },
+  {
+    "id": 287,
+    "name": "한신의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/287.webp"
+  },
+  {
+    "id": 288,
+    "name": "호위방패수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/288.webp"
+  },
+  {
+    "id": 303,
+    "name": "원로시녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/303.webp"
+  },
+  {
+    "id": 304,
+    "name": "구지모장로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/304.webp"
+  },
+  {
+    "id": 305,
+    "name": "원로장로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/305.webp"
+  },
+  {
+    "id": 306,
+    "name": "구지모사육사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/306.webp"
+  },
+  {
+    "id": 307,
+    "name": "원로사육사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/307.webp"
+  },
+  {
+    "id": 308,
+    "name": "샤오링",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/308.webp"
+  },
+  {
+    "id": 309,
+    "name": "샤오링의사념",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/309.webp"
+  },
+  {
+    "id": 310,
+    "name": "기문광신도",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/310.webp"
+  },
+  {
+    "id": 311,
+    "name": "코브라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/311.webp"
+  },
+  {
+    "id": 289,
+    "name": "호위궁수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/289.webp"
+  },
+  {
+    "id": 290,
+    "name": "범증의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/290.webp"
+  },
+  {
+    "id": 291,
+    "name": "유방의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/291.webp"
+  },
+  {
+    "id": 292,
+    "name": "항우의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/292.webp"
+  },
+  {
+    "id": 293,
+    "name": "친위대(一)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/27.webp"
+  },
+  {
+    "id": 294,
+    "name": "친위대(二)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/27.webp"
+  },
+  {
+    "id": 295,
+    "name": "친위대(三)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/27.webp"
+  },
+  {
+    "id": 296,
+    "name": "저주인형",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/296.webp"
+  },
+  {
+    "id": 297,
+    "name": "고독토충",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/297.webp"
+  },
+  {
+    "id": 312,
+    "name": "기문교호법",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/312.webp"
+  },
+  {
+    "id": 313,
+    "name": "기문약탈자(一)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/313.webp"
+  },
+  {
+    "id": 314,
+    "name": "기문약탈자(二)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/313.webp"
+  },
+  {
+    "id": 315,
+    "name": "기문교장로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/315.webp"
+  },
+  {
+    "id": 316,
+    "name": "기문교주",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/316.webp"
+  },
+  {
+    "id": 120,
+    "name": "광뇌의아마쿠사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/120.webp"
+  },
+  {
+    "id": 121,
+    "name": "궁기",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/121.webp"
+  },
+  {
+    "id": 122,
+    "name": "설녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/122.webp"
+  },
+  {
+    "id": 123,
+    "name": "눈코끼리",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/123.webp"
+  },
+  {
+    "id": 124,
+    "name": "광폭한설인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/124.webp"
+  },
+  {
+    "id": 125,
+    "name": "얼음해골병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/125.webp"
+  },
+  {
+    "id": 126,
+    "name": "얼음해골전사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/126.webp"
+  },
+  {
+    "id": 127,
+    "name": "얼음게",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/127.webp"
+  },
+  {
+    "id": 128,
+    "name": "얼음도마뱀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/128.webp"
+  },
+  {
+    "id": 129,
+    "name": "얼음비충",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/129.webp"
+  },
+  {
+    "id": 130,
+    "name": "얼음해골총수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/130.webp"
+  },
+  {
+    "id": 298,
+    "name": "고독거미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/298.webp"
+  },
+  {
+    "id": 299,
+    "name": "고독흑사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/299.webp"
+  },
+  {
+    "id": 300,
+    "name": "구지모고주",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/300.webp"
+  },
+  {
+    "id": 223,
+    "name": "얼음나무",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/223.webp"
+  },
+  {
+    "id": 225,
+    "name": "분노한 원공",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/225.webp"
+  },
+  {
+    "id": 226,
+    "name": "암령의장로",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/226.webp"
+  },
+  {
+    "id": 227,
+    "name": "암령의고주",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/227.webp"
+  },
+  {
+    "id": 228,
+    "name": "암령의사육사",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/228.webp"
+  },
+  {
+    "id": 229,
+    "name": "암령의시녀",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/229.webp"
+  },
+  {
+    "id": 230,
+    "name": "구지모감시병",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/230.webp"
+  },
+  {
+    "id": 231,
+    "name": "구지모추적자",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/231.webp"
+  },
+  {
+    "id": 232,
+    "name": "광려산호랑이",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/232.webp"
+  },
+  {
+    "id": 233,
+    "name": "검은상단실험체",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/233.webp"
+  },
+  {
+    "id": 234,
+    "name": "각성한사문",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/234.webp"
+  },
+  {
+    "id": 235,
+    "name": "구지모저주술사",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/235.webp"
+  },
+  {
+    "id": 236,
+    "name": "푸른고독모기",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/236.webp"
+  },
+  {
+    "id": 237,
+    "name": "뿌리이무기",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/237.webp"
+  },
+  {
+    "id": 238,
+    "name": "광려산멧돼지",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/238.webp"
+  },
+  {
+    "id": 239,
+    "name": "검은상단치유사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/239.webp"
+  },
+  {
+    "id": 240,
+    "name": "각성한삼문",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/240.webp"
+  },
+  {
+    "id": 241,
+    "name": "구지모사역술사",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/241.webp"
+  },
+  {
+    "id": 242,
+    "name": "영랑",
+    "element_type": 1,
+    "element_value": 40,
+    "image_url": "monster/242.webp"
+  },
+  {
+    "id": 243,
+    "name": "영랑",
+    "element_type": 4,
+    "element_value": 40,
+    "image_url": "monster/243.webp"
+  },
+  {
+    "id": 244,
+    "name": "복수자우태",
+    "element_type": 1,
+    "element_value": 80,
+    "image_url": "monster/244.webp"
+  },
+  {
+    "id": 245,
+    "name": "실험체발로",
+    "element_type": 4,
+    "element_value": 80,
+    "image_url": "monster/245.webp"
+  },
+  {
+    "id": 246,
+    "name": "진묘수",
+    "element_type": 1,
+    "element_value": 150,
+    "image_url": "monster/246.webp"
+  },
+  {
+    "id": 317,
+    "name": "기문약탈자(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/313.webp"
+  },
+  {
+    "id": 318,
+    "name": "기문장로(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/315.webp"
+  },
+  {
+    "id": 319,
+    "name": "폭뢰의기문교주",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/319.webp"
+  },
+  {
+    "id": 320,
+    "name": "원주민술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/320.webp"
+  },
+  {
+    "id": 321,
+    "name": "작은악마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/321.webp"
+  },
+  {
+    "id": 322,
+    "name": "관찰자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/322.webp"
+  },
+  {
+    "id": 323,
+    "name": "두이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/323.webp"
+  },
+  {
+    "id": 324,
+    "name": "어린도올",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/324.webp"
+  },
+  {
+    "id": 325,
+    "name": "새끼불도마뱀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/325.webp"
+  },
+  {
+    "id": 326,
+    "name": "어린화구",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/326.webp"
+  },
+  {
+    "id": 327,
+    "name": "어린화룡",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/327.webp"
+  },
+  {
+    "id": 380,
+    "name": "절망신",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/380.webp"
+  },
+  {
+    "id": 381,
+    "name": "절망신",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/381.webp"
+  },
+  {
+    "id": 382,
+    "name": "절망신",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/382.webp"
+  },
+  {
+    "id": 383,
+    "name": "불여우",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/383.webp"
+  },
+  {
+    "id": 384,
+    "name": "불도깨비",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/384.webp"
+  },
+  {
+    "id": 337,
+    "name": "악승대길",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/337.webp"
+  },
+  {
+    "id": 338,
+    "name": "책사필군",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/338.webp"
+  },
+  {
+    "id": 339,
+    "name": "원로허당",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/339.webp"
+  },
+  {
+    "id": 340,
+    "name": "흑호",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/340.webp"
+  },
+  {
+    "id": 341,
+    "name": "말붕이",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/341.webp"
+  },
+  {
+    "id": 342,
+    "name": "어린삼미호",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/342.webp"
+  },
+  {
+    "id": 343,
+    "name": "어린록아",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/343.webp"
+  },
+  {
+    "id": 344,
+    "name": "삼미호",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/344.webp"
+  },
+  {
+    "id": 345,
+    "name": "묘아",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/345.webp"
+  },
+  {
+    "id": 346,
+    "name": "수호궁사태진",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/346.webp"
+  },
+  {
+    "id": 347,
+    "name": "록아",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/347.webp"
+  },
+  {
+    "id": 348,
+    "name": "악선철괴리",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/348.webp"
+  },
+  {
+    "id": 349,
+    "name": "호선미랑",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/349.webp"
+  },
+  {
+    "id": 350,
+    "name": "화염아귀",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/350.webp"
+  },
+  {
+    "id": 351,
+    "name": "염웅",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/351.webp"
+  },
+  {
+    "id": 352,
+    "name": "염조",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/352.webp"
+  },
+  {
+    "id": 353,
+    "name": "호위창병충",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/353.webp"
+  },
+  {
+    "id": 409,
+    "name": "이사의사념",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/409.webp"
+  },
+  {
+    "id": 410,
+    "name": "진시황의혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/410.webp"
+  },
+  {
+    "id": 411,
+    "name": "변질된 불사조",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/411.webp"
+  },
+  {
+    "id": 412,
+    "name": "이사의사념(强)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/409.webp"
+  },
+  {
+    "id": 413,
+    "name": "불사의진시황",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/413.webp"
+  },
+  {
+    "id": 414,
+    "name": "도올",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/414.webp"
+  },
+  {
+    "id": 415,
+    "name": "구지모병사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/415.webp"
+  },
+  {
+    "id": 416,
+    "name": "근위대",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/416.webp"
+  },
+  {
+    "id": 417,
+    "name": "구지모장로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/304.webp"
+  },
+  {
+    "id": 418,
+    "name": "이타코",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/418.webp"
+  },
+  {
+    "id": 419,
+    "name": "온묘지",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/419.webp"
+  },
+  {
+    "id": 421,
+    "name": "발로",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/421.webp"
+  },
+  {
+    "id": 422,
+    "name": "우태",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/422.webp"
+  },
+  {
+    "id": 423,
+    "name": "감시자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/423.webp"
+  },
+  {
+    "id": 424,
+    "name": "이타코",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/424.webp"
+  },
+  {
+    "id": 426,
+    "name": "온묘지",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/426.webp"
+  },
+  {
+    "id": 427,
+    "name": "아이의원혼",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/427.webp"
+  },
+  {
+    "id": 354,
+    "name": "심안조",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/354.webp"
+  },
+  {
+    "id": 355,
+    "name": "호위검병후",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/355.webp"
+  },
+  {
+    "id": 356,
+    "name": "호위대장조광",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/356.webp"
+  },
+  {
+    "id": 357,
+    "name": "구영",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/357.webp"
+  },
+  {
+    "id": 358,
+    "name": "조국구",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/358.webp"
+  },
+  {
+    "id": 359,
+    "name": "불타는거목",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/359.webp"
+  },
+  {
+    "id": 360,
+    "name": "마카라",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/360.webp"
+  },
+  {
+    "id": 361,
+    "name": "나가",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/361.webp"
+  },
+  {
+    "id": 362,
+    "name": "빙조",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/362.webp"
+  },
+  {
+    "id": 363,
+    "name": "마후라가의혼",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/363.webp"
+  },
+  {
+    "id": 364,
+    "name": "건달바의혼",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/364.webp"
+  },
+  {
+    "id": 365,
+    "name": "신전무사",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/365.webp"
+  },
+  {
+    "id": 366,
+    "name": "신전거미",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/366.webp"
+  },
+  {
+    "id": 367,
+    "name": "신전코브라",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/367.webp"
+  },
+  {
+    "id": 368,
+    "name": "가루다의혼",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/368.webp"
+  },
+  {
+    "id": 428,
+    "name": "향아_령",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/428.webp"
+  },
+  {
+    "id": 429,
+    "name": "이무기氷",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/429.webp"
+  },
+  {
+    "id": 430,
+    "name": "빙룡",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/430.webp"
+  },
+  {
+    "id": 431,
+    "name": "무슈후슈",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/431.webp"
+  },
+  {
+    "id": 432,
+    "name": "극우령챠우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/432.webp"
+  },
+  {
+    "id": 433,
+    "name": "도끼병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/433.webp"
+  },
+  {
+    "id": 434,
+    "name": "변이된 구렁이",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/434.webp"
+  },
+  {
+    "id": 435,
+    "name": "돌쇠",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/435.webp"
+  },
+  {
+    "id": 436,
+    "name": "조련된 마수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/436.webp"
+  },
+  {
+    "id": 437,
+    "name": "비사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/437.webp"
+  },
+  {
+    "id": 438,
+    "name": "인마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/438.webp"
+  },
+  {
+    "id": 439,
+    "name": "몽마",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/439.webp"
+  },
+  {
+    "id": 440,
+    "name": "조인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/440.webp"
+  },
+  {
+    "id": 441,
+    "name": "랑인",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/441.webp"
+  },
+  {
+    "id": 442,
+    "name": "수호병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/442.webp"
+  },
+  {
+    "id": 443,
+    "name": "파오",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/443.webp"
+  },
+  {
+    "id": 444,
+    "name": "파오眞",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/444.webp"
+  },
+  {
+    "id": 445,
+    "name": "파멸자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/445.webp"
+  },
+  {
+    "id": 446,
+    "name": "해신녀",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/446.webp"
+  },
+  {
+    "id": 447,
+    "name": "물나방",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/447.webp"
+  },
+  {
+    "id": 448,
+    "name": "연못이무기",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/448.webp"
+  },
+  {
+    "id": 449,
+    "name": "연못거북",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/449.webp"
+  },
+  {
+    "id": 450,
+    "name": "창수",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/450.webp"
+  },
+  {
+    "id": 451,
+    "name": "주술사식이",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/451.webp"
+  },
+  {
+    "id": 452,
+    "name": "람채화",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/452.webp"
+  },
+  {
+    "id": 453,
+    "name": "몽구스",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/453.webp"
+  },
+  {
+    "id": 454,
+    "name": "큰칼도적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/454.webp"
+  },
+  {
+    "id": 455,
+    "name": "괴물각다귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/455.webp"
+  },
+  {
+    "id": 456,
+    "name": "왕개미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/456.webp"
+  },
+  {
+    "id": 457,
+    "name": "딱정벌레",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/457.webp"
+  },
+  {
+    "id": 458,
+    "name": "쌍칼도적",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/458.webp"
+  },
+  {
+    "id": 459,
+    "name": "모래의신",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/459.webp"
+  },
+  {
+    "id": 461,
+    "name": "뱅골여우",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/461.webp"
+  },
+  {
+    "id": 483,
+    "name": "친다",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/483.webp"
+  },
+  {
+    "id": 484,
+    "name": "문다",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/484.webp"
+  },
+  {
+    "id": 485,
+    "name": "숨바",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/485.webp"
+  },
+  {
+    "id": 486,
+    "name": "니숨바",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/486.webp"
+  },
+  {
+    "id": 487,
+    "name": "마히샤",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/487.webp"
+  },
+  {
+    "id": 488,
+    "name": "락타비자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/488.webp"
+  },
+  {
+    "id": 489,
+    "name": "쿤바카르나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/489.webp"
+  },
+  {
+    "id": 490,
+    "name": "킹구",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/490.webp"
+  },
+  {
+    "id": 527,
+    "name": "무굴제국석궁수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/527.webp"
+  },
+  {
+    "id": 528,
+    "name": "무굴제국근위병",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/528.webp"
+  },
+  {
+    "id": 529,
+    "name": "왕궁시녀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/529.webp"
+  },
+  {
+    "id": 530,
+    "name": "왕국시종장",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/530.webp"
+  },
+  {
+    "id": 531,
+    "name": "왕국비밀호위",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/531.webp"
+  },
+  {
+    "id": 532,
+    "name": "샤자한과왕비",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/532.webp"
+  },
+  {
+    "id": 533,
+    "name": "야마와야미",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/533.webp"
+  },
+  {
+    "id": 534,
+    "name": "인도코브라",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/534.webp"
+  },
+  {
+    "id": 535,
+    "name": "황소인간",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/535.webp"
+  },
+  {
+    "id": 536,
+    "name": "하이에나",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/536.webp"
+  },
+  {
+    "id": 537,
+    "name": "이교도 사제",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/537.webp"
+  },
+  {
+    "id": 538,
+    "name": "자타유",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/538.webp"
+  },
+  {
+    "id": 539,
+    "name": "이교도 마술사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/539.webp"
+  },
+  {
+    "id": 540,
+    "name": "이교도 대법사",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/540.webp"
+  },
+  {
+    "id": 541,
+    "name": "이교도 대승정",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/541.webp"
+  },
+  {
+    "id": 542,
+    "name": "아수라의 사제",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/542.webp"
+  },
+  {
+    "id": 543,
+    "name": "하누만의 사제",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/543.webp"
+  },
+  {
+    "id": 544,
+    "name": "시바의 사제",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/544.webp"
+  },
+  {
+    "id": 614,
+    "name": "화염구렁이",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/614.webp"
+  },
+  {
+    "id": 615,
+    "name": "송어인",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/615.webp"
+  },
+  {
+    "id": 616,
+    "name": "일각비사",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/616.webp"
+  },
+  {
+    "id": 584,
+    "name": "청제재금강",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/584.webp"
+  },
+  {
+    "id": 619,
+    "name": "전사의혼",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/619.webp"
+  },
+  {
+    "id": 627,
+    "name": "대칸의혼",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/627.webp"
+  },
+  {
+    "id": 628,
+    "name": "벼락맞은괴목",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/628.webp"
+  },
+  {
+    "id": 629,
+    "name": "가진",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/629.webp"
+  },
+  {
+    "id": 630,
+    "name": "가진(後)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/630.webp"
+  },
+  {
+    "id": 631,
+    "name": "용암게",
+    "element_type": 1,
+    "element_value": 20,
+    "image_url": "monster/631.webp"
+  },
+  {
+    "id": 632,
+    "name": "익사귀",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/632.webp"
+  },
+  {
+    "id": 633,
+    "name": "고독귀",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/633.webp"
+  },
+  {
+    "id": 634,
+    "name": "귀수산",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/634.webp"
+  },
+  {
+    "id": 635,
+    "name": "해마인",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/635.webp"
+  },
+  {
+    "id": 636,
+    "name": "잠식귀",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/636.webp"
+  },
+  {
+    "id": 637,
+    "name": "괴웅",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/637.webp"
+  },
+  {
+    "id": 638,
+    "name": "괴록",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/638.webp"
+  },
+  {
+    "id": 639,
+    "name": "괴저",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/639.webp"
+  },
+  {
+    "id": 640,
+    "name": "악몽이깃든영수",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/640.webp"
+  },
+  {
+    "id": 641,
+    "name": "잠식귀",
+    "element_type": 3,
+    "element_value": 20,
+    "image_url": "monster/641.webp"
+  },
+  {
+    "id": 642,
+    "name": "제물령",
+    "element_type": 4,
+    "element_value": 20,
+    "image_url": "monster/642.webp"
+  },
+  {
+    "id": 643,
+    "name": "흉몽귀",
+    "element_type": 2,
+    "element_value": 20,
+    "image_url": "monster/643.webp"
+  },
+  {
+    "id": 703,
+    "name": "주작단원_린",
+    "element_type": 1,
+    "element_value": 210,
+    "image_url": "monster/703.webp"
+  },
+  {
+    "id": 704,
+    "name": "제사장_진무",
+    "element_type": 2,
+    "element_value": 250,
+    "image_url": "monster/704.webp"
+  },
+  {
+    "id": 714,
+    "name": "백상회_밀정",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/714.webp"
+  },
+  {
+    "id": 715,
+    "name": "백상회_변절자",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/715.webp"
+  },
+  {
+    "id": 716,
+    "name": "환염의_구지령",
+    "element_type": 1,
+    "element_value": 300,
+    "image_url": "monster/716.webp"
+  },
+  {
+    "id": 717,
+    "name": "독수의_구지령",
+    "element_type": 2,
+    "element_value": 300,
+    "image_url": "monster/717.webp"
+  },
+  {
+    "id": 718,
+    "name": "암전의_구지령",
+    "element_type": 4,
+    "element_value": 300,
+    "image_url": "monster/718.webp"
+  },
+  {
+    "id": 719,
+    "name": "독풍의_구지령",
+    "element_type": 3,
+    "element_value": 300,
+    "image_url": "monster/719.webp"
+  },
+  {
+    "id": 720,
+    "name": "챠우의_잔재",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/720.webp"
+  },
+  {
+    "id": 721,
+    "name": "나찰궁",
+    "element_type": 1,
+    "element_value": 280,
+    "image_url": "monster/721.webp"
+  },
+  {
+    "id": 787,
+    "name": "빙검귀",
+    "element_type": 2,
+    "element_value": 280,
+    "image_url": "monster/787.webp"
+  },
+  {
+    "id": 788,
+    "name": "암무귀",
+    "element_type": 2,
+    "element_value": 270,
+    "image_url": "monster/788.webp"
+  },
+  {
+    "id": 789,
+    "name": "삭풍귀",
+    "element_type": 3,
+    "element_value": 320,
+    "image_url": "monster/789.webp"
+  },
+  {
+    "id": 790,
+    "name": "파갑귀",
+    "element_type": 3,
+    "element_value": 280,
+    "image_url": "monster/790.webp"
+  },
+  {
+    "id": 791,
+    "name": "암무귀",
+    "element_type": 3,
+    "element_value": 270,
+    "image_url": "monster/791.webp"
+  },
+  {
+    "id": 792,
+    "name": "염우귀",
+    "element_type": 4,
+    "element_value": 320,
+    "image_url": "monster/792.webp"
+  },
+  {
+    "id": 793,
+    "name": "흉창귀",
+    "element_type": 4,
+    "element_value": 280,
+    "image_url": "monster/793.webp"
+  },
+  {
+    "id": 794,
+    "name": "암무귀",
+    "element_type": 4,
+    "element_value": 270,
+    "image_url": "monster/794.webp"
+  },
+  {
+    "id": 795,
+    "name": "탁록귀(弱)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/795.webp"
+  },
+  {
+    "id": 796,
+    "name": "괴조귀(弱)",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/796.webp"
+  },
+  {
+    "id": 797,
+    "name": "투적귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/797.webp"
+  },
+  {
+    "id": 798,
+    "name": "투적귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/798.webp"
+  },
+  {
+    "id": 799,
+    "name": "수확귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/799.webp"
+  },
+  {
+    "id": 800,
+    "name": "수확귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/800.webp"
+  },
+  {
+    "id": 801,
+    "name": "삭풍귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/801.webp"
+  },
+  {
+    "id": 802,
+    "name": "삭풍귀",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/802.webp"
+  },
+  {
+    "id": 818,
+    "name": "환락의운향",
+    "element_type": 4,
+    "element_value": 335,
+    "image_url": "monster/818.webp"
+  },
+  {
+    "id": 819,
+    "name": "암시장무녀",
+    "element_type": 4,
+    "element_value": 295,
+    "image_url": "monster/819.webp"
+  },
+  {
+    "id": 820,
+    "name": "암시장암살자",
+    "element_type": 4,
+    "element_value": 285,
+    "image_url": "monster/820.webp"
+  },
+  {
+    "id": 821,
+    "name": "광기의삼미호",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/821.webp"
+  },
+  {
+    "id": 822,
+    "name": "광기의영수",
+    "element_type": null,
+    "element_value": 0,
+    "image_url": "monster/822.webp"
+  },
+  {
+    "id": 823,
+    "name": "현천무녀 소혼",
+    "element_type": 1,
+    "element_value": 370,
+    "image_url": "monster/823.webp"
+  },
+  {
+    "id": 824,
+    "name": "현천무녀 소혼",
+    "element_type": 2,
+    "element_value": 370,
+    "image_url": "monster/824.webp"
+  },
+  {
+    "id": 825,
+    "name": "현천무녀 소혼",
+    "element_type": 3,
+    "element_value": 370,
+    "image_url": "monster/825.webp"
+  },
+  {
+    "id": 826,
+    "name": "현천무녀 소혼",
+    "element_type": 4,
+    "element_value": 370,
+    "image_url": "monster/826.webp"
+  },
+  {
+    "id": 827,
+    "name": "암흑명왕",
+    "element_type": 1,
+    "element_value": 380,
+    "image_url": "monster/827.webp"
+  },
+  {
+    "id": 828,
+    "name": "암흑 애염명왕",
+    "element_type": 1,
+    "element_value": 400,
+    "image_url": "monster/828.webp"
+  },
+  {
+    "id": 829,
+    "name": "암흑명왕",
+    "element_type": 2,
+    "element_value": 380,
+    "image_url": "monster/829.webp"
+  },
+  {
+    "id": 830,
+    "name": "암흑 공작명왕",
+    "element_type": 2,
+    "element_value": 400,
+    "image_url": "monster/830.webp"
+  },
+  {
+    "id": 831,
+    "name": "야주타",
+    "element_type": 1,
+    "element_value": 390,
+    "image_url": "monster/831.webp"
+  },
+  {
+    "id": 832,
+    "name": "야주타",
+    "element_type": 2,
+    "element_value": 390,
+    "image_url": "monster/832.webp"
+  },
+  {
+    "id": 833,
+    "name": "야주타",
+    "element_type": 3,
+    "element_value": 390,
+    "image_url": "monster/833.webp"
+  },
+  {
+    "id": 834,
+    "name": "야주타",
+    "element_type": 4,
+    "element_value": 390,
+    "image_url": "monster/834.webp"
+  }
+]

@@ -1,0 +1,1879 @@
+
+<html lang="ko" xml:lang="ko">
+
+<head>
+	<title>거상</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=0, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" type="text/css" href="/src/comm/font/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="/_common/css/common.css" />
+	<link href="/_common/css/slick.css" rel="stylesheet" type="text/css">
+	<link href="/_common/css/board.css" rel="stylesheet" type="text/css">
+	<link href="/_common/css/style.css" rel="stylesheet" type="text/css">
+	<link href="/_common/css/owl.carousel.css" rel="stylesheet" type="text/css">
+	<link href="/_common/css/style2.css" rel="stylesheet" type="text/css">
+	<link href="/src/comm/css/def.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="/src/comm/js/jquery.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/src/comm/js/jQuery.serializeObject/dist/jquery.serializeObject.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/common.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/sb_common.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/board.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/jquery.mCustomScrollbar.concat.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/slick.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/_common/js/owl.carousel.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/src/comm/js/class/jgClassCommonFunc.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/src/comm/js/def.js" charset="utf-8"></script>
+	<script src="//developers.kakao.com/sdk/js/kakao.min.js"></script>
+	<script src="/_common/js/hello.all.js"></script>
+	<script type="text/javascript" src="/_common/js/comm_sns.js"></script>
+	<script type="text/javascript" src="/_common/js/naverLogin_implicit-1.0.3.js" charset="utf-8"></script>
+	
+
+	<script>
+		var naver_id_login = new naver_id_login("BhJsjJvL8Znw2t0zlQ5l", "https://www.gersang.co.kr/member/Naver_oAuth.gs");
+		naver_id_login.setPopup();
+
+	</script>
+	<script language="JavaScript">
+		<!--
+	function showLayerPcbang() {
+		document.getElementById("IDpcbang").style.display = "block";	
+		document.getElementById("evenmain").style.display = "none";		
+	}
+
+	function hideLayerPcbang() {
+		document.getElementById("IDpcbang").style.display = "none";
+		document.getElementById("evenmain").style.display = "block";
+	}
+
+	function popPcbangApply() {
+		window.open("https://www.playwithzone.com/product/pcroomrequest?c=gs","","width=630,height=430");
+	}
+
+    function pcbangCheck(){    	
+        $.ajax({
+            type: "Get",
+            url: "https://www.playwithzone.com/service/gamebillcheck",
+            data: "c=gs",
+            dataType :"jsonp",
+    		jsonp: false,
+    		jsonpCallback: "PLAYWITHZONE",
+            success: function(data) {
+				if (data.result=="Y") {
+					document.getElementById("IDpcbangBanner").src = "/image/event/pcbang/pc_banner_on.gif";
+				} else {
+					document.getElementById("IDpcbangApply").innerHTML = "&nbsp;<img src='/image/event/pcbang/btn_apply.gif' style='cursor:pointer' onClick='popPcbangApply()' />";
+				}
+			}
+        });  
+    }
+
+	pcbangCheck();
+//-->
+	</script>
+
+	<style type="text/css">
+		.wrap-loading {
+			/*화면 전체를 어둡게 합니다.*/
+			position: fixed;
+			left: 0;
+			right: 0;
+			top: 0;
+			bottom: 0;
+			background: rgba(0, 0, 0, 0.2);
+			/*not in ie */
+			filter: progid:DXImageTransform.Microsoft.Gradient(startColorstr='#20000000', endColorstr='#20000000');
+			/* ie */
+		}
+
+		.wrap-loading div {
+			/*로딩 이미지*/
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			margin-left: -21px;
+			margin-top: -21px;
+		}
+
+		.display-none {
+			/*감추기*/
+			display: none;
+		}
+
+	</style>
+	<style>
+		.max-small {
+			width: auto;
+			height: auto;
+			max-width: 30px;
+			max-height: 30px;
+		}
+
+	</style>
+
+	<style>
+		#pcbang {
+			position: absolute;
+			top: -10px;
+			left: -5px;
+		}
+
+		#popup_1 {
+			position: relative;
+			top: 0;
+			left: 0;
+			margin: 0 auto;
+		}
+
+		#popup_1 .pop_btn_1 {
+			position: absolute;
+			width: 300px;
+			left: 0px;
+			top: 0px;
+		}
+
+		.pop_layer_1 {
+			display: none;
+			position: absolute;
+			RIGHT: -150px;
+			top: 150px;
+			width: 590px;
+			height: 520px;
+			background: url(/img/common/pcbang_pop.png) 0 0 no-repeat;
+			z-index: 0;
+		}
+
+		.close_1 {
+			position: absolute;
+			left: 530px;
+			top: 8px;
+			z-index: 888;
+		}
+
+		.find_pcbang{position: absolute;
+		top: 483px; left: 170px;}
+		
+		.application_pcbang{position: absolute;
+		top: 454px; left: 300px;}
+		
+		
+	</style>
+
+<script type="text/javascript">
+    function capslock(e) {
+            var keyCode = 0;
+            var shiftKey = false;
+            keyCode = e.keyCode;
+            shiftKey = e.shiftKey;
+            if (((keyCode >= 65 && keyCode <= 90) && !shiftKey)
+                    || ((keyCode >= 97 && keyCode <= 122) && shiftKey)) {
+                show_capslock();
+                //setTimeout("hide_capslock()", 3500);
+            } else {
+                hide_capslock();
+            }
+        }
+ 
+    function show_capslock() {
+         $("#caps_lock").show();
+    }
+ 
+    function hide_capslock() {
+         $("#caps_lock").hide();
+    }
+</script>
+	
+</head>
+
+<body>
+	<div class="wrap-loading display-none">
+		<div><img src="/pub/img/policy/loading.gif" /></div>
+	</div>
+
+	<div id="wrap">
+
+		<!-- s : header -->
+		<div class="header">
+
+			<div class="top_wrap">
+				<div class="top_box">
+					<div class="company"><img src="/img/common/company_logo.jpg" alt="AK Interactive" /></a></div>
+					<div class="rt_box clfx">
+						<ul class="member">
+							
+							<li><a href="/sign/signup.gs">회원가입</a></li>
+							<li><a href="/member/login.gs?returnUrl=www.gersang.co.kr%2Fmain%2Findex%2Egs%3F">로그인</a></li>
+							<li><a href="/customer/faq.gs">고객센터</a></li>
+							
+							<div id="popup_1">
+								<div class="pop_btn_1">
+									<a href="javascript:void(0)" onclick="document.getElementById('pop_1').style.display='block';document.getElementById('fade').style.display='block'">
+										<p id="pcbang">PC방</p>
+									</a>
+								</div>
+								<div id="pop_1" class="pop_layer_1">
+									<a href="javascript:void(0)" onclick="document.getElementById('pop_1').style.display='none';document.getElementById('fade').style.display='none'">
+										<img src="/img/common/close.png" class="close_1">
+									</a>
+									<li class="find_pcbang"><a href="https://www.playwithzone.com/Support/PcroomSearch" target="_blank"><img src="/img/common/find_pcbang.jpg"></a></li>
+									<li class="application_pcbang" id="IDpcbang"><a href="https://www.playwithzone.com/product/pcroomrequest?c=gs" target="_blank"><img src="/img/common/application_pcbang.jpg"></a></li>
+								</div>
+							</div>
+						</ul>
+						<ul class="pc_room">
+								<li id="IDpcbangBanner1">ON</li>
+								<li id="IDpcbangBanner2">OFF</li>
+						</ul>
+						<script language="JavaScript">
+							<!--
+							function pcbangCheck() {
+								$.ajax({
+									type: "Get",
+									url: "https://www.playwithzone.com/service/gamebillcheck",
+									data: "c=gs",
+									dataType: "jsonp",
+									jsonp: false,
+									jsonpCallback: "PLAYWITHZONE",
+									success: function(data) {
+										if (data.result == "Y") {
+											document.getElementById("IDpcbangBanner1").classList.add('on');
+											document.getElementById("IDpcbangBanner2").classList.remove('on');
+										} else {
+											document.getElementById("IDpcbangBanner2").classList.add('on');
+											document.getElementById("IDpcbangBanner1").classList.remove('on');
+										}
+									}
+								});
+							}
+
+							pcbangCheck();
+							//
+
+							-->
+						</script>
+
+					</div>
+					<div class="scroll_nav">
+						<div class="gnb_open"><i></i><i></i><i></i></div>
+						<style>
+	#patch_pop:after{position: absolute;width: 0;height: 0;pointer-events: none; content: " ";}
+	#pop_start:hover + #patch_pop {display: block;}
+</style>
+
+
+<script language="JavaScript">
+<!--
+	function gameStart(no) {
+		alert("로그인 후 게임실행이 가능합니다");
+		location.href="/member/login.gs"
+	}
+//-->
+</script>
+
+				<div class="start_btn" >
+					<a href="javascript:void(0);" onclick="javascript:gameStart(1)">
+						<img src="/img/common/start_btn_s.jpg" alt="게임시작" />
+						<img src="/img/common/start_btn_s_hover.jpg" alt="게임시작" class="hover"/>
+						<img src="/img/common/start_btn_s_hover2.jpg" alt="게임시작" class="hover2"/>
+					</a>
+				</div>
+
+
+
+
+
+<div id="StartGuide" style="position:absolute; left:50%; margin-left:-300px; top:50px; z-index:99; display:none;">
+	<table border="0" cellspacing="2" cellpadding="0" class="pop_line">
+		<tr>
+			<td id="pop_start"><img src="/image/start/start_guide.jpg"></td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#FFFFFF">
+				<table cellspacing="0" cellpadding="5" width="100%">
+					<tr>
+						<td><a href="/dataroom/client.gs" class="mainnotice">설치 페이지로 이동</a>&nbsp;&nbsp;</td>
+						<td align="right">
+							<a href="" target="_blank" onclick="startChek('2')" class="mainnotice">설치 실행</a>&nbsp;&nbsp;
+							<a href="#" onclick="startChek('2')" class="mainnotice">취소</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>	
+</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- s: gnb pc용 -->
+			<div class="gnb">
+				<div class="logo"><a href="/main/index.gs"><img src="/img/common/logo.png" alt="천하제일상 거상" /></a></div>
+				<ul class="nav">
+					<!--s: 거상소식-->
+					<li class="menu">
+						<p>거상소식</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/news/notice.gs?GSbid=1001">
+									<p>공지사항</p>
+								</a></li>
+							<li class="snb down_menu">
+								<p>업데이트소개<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/news/update_main.gs">주요 업데이트 소개</a></div>
+									<div class="dep3"><a href="/news/update_normal.gs?GSbid=1004">일반 업데이트 소개</a></div>
+								</div>
+							</li>
+							<li class="snb down_menu">
+								<p>이벤트<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/news/event.gs">진행중인 이벤트</a></div>
+									<div class="dep3"><a href="/news/winner.gs?GSbid=1003">당첨자 발표</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/news/developer.gs?GSbid=1005">
+									<p>개발자 노트</p>
+								</a></li>
+							<li class="snb"><a href="/news/Random.gs?GSbid=1001">
+									<p>확률형 아이템</p>
+								</a></li>
+						</ul>
+					</li>
+					<!--e: 거상소식-->
+
+					<!--s: 거상소개-->
+					<li class="menu">
+						<p>거상소개</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/gersang/feature.gs">
+									<p>거상특징</p>
+								</a></p>
+							</li>
+							<li class="snb down_menu">
+								<p>시나리오<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/gersang/scenario_01.gs">한밤의 초대</a></div>
+									<div class="dep3"><a href="/gersang/scenario_02.gs">거상세력</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/gersang/guide_01.gs">
+									<p>거상가이드</p>
+								</a></p>
+							</li>
+						</ul>
+					</li>
+					<!--e: 거상소개-->
+
+					<!--s: 거상정보-->
+					<li class="menu">
+						<p>거상정보</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/info/character.gs">
+									<p>캐릭터 소개</p>
+								</a></li>
+							<li class="snb"><a href="/info/area.gs">
+									<p>지역안내</p>
+								</a></li>
+							<li class="snb"><a href="/info/hire_commander.gs">
+									<p>용병 및 장수</p>
+								</a></li>
+							<li class="snb down_menu">
+								<p>아이템<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/info/item.gs?int_gbn=1">무기</a></div>
+									<div class="dep3"><a href="/info/item.gs?int_gbn=2">방어구</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/info/monster.gs">
+									<p>몬스터</p>
+								</a></li>
+							<li class="snb down_menu">
+								<p>퀘스트<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/info/quest.gs">국가별 초보자 퀘스트</a></div>
+									<div class="dep3"><a href="/info/quest.gs?GSkind=8">공통 퀘스트</a></div>
+									<div class="dep3"><a href="/info/quest.gs?GSkind=25">기타 퀘스트</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/info/system01.gs">
+									<p>주요시스템</p>
+								</a></li>
+
+						</ul>
+					</li>
+					<!--e: 거상정보-->
+
+					<!--s: 커뮤니티-->
+					<li class="menu">
+						<p>커뮤니티</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/community/free.gs?GSbid=2001">
+									<p>자유발언대</p>
+								</a></li>
+							<li class="snb"><a href="/community/server.gs?GSbid=2002">
+									<p>우리서버 이야기</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/target.gs?GSbid=2003"><p>게임공략</p></a></li>-->
+							<li class="snb down_menu">
+								<p>나도기획자<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=1">추천 진행중 의견</a></div>
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=2">답변된 의견</a></div>
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=3">기간 만료된 의견</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/community/photo.gs?GSbid=2004">
+									<p>스크린샷</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/target.gs?GSbid=2003"><p>거상 지식 곳간</p></a></li>-->
+							<li class="snb down_menu">
+								<p>거상 지식 곳간<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/target.gs?GSbid=2003">공략 게시판</a></div>
+									<div class="dep3"><a href="/community/knowledge.gs?GSbid=4003">질문 게시판</a></div>
+								</div>
+							</li>
+							<li class="snb down_menu">
+								<p>동영상 게시판<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/mov.gs?GSbid=4004">유저 영상 게시판</a></div>
+									<div class="dep3"><a href="/community/create.gs?GSbid=4005">거상 크리에이터</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/community/poll.gs">
+									<p>설문조사</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/fan.gs">
+									<p>거상 팬 클럽</p>
+								</a></li>-->
+							<li class="snb down_menu">
+								<p>거상 테스터<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/tester.gs?GSbid=2005">공지사항</a></div>
+									<div class="dep3"><a href="/community/bug.gs?GSbid=2006">버그 게시판</a></div>
+									<div class="dep3"><a href="javascript:void(0);" onclick="gameStart(2)">테스트 서버 게임 시작</a></div>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<!--e: 커뮤니티-->
+
+					<!--s: 자료실-->
+					<li class="menu">
+						<p>자료실</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/dataroom/client.gs">
+									<p>클라이언트</p>
+								</a></li>
+							<li class="snb"><a href="/dataroom/artwork.gs?GSbid=3001">
+									<p>아트웍</p>
+								</a></li>
+							<li class="snb"><a href="/dataroom/wallpaper.gs?GSbid=3002">
+									<p>월페이퍼</p>
+								</a></li>
+						</ul>
+					</li>
+					<!--e: 자료실-->
+
+					<!--s: 자료실-->
+					<li class="menu">
+						<p>상점</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/shop/shop.gs">
+									<p>상점</p>
+								</a></li>
+						</ul>
+					</li>
+					<!--e: 자료실-->
+				</ul>
+			</div>
+			<!-- e: gnb pc용 -->
+
+			<!-- s: mo_gnb mobile용 -->
+			<div class="mo_gnb">
+				<div class="mo_gnb_top">
+					<div class="menu_open"><i></i><i></i><i></i></div>
+					<div class="logo"><a href="/main/index.gs"><img src="/img/common/logo.png" alt="천하제일상 거상" /></a></div>
+				</div>
+				<div class="nav_wrap">
+					<div class="close_btn">
+						<div class="btn"><i></i><i></i></div>
+					</div>
+					<!-- s: game_box -->
+					<div class="game_box">
+						<div class="inner_wrap">
+							<div class="login_box">
+								
+								<form id="frmLoginM" name="frmLoginM" target="_self" method="POST">
+									<input type="hidden" name="returnUrl" value="www.gersang.co.kr/main/index.gs?">
+									<!-- login -->
+									<div class="login_wrap">
+										<div class="top_box">
+											<div class="inner">
+												<div class="id"><input type="text" name="GSuserID" id="GSuserIDM" placeholder="아이디" /></div>
+												<div class="pw"><input type="password" name="GSuserPW" id="GSuserPWM" placeholder="비밀번호" onkeypress="capslock(event)"/></div>
+												<p id="caps_lock" style="position:relative; width:250px; height: 25px; bottom:0px; display:none"> 
+												&nbsp;<b>Capslock</b> 키가 눌려있습니다.&nbsp;
+												</p>
+												<div class="login_btn"><a href="javascript:void(0);" id="btn_LoginM">로그인</a></div>
+												<div class="sns_login" id="sns_login">
+													<ul>
+														<li><a href="/sign/signup.gs">sns로그인</a></li>
+														<li><a href="javascript:void(0);" id="btn_naver_mo"><div class="img_box"><img src="/img/contents/icon_naver.png" alt="네이버"></div></a></li>
+														<li><a href="javascript:void(0);" id="btn_kakao_mo" ><div class="img_box"><img src="/img/contents/icon_kakao.png" alt="카카오"></div></a></li>
+														<li><a href="javascript:void(0);" id="btn_google_mo"><div class="img_box"><img src="/img/contents/icon_google.png" alt="구글"></div></a></li>
+													</ul>
+												</div>
+											</div>
+										</div>
+										<div class="bot_box">
+											<ul>
+												<li><a href="/sign/signup.gs">회원가입</a></li>
+												<li><a href="/member/findid.gs">아이디 찾기</a></li>
+												<li><a href="/member/findpw.gs">비밀번호 찾기</a></li>
+												<li><a href="/customer/faq.gs">고객센터</a></li>
+											</ul>
+										</div>
+									</div>
+								</form>
+								<!-- login -->
+
+						<script language="javascript">
+							$(document).ready(function() { 
+								$("#btn_LoginM").on("click",function(){
+								
+									if ($.ValidChkM()==false) return;
+									$("#frmLoginM").attr("action", "https://www.gersang.co.kr/member/loginProc.gs");
+									$("#frmLoginM").attr("method", "post");
+									$("#frmLoginM").submit();
+						
+								});
+								$.ValidChkM = function(){
+									obj = $("#GSuserIDM");
+									if(obj.val().trim()==""){  
+										alert("아이디를 입력하여 주시기 바랍니다.");
+										obj.focus();
+										return false;	
+									}
+									obj = $("#GSuserPWM");
+									if(obj.val().trim()==""){  
+										alert("비밀번호를 입력하여 주시기 바랍니다.");
+										obj.focus();
+										return false;	
+									}
+									return true;	
+								}
+								$("#GSuserIDM, #GSuserPWM").keydown(function(key) {
+									if (key.keyCode == 13) {
+										$("#btn_LoginM").trigger("click");
+									}
+								});
+
+							});
+						</script>
+
+								
+
+							</div>
+						</div>
+					</div>
+					<!-- e: game_box -->
+					<ul class="nav">
+						<!--s: 거상소식-->
+						<li class="menu">
+							<p>거상소식</p>
+							<ul class="depth_2_box">
+								<li class="snb"><a href="/news/notice.gs?GSbid=1001">
+										<p>공지사항</p>
+									</a></li>
+								<li class="snb down_menu">
+									<p>업데이트소개<span></span></p>
+									<div class="depth_3_box">
+										<div class="dep3"><a href="/news/update_main.gs">주요 업데이트 소개</a></div>
+										<div class="dep3"><a href="/news/update_normal.gs?GSbid=1004">일반 업데이트 소개</a></div>
+									</div>
+								</li>
+								<li class="snb down_menu">
+									<p>이벤트<span></span></p>
+									<div class="depth_3_box">
+										<div class="dep3"><a href="/news/event.gs">진행중인 이벤트</a></div>
+										<div class="dep3"><a href="/news/winner.gs?GSbid=1003">당첨자 발표</a></div>
+									</div>
+								</li>
+								<li class="snb"><a href="/news/developer.gs?GSbid=1005">
+										<p>개발자 노트</p>
+									</a></li>
+							</ul>
+						</li>
+						<!--e: 거상소식-->
+
+						<!--s: 거상소개-->
+						<li class="menu">
+							<p>거상소개</p>
+							<ul class="depth_2_box">
+								<li class="snb"><a href="/gersang/feature.gs">
+										<p>거상특징</p>
+									</a></li>
+						</li>
+						<li class="snb down_menu">
+							<p>시나리오<span></span></p>
+							<div class="depth_3_box">
+								<div class="dep3"><a href="/gersang/scenario_01.gs">한밤의 초대</a></div>
+								<div class="dep3"><a href="/gersang/scenario_02.gs">거상세력</a></div>
+							</div>
+						</li>
+						<li class="snb"><a href="/gersang/guide_01.gs">
+								<p>거상가이드</p>
+							</a></li>
+					</ul>
+					</li>
+					<!--e: 거상소개-->
+
+					<!--s: 거상정보-->
+					<li class="menu">
+						<p>거상정보</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/info/character.gs">
+									<p>캐릭터 소개</p>
+								</a></li>
+							<li class="snb"><a href="/info/area.gs">
+									<p>지역안내</p>
+								</a></li>
+							<li class="snb"><a href="/info/hire_commander.gs">
+									<p>용병 및 장수</p>
+								</a></li>
+							<li class="snb down_menu">
+								<p>아이템<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/info/item.gs?int_gbn=1">무기</a></div>
+									<div class="dep3"><a href="/info/item.gs?int_gbn=2">방어구</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/info/monster.gs">
+									<p>몬스터</p>
+								</a></li>
+							<li class="snb down_menu">
+								<p>퀘스트<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/info/quest.gs">국가별 초보자 퀘스트</a></div>
+									<div class="dep3"><a href="/info/quest.gs?GSkind=8">공통 퀘스트</a></div>
+									<div class="dep3"><a href="/info/quest.gs?GSkind=25">기타 퀘스트</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/info/system01.gs">
+									<p>주요시스템</p>
+								</a></li>
+
+						</ul>
+					</li>
+					<!--e: 거상정보-->
+
+					<!--s: 커뮤니티-->
+					<li class="menu">
+						<p>커뮤니티</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/community/free.gs?GSbid=2001">
+									<p>자유발언대</p>
+								</a></li>
+							<li class="snb"><a href="/community/server.gs?GSbid=2002">
+									<p>우리서버 이야기</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/target.gs?GSbid=2003"><p>게임공략</p></a></li>-->
+							<!--<li class="snb down_menu"><p>거상 지식 공간<span></span></p>
+							<div class="depth_3_box">
+								<div class="dep3"><a href="javascript:void(0);">거상 공략</a></div>
+								<div class="dep3"><a href="javascript:void(0);">거상 지식인</a></div>
+								<div class="dep3"><a href="javascript:void(0);">거상 지식인 이용보상</a></div>
+							</div>
+						</li>-->
+							<li class="snb down_menu">
+								<p>나도기획자<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=1">추천 진행중 의견</a></div>
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=2">답변된 의견</a></div>
+									<div class="dep3"><a href="/community/plan.gs?GSbid=2007&GSviewType=3">기간 만료된 의견</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/community/photo.gs?GSbid=2004">
+									<p>스크린샷</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/target.gs?GSbid=2003"><p>거상 지식 곳간</p></a></li>-->
+							<li class="snb down_menu">
+								<p>거상 지식 곳간<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/target.gs?GSbid=2003">공략 게시판</a></div>
+									<div class="dep3"><a href="/community/knowledge.gs?GSbid=4003">질문 게시판</a></div>
+								</div>
+							</li>
+							<li class="snb down_menu">
+								<p>동영상 게시판<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/mov.gs?GSbid=4004">유저 영상 게시판</a></div>
+									<div class="dep3"><a href="/community/create.gs?GSbid=4005">거상 크리에이티브</a></div>
+								</div>
+							</li>
+							<li class="snb"><a href="/community/poll.gs">
+									<p>설문조사</p>
+								</a></li>
+							<!--<li class="snb"><a href="/community/fan.gs">
+									<p>거상 팬 클럽</p>
+								</a></li>-->
+							<!--<li class="snb"><a href="javascript:void(0);"><p>우리 상단 홍보</p></a></li>-->
+							<li class="snb down_menu">
+								<p>거상 테스터<span></span></p>
+								<div class="depth_3_box">
+									<div class="dep3"><a href="/community/tester.gs?GSbid=2005">공지사항</a></div>
+									<div class="dep3"><a href="/community/bug.gs?GSbid=2006">버그 게시판</a></div>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<!--e: 커뮤니티-->
+
+					<!--s: 자료실-->
+					<li class="menu">
+						<p>자료실</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/dataroom/client.gs">
+									<p>클라이언트</p>
+								</a></li>
+							<li class="snb"><a href="/dataroom/artwork.gs?GSbid=3001">
+									<p>아트웍</p>
+								</a></li>
+							<li class="snb"><a href="/dataroom/wallpaper.gs?GSbid=3002">
+									<p>월페이퍼</p>
+								</a></li>
+						</ul>
+					</li>
+					<!--e: 자료실-->
+
+					<!--s: 자료실-->
+					<li class="menu">
+						<p>상점</p>
+						<ul class="depth_2_box">
+							<li class="snb"><a href="/shop/shop.gs">
+									<p>상점</p>
+								</a></li>
+						</ul>
+					</li>
+					<!--e: 자료실-->
+					</ul>
+				</div>
+			</div>
+			<!-- e: mo_gnb mobile용 -->
+			<!--s:레이어 팝업 -->
+<div class="layer_pop_wrap">	
+	<div class="pop_cont">
+		<iframe src="" frameborder=0 scrolling=no></iframe>
+	</div>
+</div>
+<!--e:레이어 팝업 -->
+
+		</div>
+		<!-- e : header -->
+<!-- 팝업 레이어 시작-->
+
+
+<!-- 팝업 시작-->
+<script language="JavaScript">
+<!--
+	function getCookie(name) {
+		var nameOfCookie = name + "=";
+		var x = 0;
+		while ( x <= document.cookie.length ) {
+				var y = (x+nameOfCookie.length);
+				if ( document.cookie.substring( x, y ) == nameOfCookie ) {
+						if ( (endOfCookie=document.cookie.indexOf( ";", y )) == -1 )
+								endOfCookie = document.cookie.length;
+						return unescape( document.cookie.substring( y, endOfCookie ) );
+				}
+				x = document.cookie.indexOf( " ", x ) + 1;
+				if ( x == 0 )
+						break;
+		}
+		return "";
+	}
+
+	function setCookie( name, value, expiredays ) {
+	 var today = new Date();
+			today.setDate( today.getDate() + expiredays );
+			document.cookie = name + '=' + escape( value ) + '; path=/; expires=' + today.toGMTString() + ';';
+	}
+
+	function closeWinPopMain(pval,pval2) {
+		setCookie(pval, 'checked' ,pval2);
+		closePopupMain(pval);
+	}
+
+	function closePopupMain(pval) {
+		document.getElementById(pval).style.display = 'none';
+	}
+
+/* 팝업1 체크 시작*/
+
+/* 팝업1 체크 끝*/
+
+/* 엽전삭제 팝업 체크 시작*/
+
+/* 엽전 삭제 팝업 체크 끝*/
+
+//-->
+</script>
+<!-- 팝업 끝-->
+
+
+
+<form method="post" name="frmEventPop" target="ifrmPop">
+	<input type="hidden" name="EventIdx" value="">
+</form>
+
+<iframe name="ifrmPop" src="/none.gs" width="0" height="0" frameborder="0"></iframe>
+
+<link rel="stylesheet" href="/_common/css/main.css"/>
+<link rel="shortcut icon" type="image/x-icon"  href="favicon.ico">
+<script type="text/javascript" src="./js/main.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/index.js" charset="utf-8"></script>
+<script type="text/javascript" src="./js/shop.js" charset="utf-8"></script>
+
+<script type="text/javascript">
+    function caps_lock(e) {
+            var keyCode = 0;
+            var shiftKey = false;
+            keyCode = e.keyCode;
+            shiftKey = e.shiftKey;
+            if (((keyCode >= 65 && keyCode <= 90) && !shiftKey)
+                    || ((keyCode >= 97 && keyCode <= 122) && shiftKey)) {
+                show_caps_lock();
+                //setTimeout("hide_caps_lock()", 3500);
+            } else {
+                hide_caps_lock();
+            }
+        }
+ 
+    function show_caps_lock() {
+         $("#capslock").show();
+    }
+ 
+    function hide_caps_lock() {
+         $("#capslock").hide();
+    }
+</script>
+
+
+<!-- s : main -->
+<div class="main">
+	
+	<!-- s: top_visual -->
+	<div class="top_visual">
+
+		<!-- s: visual_wrap -->
+		<div class="visual_wrap">
+
+			<!-- s: slide_wrap -->
+
+
+			<div class="slide_wrap">
+
+				<div class="visual_slide">
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2026/20260318_SoulS2/img/1920x610.jpg') no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2026/20260318_SoulS2/intro.gs">기억이 머무는 곳</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2026/20260116_gersang-event/img/1920x610.jpg') no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2026/20260116_gersang-event/main.gs">[추성훈 x 천하제일상] 다시 나를 부르다</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2025/20250319_kakaoib2/img/1920x610.jpg') no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2025/20250319_kakaoib2/main.gs">카카오톡 채널 쿠폰 등록</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2024/20240729_Safety/img/1920x610.jpg') no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2024/20240729_Safety/">거상 안전 지킴이</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2024/20240326_3E5vE5/img/1920x610.jpg') no-repeat; background-size:cover;display:none;">
+						<a href="http://www.gersang.co.kr/main/index.gs">추천서버 혜택</a>
+					</div>
+
+				</div>
+
+				<!-- s:vis_bot_box -->
+				<div class="vis_bot_box">
+					<div class="inner_wrap">
+						<div class="control_box">
+							<div class="arrow prev_arrow">이전</div>
+							<div class="play_btn">
+								<button class="pause">Pause</button>
+								<button class="play">Play</button>
+							</div>
+							<div class="arrow next_arrow">다음</div>
+						</div>
+						<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+							<span class="slider__label sr-only">
+						</div>
+						<span class="pagingInfo"></span>
+					</div>
+				</div>
+				<!-- e: vis_bot_box -->	
+			</div>
+			<!-- e: slide_wrap -->			
+
+			<!-- s: game_box -->
+			<div class="game_box">
+				<div class="inner_wrap">
+					<!-- pc에서만 노출 -->
+					<div class="pc_game">
+					
+						<div class="game_start" >
+							<a href="javascript:void(0);" onclick="javascript:gameStart(1)">
+								<img src="/img/main/start_btn_b.png" alt="게임시작" />
+								<img src="/img/main/start_btn_b_hover.png" alt="게임시작" class="hover"/>
+								<img src="/img/main/start_btn_b_hover2.png" alt="게임시작" class="hover2"/>
+							</a>
+						</div>
+
+<div id="StartGuide" style="position:absolute; left:50%; margin-left:-300px; top:50px; z-index:99; display:none;">
+	<table border="0" cellspacing="2" cellpadding="0" class="pop_line">
+		<tr>
+			<td id="pop_start"><img src="/image/start/start_guide.jpg"></td>
+		</tr>
+		<tr>
+			<td height="25" bgcolor="#FFFFFF">
+				<table cellspacing="0" cellpadding="5" width="100%">
+					<tr>
+						<td><a href="/dataroom/client.gs" class="mainnotice">설치 페이지로 이동</a>&nbsp;&nbsp;</td>
+						<td align="right">
+							<a href="" target="_blank" onclick="startChek('2')" class="mainnotice">설치 실행</a>&nbsp;&nbsp;
+							<a href="#" onclick="startChek('2')" class="mainnotice">취소</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>	
+</div>
+
+						<div class="down_load">
+							<a href="/dataroom/client.gs"><p>게임다운로드</p></a>
+						</div>
+					</div>
+
+					<!-- pc에서만 노출 -->
+					<div class="login_box">
+						
+						<!-- login -->
+						<form id="frmLogin" name="frmLogin" target="_self" method="POST" action="https://www.gersang.co.kr/member/loginProc.gs">
+						<input type="hidden" name="returnUrl" value="www.gersang.co.kr/main/index.gs?">
+						<div class="login_wrap">
+							<div class="top_box">
+								<div class="inner">
+									<div class="id"><input type="text" name="GSuserID" id="GSuserID" placeholder="아이디"/></div>
+									<div class="pw"><input type="password" name="GSuserPW" id="GSuserPW" placeholder="비밀번호" onkeypress="caps_lock(event)"/></div>
+									 <p id="capslock" style="position:relative; width:250px; height: 25px; bottom:0px; display:none"> 
+  									 &nbsp;<b>CapsLock</b> 키가 눌려있습니다.&nbsp;
+									 </p>
+									<div class="login_btn"><a href="javascript:void(0);" id="btn_Login">로그인</a></div>
+													<div class="sns_login" id="sns_login">
+							<ul>
+										<li><a href="/sign/signup.gs">sns로그인</a></li>
+										<li><div class="img_box"><a href="javascript:void(0);" id="btn_naver"><img src="/img/contents/icon_naver.png" alt="네이버"></a></div></li>
+										<li><div class="img_box"><a href="javascript:void(0);" id="btn_kakao" ><img src="/img/contents/icon_kakao.png" alt="카카오"></a></div></li>
+										<li><div class="img_box"><a href="javascript:void(0);" id="btn_google"><img src="/img/contents/icon_google.png" alt="구글"></a></div></li>
+								</ul>
+							</div>
+								</div>
+							</div>
+							<div class="bot_box">
+								<ul>
+								<li><a href="/sign/signup.gs">회원가입</a></li>
+								<li><a href="/member/findid.gs">아이디 찾기</a></li>
+								<li><a href="/member/findpw.gs">비밀번호 찾기</a></li>
+							</ul>
+							</div>
+						</div>
+						</form>
+						<!-- login -->
+						
+					</div>
+				</div>
+			</div>
+			<!-- e: game_box -->
+			
+		</div>
+		<!-- e: visual_wrap -->
+
+		<!-- s: mo_visual_wrap -->
+		<div class="mo_visual_wrap">		
+			<div class="visual_slide">
+
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2026/20260318_SoulS2/img/768x780.jpg') center no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2026/20260318_SoulS2/intro.gs">기억이 머무는 곳</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2026/20260116_gersang-event/img/768x780.jpg') center no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2026/20260116_gersang-event/main.gs">[추성훈 x 천하제일상] 다시 나를 부르다</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2025/20250319_kakaoib2/img/768x780.jpg') center no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2025/20250319_kakaoib2/main.gs">카카오톡 채널 쿠폰 등록</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2024/20240729_Safety/img/768x780.jpg') center no-repeat; background-size:cover;display:none;">
+						<a href="https://www.gersang.co.kr/event/2024/20240729_Safety/">거상 안전 지킴이</a>
+					</div>
+
+					<div class="slide_box" style="background:url('https://www.gersang.co.kr/event/2024/20240326_3E5vE5/img/768x780.jpg') center no-repeat; background-size:cover;display:none;">
+						<a href="http://www.gersang.co.kr/main/index.gs">추천서버 혜택</a>
+					</div>
+
+			</div>
+
+			<!-- s:vis_bot_box -->		
+			<div class="vis_bot_box">
+				<div class="inner_wrap">
+					<div class="control_box">
+						<div class="arrow prev_arrow">이전</div>
+						<div class="play_btn">
+							<button class="pause">Pause</button>
+							<button class="play">Play</button>
+						</div>
+						<div class="arrow next_arrow">다음</div>
+					</div>
+					<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+						<span class="slider__label sr-only">
+					</div>
+					<span class="pagingInfo"></span>
+				</div>
+			</div>
+			<!-- e: vis_bot_box -->	
+		</div>	
+
+		<!-- e: mo_visual_wrap -->
+		
+	
+		
+	</div>
+	<!-- e: top_visual -->
+	
+	<div class="content">
+	
+		<!-- s: sec01 -->
+		<div class="section sec01">
+		
+			<!-- s: notice -->
+			<div class="inner_wrap notice">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>공지사항</p>
+						<a href="/news/notice.gs?GSbid=1001"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<ul>
+
+						
+							<li>
+								<a href="/news/notice.gs?GSbid=1001&page=1&main=11832">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> [이벤트] 화이트데이 달콤한 경험치 이벤트 안내</p></div>
+									<div class="date">26.03.27</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/notice.gs?GSbid=1001&page=1&main=11831">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> [공지] 거상상점 신규 의복 출시</p></div>
+									<div class="date">26.03.27</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/notice.gs?GSbid=1001&page=1&main=11819">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> [공지] 비인가 프로그램 사용 관련 안내</p></div>
+									<div class="date">26.03.23</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/notice.gs?GSbid=1001&page=1&main=11810">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> 백호&#44; 주작&#44; 현무 서버 신규 캐릭터 생성 제한 안내</p></div>
+									<div class="date">26.03.20</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/notice.gs?GSbid=1001&page=1&main=11800">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> [공지] 본서버 클라이언트 재설치 안내</p></div>
+									<div class="date">26.03.18</div>
+								</a>
+							</li>
+						
+
+						</ul>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: notice -->
+			
+			<!-- s: event -->
+			<div class="inner_wrap event">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>이벤트</p>
+						<a href="/news/event.gs"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<div class="slide_box">
+
+
+							<div class="box" style="display:none;">
+								<a href="https://www.gersang.co.kr/event/2025/20250319_kakaoib2/main.gs"><img src="https://www.gersang.co.kr/event/2025/20250319_kakaoib2/img/380x210.jpg" alt="기억이 머무는 곳" /></a>
+							</div>
+
+							<div class="box" style="display:none;">
+								<a href="https://www.gersang.co.kr/event/2024/20240729_Safety/"><img src="https://www.gersang.co.kr/event/2024/20240729_Safety/img/380x210.jpg" alt="[추성훈 x 천하제일상] 다시 나를 부르다" /></a>
+							</div>
+
+							<div class="box" style="display:none;">
+								<a href="http://www.gersang.co.kr/main/index.gs"><img src="https://www.gersang.co.kr/event/2024/20240326_3E5vE5/img/380x210.jpg" alt="카카오톡 채널 쿠폰 등록" /></a>
+							</div>
+
+						</div>
+						<span class="pagingInfo"></span>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: event -->
+			
+			<!-- s: guide -->
+			<div class="inner_wrap guide">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>게임가이드</p>
+						<a href="/gersang/guide_01.gs"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						
+						<div class="box"><a href="javascript:void(0);" onClick="window.location.href='/gersang/guide_09.gs';"><img src="/img/main/guide01.jpg" alt="초보자가이드" /></a></div>
+						
+						<div class="box"><a href="/gersang/guide_08.gs"><img src="/img/main/guide02.jpg" alt="퀘스트수행법" /></a></div>
+						<div class="box"><a href="/gersang/guide_07.gs"><img src="/img/main/guide03.jpg" alt="단축키" /></a></div>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: guide -->
+			
+		</div>
+		<!-- e: sec01 -->
+	
+		<!-- s: sec02 -->
+		<div class="section sec02">	
+			
+			<!-- s: shop -->
+			<div class="inner_wrap shop">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>거상상점</p>
+						<a href="/shop/shop.gs"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<div class="category box">
+							<ul>
+								
+								<li class="on"><a href="javascript:void(0);"><p>BEST</p></a></li>
+								<li><a href="javascript:void(0);"><p>특수아이템</p></a></li>
+								<li><a href="javascript:void(0);"><p>의복/치장아이템</p></a></li>
+								<li><a href="javascript:void(0);"><p>음식/약품아이템</p></a></li>
+								<li><a href="javascript:void(0);"><p>패키지아이템</p></a></li>
+								<li><a href="javascript:void(0);"><p>아웃렛상품</p></a></li>
+							
+							</ul>
+						</div>
+						<div class="item box">
+							<div class="item_top">
+								<div class="search_box">
+									<p>아이템검색</p>
+
+<script language="JavaScript">
+<!--
+	function checkSerForm() {				
+		frm = document.frmMallSer;
+		if (!frm.GSserKey.value) {
+			alert('검색어를 입력하세요');
+			frm.GSserKey.focus();
+			return false;
+		}
+		if (frm.GSserKey.value.length>10) {
+			alert('검색어를 10자 이하로 입력해주세요');
+			frm.GSserKey.value="";
+			frm.GSserKey.focus();
+			return false;
+		}
+		frm.submit();
+	}
+//-->
+</script>
+									<form method="post" action="/shop/search.gs" name="frmMallSer">
+
+									<input type="text" placeholder="아이템을 입력해주세요" name="GSserKey" />
+									<div class="search_btn"><a href="javascript:void(0);" onclick="checkSerForm();">검색</a></div>
+									
+									</form>
+								</div>
+								<div class="charge_box"><a href="javascript:void(0);" id="btn_alertLogin"><p><img src="/img/main/coin_silver.png" alt="코인" />엽전충전하기</p></a></div>
+							</div>
+
+							<script language="JavaScript">
+<!--
+	function popOpenBuy(val1, val2) {
+		
+		alert("로그인하세요");
+		parent.location.href="/member/login.gs"
+		
+	}
+//-->
+</script>
+
+
+							<!-- s: shop tab -->
+							<div class="item_bot">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=400&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/package_57662153810265262_94304634.jpg" alt="임무의달인 세트(10개)" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">임무의달인 세트(10개)</div>
+											<div class="price">9,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=400&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=400&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=99&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148432272.jpg" alt="봉인의돌" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">봉인의돌</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=99&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=99&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=404&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1205282727.jpg" alt="봉인의서" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">봉인의서</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=404&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=404&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=401&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/package_57683043810265283_23500496.gif" alt="별해린복 세트" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">별해린복 세트</div>
+											<div class="price">14,800</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=401&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=401&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+							<!-- s: shop tab -->
+							<div class="item_bot" style="display:none">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=99&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148432272.jpg" alt="봉인의돌" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">봉인의돌</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=99&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=99&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=404&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1205282727.jpg" alt="봉인의서" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">봉인의서</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=404&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=404&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=446&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1304469552.jpg" alt="다다익선-30일" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">다다익선-30일</div>
+											<div class="price">7,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=446&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=446&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=390&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1177917464.jpg" alt="일취월장(30일)" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">일취월장(30일)</div>
+											<div class="price">2,800</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=390&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=390&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+							<!-- s: shop tab -->
+							<div class="item_bot" style="display:none">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=381&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1159408267.jpg" alt="주몽복장 (귀속아이템)" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">주몽복장 (귀속아이템)</div>
+											<div class="price">3,300</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=381&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=381&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=382&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1159408252.jpg" alt="소서노복장 (귀속아이템)" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">소서노복장 (귀속아이템)</div>
+											<div class="price">3,300</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=382&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=382&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=100&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1047273141.jpg" alt="턱시도" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">턱시도</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=100&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=100&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=101&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1047273210.jpg" alt="웨딩드레스" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">웨딩드레스</div>
+											<div class="price">5,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=101&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=101&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+							<!-- s: shop tab -->
+							<div class="item_bot" style="display:none">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=507&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1366855820.jpg" alt="신선단약" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">신선단약</div>
+											<div class="price">500</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=507&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=507&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=359&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148431779.jpg" alt="천하장사-힘" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">천하장사-힘</div>
+											<div class="price">500</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=359&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=359&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=506&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1366855693.jpg" alt="마력단약" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">마력단약</div>
+											<div class="price">300</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=506&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=506&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=181&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148431769.jpg" alt="삼계탕" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">삼계탕</div>
+											<div class="price">90</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=181&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=181&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+							<!-- s: shop tab -->
+							<div class="item_bot" style="display:none">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=245&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1348633639.jpg" alt="팬더복세트(귀속아이템)" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">팬더복세트(귀속아이템)</div>
+											<div class="price">9,800</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=245&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=245&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=266&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/package_4127933427928879_37542397.jpg" alt="어우동 복장세트" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">어우동 복장세트</div>
+											<div class="price">10,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=266&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=266&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=206&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1177654009.jpg" alt="백의종군 패키지" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">백의종군 패키지</div>
+											<div class="price">28,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=206&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=206&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=251&IsPackage=1');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1348636380.jpg" alt="식량패키지" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">식량패키지</div>
+											<div class="price">2,500</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=251&IsPackage=1');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=251&IsPackage=1');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+							<!-- s: shop tab -->
+							<div class="item_bot" style="display:none">
+								<ul class="list">
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=285&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148432627.jpg" alt="어사 박문수의 갓" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">어사 박문수의 갓</div>
+											<div class="price">1,550</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=285&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=285&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=283&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1148432621.jpg" alt="유생모" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">유생모</div>
+											<div class="price">1,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=283&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=283&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=287&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1170292859.jpg" alt="매투리수복" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">매투리수복</div>
+											<div class="price">9,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=287&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=287&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+									<li>
+										<a href="javascript:popClick('popup_item','?GSuid=291&IsPackage=0');">
+											<div class="img_box"><img src="/image/upload/itemmall/FILE1170292834.jpg" alt="선구라수" /></div>
+										</a>
+
+										<div class="txt_box">
+											<div class="tit">선구라수</div>
+											<div class="price">7,000</div>
+											<div class="btn_cont">
+												<div class="btn btn1"><a href="javascript:popOpenBuy('popup_buy','?GSuid=291&IsPackage=0');">구매</a></div>
+												<div class="btn btn2"><a href="javascript:popOpenBuy('popup_gift','?GSuid=291&IsPackage=0');">선물</a></div>												
+											</div>
+										</div>
+									</li>
+
+								</ul>
+							</div>
+							<!-- e: shop tab -->
+
+
+						</div>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: shop -->
+		
+		</div>
+		<!-- s: sec02 -->
+	
+		<!-- s: sec03 -->
+		<div class="section sec03">	
+
+			
+			<!-- s: note -->
+			<div class="inner_wrap note">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>거상 TV</p>
+						<a href="https://www.youtube.com/c/gersangtv/featured" target="_blank"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<div class="box"><a href="https://www.youtube.com/watch?v=aqP4b2VlkAs&list=PLHo9Q44paILcwQUlDGmyf7m7TMiAIZJdl" target="_blank"><img src="https://www.gersang.co.kr/event/2025/20250124_Dmadnjsrhdro/img/357x197_3.gif" alt="거상tv" /></a></div>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: note -->		
+			
+			<!-- s: board -->
+			<div class="inner_wrap board">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>개발자노트</p>
+						<a href="/news/developer.gs?GSbid=1005"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<ul>
+						
+							<li>
+								<a href="/news/developer.gs?GSbid=1005&page=1&main=11">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> 여덟번째 이야기 (24)</p></div>
+									<div class="date">26.03.19</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/developer.gs?GSbid=1005&page=1&main=10">
+									<div class="tit"><p><i class="fa fa-lg fa-exclamation-circle" style="color: Tomato;" aria-hidden="true"></i> 일곱번째 이야기 (57)</p></div>
+									<div class="date">24.12.20</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/developer.gs?GSbid=1005&page=1&main=9">
+									<div class="tit"><p>여섯번째 이야기 (72)</p></div>
+									<div class="date">24.01.04</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/developer.gs?GSbid=1005&page=1&main=8">
+									<div class="tit"><p>다섯번째 이야기 (78)</p></div>
+									<div class="date">23.03.20</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/news/developer.gs?GSbid=1005&page=1&main=5">
+									<div class="tit"><p>네번째 이야기 (72)</p></div>
+									<div class="date">21.09.13</div>
+								</a>
+							</li>
+						
+						</ul>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: board -->
+			
+			<!-- s: board -->
+			<div class="inner_wrap board">
+				<div class="cont_box">
+					<div class="tit_box">
+						<p>질문 게시판</p>
+						<a href="/community/knowledge.gs?GSbid=4003"><span>더보기</span></a>
+					</div>
+					<div class="inner_box">
+						<ul>
+						
+							<li>
+								<a href="/community/knowledge_view.gs?GSbid=4003&page=1&GSuid=67351">
+									<div class="tit new"><p>토벌에서 ㅍ패배 버그는 아니장ㅎ아!</p></div>
+									<div class="date">26.03.29</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/community/knowledge_view.gs?GSbid=4003&page=1&GSuid=67349">
+									<div class="tit new"><p>장부 리셋</p></div>
+									<div class="date">26.03.28</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/community/knowledge_view.gs?GSbid=4003&page=1&GSuid=67344">
+									<div class="tit new"><p>생제 그만 풀었으면 좋겠다 (2)</p></div>
+									<div class="date">26.03.28</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/community/knowledge_view.gs?GSbid=4003&page=1&GSuid=67343">
+									<div class="tit new"><p>대 거 상 (1)</p></div>
+									<div class="date">26.03.28</div>
+								</a>
+							</li>
+						
+							<li>
+								<a href="/community/knowledge_view.gs?GSbid=4003&page=1&GSuid=67342">
+									<div class="tit new"><p>서버선택 (1)</p></div>
+									<div class="date">26.03.28</div>
+								</a>
+							</li>
+						
+						</ul>
+					</div>					
+				</div>
+			</div>			
+			<!-- e: board -->
+		
+		</div>
+		<!-- e: sec03 -->
+	
+		
+
+<div class="quick">
+	<ul class="quick_list">
+	
+		<li><a href="javascript:void(0);" onclick="javascript:alertLogin();"><p><img src="/img/common/quick_icon01.png" alt="" /></p>캐시/환불</a></li>
+		<li><a href="/event/2025/20250319_kakaoib2/"><p><img src="/img/common/quick_icon02.png" alt="" /></p>쿠폰등록</a></li>
+		<li><a href="/customer/faq.gs"><p><img src="/img/common/quick_icon03.png" alt="" /></p>고객센터</a></li>
+		<li><a href="/mypage/quie.gs"><p><img src="/img/common/quick_icon04.png" alt="" /></p>휴면계정풀기</a></li>
+		<li><a href="/mypage/motp_intro.gs"><p><img src="/img/common/quick_icon05.png" alt="" /></p>보안설정</a></li>
+	</ul>	
+	<div class="btn_box">
+		<div class="open"><p><i></i><i></i></p></div>
+	</div>
+</div>
+		
+	</div>
+	
+</div>
+<!-- e : main -->
+
+<script type="text/javascript">
+
+	$(function(){
+		var $event_box = $('.event .slide_box');
+		var $paging = $('.event .pagingInfo');
+		
+		$event_box.on('init reInit afterChange', function (event, slick, currentSlide, nextSlide) {
+			//currentSlide is undefined on init -- set it to 0 in this case (currentSlide is 0 based)
+			var i = (currentSlide ? currentSlide : 0) + 1;
+			$paging.html('<span class="current">' + i + '</span>' + '/' + '<span>' + slick.slideCount + '</span>' );
+		}); 
+		
+		 $event_box.slick({
+				infinite : true,
+				slidesToShow : 1,
+				slidesToScroll : 1,
+				autoplay : true,
+				autoplaySpeed : 5000,
+				speed : 1000,
+				dots : false, 
+				arrow : false
+			});
+	});
+
+</script>
+
+	<form name="frmLog" id="frmLog" method="POST" action="https://www.gersang.co.kr/member/comm_sns_proc.gs" style="display:none;" >
+		<input type="hidden" name="user_sns_id" id="usersnsid"/>
+		<input type="hidden" name="oauth_name" id="oauth_name"/>
+		<input type="hidden" name="oauth_email" id="oauth_email"/>
+		<input type="hidden" name="access_token" id="access_token"/>
+		<input type="hidden" name="user_sns_type" id="usersnstype" value=""/>
+		<input type="hidden" name="NextPage" value="/main/index.gs?" />
+	</form>  
+<iframe name="ifrm" src="/none.gs" width="100%" height="300" frameborder="0" style="display:none;"></iframe>
+<!-- s : footer -->
+<div class="footer">
+	<div class="top_btn"><p>TOP</p></div>
+	<div class="footer_wrap">
+		<div class="foot_top">
+			<div class="logo"><img src="/img/common/company_logo.jpg" alt="AK Interactive" /></div>
+			<ul class="list">
+				<li><a href="https://www.akinteractive.co.kr/ko/contact/contact.gs" target="_blank">채용안내</a></li>
+				<li><a href="/policy/policy01.gs">거상이용약관</a></li>
+				<li><a href="/policy/policy02.gs">거상운영정책</a></li>
+				<li><a href="/policy/policy03.gs">거상상점운영정책</a></li>
+				<li id="policy"><a href="/policy/policy04.gs"><strong>개인정보처리방침</strong></a></li>
+				<li><a href="/policy/policy05.gs">청소년보호정책</a></li>
+				<li><a href="mailto:sehoon@gersang.co.kr">제휴문의</a></li>
+			</ul>
+		</div>
+		<div class="foot_bot">
+			<div class="lt_box">
+				<ul class="company">
+					<li>상호 : (주) 에이케이 인터렉티브</li>
+					<li>대표자 : 심호규</li>
+					<li>주소 : 경기도 성남시 분당구 운중로 146 에이케이판교빌딩(4층)</li>
+				</ul>
+				<ul class="company">
+					<li>전화문의 : 031-709-2837</li>
+					<li>팩스 : 031-709-2791</li>
+					<li>이메일 : Interactive@gersang.co.kr</li>
+				</ul>			
+				<ul class="company">
+					<li>상담시간 : 월~금 10:00 ~ 18:00  [공휴일 및 점심시간 (12:30~13:30) 제외]</li>
+				</ul>
+				<ul class="company">
+					<li>사업자등록번호 : 214-88-22784</li>
+					<li>통신판매업 신고번호 : 제 2023-성남분당A-1215호</li>
+				</ul>
+			</div>
+			<div class="rt_box"><img src="/img/common/game_info.png" alt="거상게임정보" /><img src="/img/common/game_isms.jpg" alt="거상 ISMS" /></div>
+		</div>
+	</div>
+</div>
+<!-- e : footer -->
+	
+</div>
+
+</body>
+
+</html>

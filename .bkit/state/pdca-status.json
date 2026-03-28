@@ -1,6 +1,6 @@
 {
   "version": "3.0",
-  "lastUpdated": "2026-03-28T20:56:42.500Z",
+  "lastUpdated": "2026-03-28T23:20:36.393Z",
   "activeFeatures": [
     "smart_clicker",
     "gui"
@@ -16,9 +16,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-28T15:37:47.742Z",
-        "lastUpdated": "2026-03-28T20:56:42.500Z"
+        "lastUpdated": "2026-03-28T23:20:36.393Z"
       },
-      "lastFile": "E:/Project/smart_clicker/agent.py"
+      "lastFile": "E:/Project/smart_clicker/download_monsters.py"
     },
     "gui": {
       "phase": "do",
@@ -29,9 +29,9 @@
       "documents": {},
       "timestamps": {
         "started": "2026-03-28T16:32:02.704Z",
-        "lastUpdated": "2026-03-28T20:53:25.592Z"
+        "lastUpdated": "2026-03-28T21:24:14.996Z"
       },
-      "lastFile": "E:/Project/smart_clicker/gui/tracking_dialog.py"
+      "lastFile": "E:/Project/smart_clicker/gui/main_window.py"
     }
   },
   "pipeline": {
@@ -42,7 +42,7 @@
   "session": {
     "startedAt": "2026-03-28T15:26:21.711Z",
     "onboardingCompleted": false,
-    "lastActivity": "2026-03-28T20:56:42.500Z"
+    "lastActivity": "2026-03-28T23:20:36.393Z"
   },
   "history": [
     {
@@ -893,6 +893,174 @@
     },
     {
       "timestamp": "2026-03-28T20:56:42.500Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:00:31.855Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:00:38.716Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:00:46.441Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:01:08.703Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:02:25.114Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:09:08.258Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:09:49.026Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:09:55.829Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:10:13.723Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:19:22.732Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:19:29.044Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:19:55.347Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:20:04.494Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:22:54.847Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:23:08.931Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:23:16.575Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:23:47.452Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:24:14.996Z",
+      "feature": "gui",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T21:59:19.711Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:00:04.102Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:00:11.466Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:00:40.170Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:00:48.406Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:00:55.710Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T22:19:16.535Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T23:06:35.565Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T23:17:05.474Z",
+      "feature": "smart_clicker",
+      "phase": "do",
+      "action": "updated"
+    },
+    {
+      "timestamp": "2026-03-28T23:20:36.393Z",
       "feature": "smart_clicker",
       "phase": "do",
       "action": "updated"

@@ -29,7 +29,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from controller import RemoteController
 from target_finder import TargetFinder, SmartClicker
-from tracking import UnitTracker
+from tracking import FastUnitTracker
 from gui.tracking_dialog import TrackingSetupDialog
 
 
@@ -383,15 +383,23 @@ class AgentPanel(QGroupBox):
             screen.manual_mode_changed.connect(lambda on, b=btn_manual: b.setChecked(on))
 
             btn_track = QPushButton(f"추적 셋팅")
-            btn_track.setCheckable(True)
-            btn_track.setStyleSheet(
-                "padding: 4px; QPushButton:checked { background-color: #cc8800; color: white; }")
-            btn_track.clicked.connect(lambda checked, wid=window_id, b=btn_track:
-                self._toggle_tracking(wid, checked, b))
+            btn_track.setStyleSheet("padding: 4px;")
+            btn_track.clicked.connect(lambda _, wid=window_id: self._open_tracking_setup(wid))
+
+            btn_track_toggle = QPushButton("▶")
+            btn_track_toggle.setFixedWidth(32)
+            btn_track_toggle.setCheckable(True)
+            btn_track_toggle.setEnabled(False)
+            btn_track_toggle.setStyleSheet("padding: 4px;")
+            btn_track_toggle.toggled.connect(lambda on, wid=window_id, b=btn_track_toggle:
+                self._toggle_tracking_active(wid, on, b))
+            self._track_toggle_buttons = getattr(self, '_track_toggle_buttons', {})
+            self._track_toggle_buttons[window_id] = btn_track_toggle
 
             btn_row = QHBoxLayout()
             btn_row.addWidget(btn_manual)
             btn_row.addWidget(btn_track)
+            btn_row.addWidget(btn_track_toggle)
 
             container = QVBoxLayout()
             container.addWidget(screen)
@@ -413,64 +421,69 @@ class AgentPanel(QGroupBox):
 
         return self.screen_widgets[window_id]
 
-    def _toggle_tracking(self, window_id: str, checked: bool, btn: QPushButton):
-        """추적 토글 — ON: 셋팅 다이얼로그, OFF: 추적 중지"""
-        if checked:
-            self._open_tracking_setup(window_id)
-            # 다이얼로그에서 취소했으면 버튼 해제
-            if not hasattr(self, '_tracking_active') or not self._tracking_active.get(window_id):
-                btn.setChecked(False)
-            else:
-                btn.setText("추적 중지")
-                btn.setStyleSheet("background-color: #cc8800; color: white; padding: 4px;")
+    def _toggle_tracking_active(self, window_id: str, on: bool, btn: QPushButton):
+        """추적 ON/OFF 토글 (프리셋 유지)"""
+        if not hasattr(self, '_trackers') or window_id not in self._trackers:
+            btn.setChecked(False)
+            return
+
+        if on:
+            self._tracking_active[window_id] = True
+            if window_id in self.screen_widgets:
+                self.screen_widgets[window_id].set_tracker(self._trackers[window_id])
+            btn.setText("⏸")
+            btn.setStyleSheet("background-color: #cc8800; color: white; padding: 4px;")
+            print(f"[{self.name}:{window_id}] 추적 재개")
         else:
-            self.stop_tracking(window_id)
-            btn.setText("추적 셋팅")
+            self._tracking_active[window_id] = False
+            if window_id in self.screen_widgets:
+                self.screen_widgets[window_id].set_tracker(None)
+            btn.setText("▶")
             btn.setStyleSheet("padding: 4px;")
+            print(f"[{self.name}:{window_id}] 추적 일시정지 (프리셋 유지)")
 
     def _open_tracking_setup(self, window_id: str):
-        """추적 셋팅 다이얼로그 열기"""
+        """추적 셋팅 — 기존 프리셋 유지, 추가/삭제 가능"""
         windows = self.ctrl.get_windows(self.name)
         if window_id not in windows or windows[window_id].frame is None:
             print(f"[{self.name}:{window_id}] 프레임 없음")
             return
 
         frame = windows[window_id].frame.copy()
-        # RGB→BGR (OpenCV용 특징 추출)
-        frame_bgr = frame[:, :, ::-1].copy() if len(frame.shape) == 3 else frame
 
-        dialog = TrackingSetupDialog(frame, parent=None)
+        if not hasattr(self, '_trackers'):
+            self._trackers = {}
+            self._tracking_active = {}
+
+        # 기존 프리셋 크롭 이미지 전달
+        existing = self._trackers.get(window_id)
+        existing_crops = existing.get_crop_images_rgb() if existing else []
+
+        dialog = TrackingSetupDialog(frame, existing_crops=existing_crops, parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
             result = dialog.get_result()
             if result:
-                if not hasattr(self, '_trackers'):
-                    self._trackers = {}
-                    self._tracking_active = {}
-
-                tracker = UnitTracker()
-                tracker.set_target(frame_bgr, result["roi"])
+                # 새 추적기 생성 (다이얼로그에서 최종 목록을 반환하므로)
+                tracker = FastUnitTracker()
                 tracker.match_threshold = result["threshold"]
+
+                for crop_rgb in result["crop_images"]:
+                    crop_bgr = crop_rgb[:, :, ::-1].copy()
+                    tracker.add_preset_from_crop(crop_bgr)
+
                 self._trackers[window_id] = tracker
                 self._tracking_active[window_id] = True
 
-                # ScreenWidget에 추적기 연결 → 오버레이 자동 표시
                 if window_id in self.screen_widgets:
                     self.screen_widgets[window_id].set_tracker(tracker)
 
-                print(f"[{self.name}:{window_id}] 추적 시작 (임계값: {result['threshold']:.2f})")
+                toggle_btn = self._track_toggle_buttons.get(window_id)
+                if toggle_btn:
+                    toggle_btn.setEnabled(True)
+                    toggle_btn.setChecked(True)
 
-                # 오버레이만 표시 (우클릭은 비활성 — 추후 활성화)
-                # threading.Thread(
-                #     target=self._tracking_loop, args=(window_id,),
-                #     daemon=True
-                # ).start()
-        else:
-            # 취소 → 추적 해제
-            if hasattr(self, '_tracking_active'):
-                self._tracking_active[window_id] = False
-            if window_id in self.screen_widgets:
-                self.screen_widgets[window_id].set_tracker(None)
+                print(f"[{self.name}:{window_id}] 추적 — 프리셋 {len(tracker.presets)}개, 임계값 {result['threshold']:.2f}")
 
     def _tracking_loop(self, window_id: str):
         """추적 루프 — 프레임마다 매칭 + 가장 가까운 유닛 우클릭"""
@@ -508,12 +521,15 @@ class AgentPanel(QGroupBox):
                 _time.sleep(0.5)
 
     def stop_tracking(self, window_id: str):
-        """추적 중지"""
+        """추적 중지 (프리셋은 유지)"""
         if hasattr(self, '_tracking_active'):
             self._tracking_active[window_id] = False
         if window_id in self.screen_widgets:
             self.screen_widgets[window_id].set_tracker(None)
-        print(f"[{self.name}:{window_id}] 추적 중지")
+        toggle_btn = getattr(self, '_track_toggle_buttons', {}).get(window_id)
+        if toggle_btn:
+            toggle_btn.setChecked(False)
+        print(f"[{self.name}:{window_id}] 추적 중지 (프리셋 유지)")
 
     def on_screen_click(self, window_id: str, x: int, y: int,
                         button: str = "LEFT", modifiers: list = None):

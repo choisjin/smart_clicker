@@ -20,8 +20,10 @@ ENV/
 Thumbs.db
 
 # Project specific
-
 templates/
 actions/*.png
 nul
 .claude/
+monster_images/
+TGA_file/
+_tmp_*
