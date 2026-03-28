@@ -338,6 +338,17 @@ class RemoteController:
 
         return self.send_click(name, x, y, button, human_like)
 
+    def find_next_gersang(self, name: str) -> dict:
+        """Agent에 새 Gersang 창 검색 요청"""
+        if name not in self.agents:
+            return {"success": False}
+        cmd = {"type": "find_next_gersang", "params": {}}
+        try:
+            response = self._run_async(self._send_command(self.agents[name], cmd))
+            return response
+        except:
+            return {"success": False}
+
     # ── 실시간 마우스 (fire-and-forget) ──
 
     async def _send_fire_and_forget(self, agent: 'AgentInfo', cmd: dict):

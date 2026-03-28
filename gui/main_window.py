@@ -224,7 +224,9 @@ class ScreenWidget(QLabel):
 
 
 class AgentPanel(QGroupBox):
-    """Agent 패널 (다중 창 + 상태 + 컨트롤)"""
+    """Agent 패널 (4분할 고정 + 상태 + 컨트롤)"""
+
+    SLOT_COUNT = 4  # 고정 4분할
 
     def __init__(self, name: str, controller: RemoteController):
         super().__init__(name)
@@ -232,6 +234,7 @@ class AgentPanel(QGroupBox):
         self.ctrl = controller
         self.screen_widgets: Dict[str, ScreenWidget] = {}
         self.manual_buttons: Dict[str, QPushButton] = {}
+        self.slot_containers: list = []
         self.active_window_id: str = "screen"
 
         self.setup_ui()
@@ -239,9 +242,28 @@ class AgentPanel(QGroupBox):
     def setup_ui(self):
         layout = QVBoxLayout()
 
-        # 다중 창 표시 영역 (가로 배치)
-        self.screens_layout = QHBoxLayout()
-        layout.addLayout(self.screens_layout)
+        # 4분할 그리드 (2x2)
+        self.grid_layout = QGridLayout()
+        for i in range(self.SLOT_COUNT):
+            container = QVBoxLayout()
+            # 빈 슬롯: "추가 연결" 버튼
+            placeholder = QPushButton(f"+ Gersang 추가 연결")
+            placeholder.setMinimumSize(320, 240)
+            placeholder.setStyleSheet(
+                "background-color: #1a1a1a; border: 1px dashed #555; "
+                "color: #888; font-size: 14px;")
+            placeholder.clicked.connect(lambda _, idx=i: self._request_add_gersang(idx))
+
+            container_widget = QWidget()
+            container.addWidget(placeholder)
+            container.setContentsMargins(0, 0, 0, 0)
+            container_widget.setLayout(container)
+
+            row, col = i // 2, i % 2
+            self.grid_layout.addWidget(container_widget, row, col)
+            self.slot_containers.append(container_widget)
+
+        layout.addLayout(self.grid_layout)
 
         # 상태 표시
         status_layout = QHBoxLayout()
@@ -253,19 +275,32 @@ class AgentPanel(QGroupBox):
         status_layout.addWidget(self.window_label)
         layout.addLayout(status_layout)
 
-        # 간단 컨트롤
-        ctrl_layout = QHBoxLayout()
-        self.btn_refresh = QPushButton("새로고침")
-        ctrl_layout.addWidget(self.btn_refresh)
-        layout.addLayout(ctrl_layout)
-
         self.setLayout(layout)
 
-    def ensure_screen_widget(self, window_id: str, title: str = "") -> ScreenWidget:
-        """창 위젯 생성 (수동 조작 버튼 포함)"""
-        if window_id not in self.screen_widgets:
-            container = QVBoxLayout()
+    def _request_add_gersang(self, slot_idx: int):
+        """빈 슬롯 클릭 → Agent에 새 Gersang 검색 요청"""
+        print(f"[{self.name}] 슬롯 {slot_idx}: Gersang 추가 요청...")
+        threading.Thread(
+            target=self._do_add_gersang, args=(slot_idx,), daemon=True
+        ).start()
 
+    def _do_add_gersang(self, slot_idx: int):
+        """Agent에 find_next_gersang 요청 (별도 스레드)"""
+        result = self.ctrl.find_next_gersang(self.name)
+        if result.get("success"):
+            print(f"[{self.name}] 슬롯 {slot_idx}: {result.get('title')} 추가됨 ({result.get('window_id')})")
+        else:
+            print(f"[{self.name}] 슬롯 {slot_idx}: 추가 실패 - {result.get('error', '?')}")
+
+    def ensure_screen_widget(self, window_id: str, title: str = "") -> ScreenWidget:
+        """창 위젯 생성 → 해당 슬롯의 placeholder를 교체"""
+        if window_id not in self.screen_widgets:
+            # win0 → 슬롯 0, win1 → 슬롯 1, ...
+            slot_idx = int(window_id.replace("win", "")) if window_id.startswith("win") else 0
+            if slot_idx >= self.SLOT_COUNT:
+                return None
+
+            # 새 위젯 구성
             screen = ScreenWidget(f"{self.name}:{window_id}")
             screen.clicked.connect(
                 lambda x, y, btn, mods, wid=window_id: self.on_screen_click(wid, x, y, btn, mods))
@@ -286,15 +321,23 @@ class AgentPanel(QGroupBox):
             btn.toggled.connect(lambda checked, s=screen: s.set_manual_mode(checked))
             screen.manual_mode_changed.connect(lambda on, b=btn: b.setChecked(on))
 
-            container_widget = QWidget()
+            container = QVBoxLayout()
             container.addWidget(screen)
             container.addWidget(btn)
             container.setContentsMargins(0, 0, 0, 0)
-            container_widget.setLayout(container)
+
+            new_widget = QWidget()
+            new_widget.setLayout(container)
+
+            # 기존 슬롯 위젯 교체
+            row, col = slot_idx // 2, slot_idx % 2
+            old_widget = self.slot_containers[slot_idx]
+            self.grid_layout.replaceWidget(old_widget, new_widget)
+            old_widget.deleteLater()
+            self.slot_containers[slot_idx] = new_widget
 
             self.screen_widgets[window_id] = screen
             self.manual_buttons[window_id] = btn
-            self.screens_layout.addWidget(container_widget)
 
         return self.screen_widgets[window_id]
 

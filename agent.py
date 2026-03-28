@@ -51,7 +51,40 @@ except ImportError:
     print("websockets 설치 필요: pip install websockets")
     exit(1)
 
-MAX_WINDOWS = 3  # 최대 동시 캡처 창 수
+MAX_WINDOWS = 4  # 최대 동시 캡처 창 수 (Gersang 3 + GersangStation Mini 1)
+
+
+def auto_detect_leonardo_port() -> Optional[str]:
+    """Leonardo COM 포트 자동 감지 (유일한 시리얼 포트 사용)"""
+    try:
+        import serial.tools.list_ports
+        ports = list(serial.tools.list_ports.comports())
+        if len(ports) == 1:
+            print(f"[OK] COM 포트 자동 감지: {ports[0].device} ({ports[0].description})")
+            return ports[0].device
+        elif len(ports) > 1:
+            # Arduino Leonardo VID/PID로 찾기
+            for p in ports:
+                if p.vid == 0x2341 or p.vid == 0x045E:  # Arduino / Microsoft(위장)
+                    print(f"[OK] Leonardo 포트 감지: {p.device} ({p.description})")
+                    return p.device
+            print(f"[WARN] 시리얼 포트 {len(ports)}개 발견, 첫 번째 사용: {ports[0].device}")
+            return ports[0].device
+        else:
+            print("[WARN] 시리얼 포트 없음")
+            return None
+    except Exception as e:
+        print(f"[ERROR] 포트 감지 실패: {e}")
+        return None
+
+
+def find_gersang_windows() -> List[str]:
+    """Gersang + GersangStation Mini 창 자동 검색 (순서: Gersang들 먼저, Station 마지막)"""
+    all_wins = WindowCapture.list_windows()
+    gersang = [w["title"] for w in all_wins if w["title"] == "Gersang"]
+    station = [w["title"] for w in all_wins if w["title"] == "GersangStation Mini"]
+    result = gersang[:3] + station[:1]  # Gersang 최대 3개 + Station 1개
+    return result
 
 
 class WindowCapture:
@@ -276,9 +309,9 @@ class WindowCapture:
             return None
 
     def bring_to_front(self):
-        """창을 앞으로 가져오기 (best-effort)"""
+        """창을 앞으로 가져오기 — 타이틀바 좌표 반환 (HID 클릭용)"""
         if not self.hwnd:
-            return False
+            return None
 
         try:
             placement = win32gui.GetWindowPlacement(self.hwnd)
@@ -287,15 +320,12 @@ class WindowCapture:
         except:
             pass
 
+        # 타이틀바 중앙 좌표 반환 → 호출자가 HID로 클릭
         try:
-            win32gui.SetForegroundWindow(self.hwnd)
+            rect = win32gui.GetWindowRect(self.hwnd)
+            return ((rect[0] + rect[2]) // 2, rect[1] + 10)
         except:
-            try:
-                win32gui.BringWindowToTop(self.hwnd)
-            except:
-                pass
-
-        return True
+            return None
 
     def get_client_rect(self) -> Optional[tuple]:
         """창 클라이언트 영역 위치 (x, y, width, height) - 타이틀바 제외"""
@@ -379,16 +409,27 @@ class RemoteAgent:
         self.captures: Dict[str, WindowCapture] = {}
         self.active_window: str = "screen"  # 현재 활성 창 (HID 명령 대상)
 
-        # 창 설정
+        # 창 설정 (같은 이름 여러 개 지원 — hwnd로 구분)
         if window_titles:
+            used_hwnds = set()
+            all_wins = WindowCapture.list_windows()
             for i, title in enumerate(window_titles[:MAX_WINDOWS]):
                 win_id = f"win{i}"
-                cap = WindowCapture(title)
-                self.captures[win_id] = cap
-                # 첫 번째 창을 활성 창으로 설정
-                if i == 0:
-                    self.active_window = win_id
-                print(f"[OK] 창 {i+1} 추가: {title}")
+                cap = WindowCapture(None)
+                cap.window_title = title
+                # 같은 이름 중 아직 사용 안 한 hwnd 찾기
+                for w in all_wins:
+                    if w["title"] == title and w["hwnd"] not in used_hwnds:
+                        cap.hwnd = w["hwnd"]
+                        used_hwnds.add(w["hwnd"])
+                        break
+                if cap.hwnd:
+                    self.captures[win_id] = cap
+                    if i == 0:
+                        self.active_window = win_id
+                    print(f"[OK] 창 {i+1} 추가: {title} (hwnd={cap.hwnd})")
+                else:
+                    print(f"[WARN] 창 찾을 수 없음: {title}")
 
         # 창이 없으면 전체 화면
         if not self.captures:
@@ -632,12 +673,16 @@ class RemoteAgent:
                     response["error"] = f"창을 찾을 수 없음: {win_id}"
 
             elif cmd_type == "set_active_window":
-                # 활성 창 변경 (HID 명령 대상)
+                # 활성 창 변경 — HID로 타이틀바 클릭하여 활성화
                 win_id = params.get("window_id")
                 if win_id in self.captures:
                     self.active_window = win_id
-                    self.captures[win_id].bring_to_front()
-                    # 마우스 위치 추적 무효화 (외부에서 마우스가 이동됐을 수 있음)
+                    titlebar_pos = self.captures[win_id].bring_to_front()
+                    if titlebar_pos and self.hid:
+                        # HID로 타이틀바 클릭 (하드웨어 입력 → xgincode 안전)
+                        await asyncio.to_thread(
+                            self._hid_click_at, titlebar_pos[0], titlebar_pos[1])
+                    # 마우스 위치 추적 무효화
                     if self.hid:
                         self.hid._mouse_x = None
                         self.hid._mouse_y = None
@@ -655,6 +700,32 @@ class RemoteAgent:
                 self.quality = params.get("quality", 70)
                 response["success"] = True
                 response["quality"] = self.quality
+
+            elif cmd_type == "find_next_gersang":
+                # 아직 스트리밍하지 않는 Gersang 창 찾아서 추가
+                all_wins = WindowCapture.list_windows()
+                # 이미 캡처 중인 hwnd 목록
+                captured_hwnds = {cap.hwnd for cap in self.captures.values() if cap.hwnd}
+                found = False
+                for w in all_wins:
+                    if w["title"] == "Gersang" and w["hwnd"] not in captured_hwnds:
+                        if len(self.captures) >= MAX_WINDOWS:
+                            response["error"] = f"최대 {MAX_WINDOWS}개 창"
+                            break
+                        win_id = f"win{len(self.captures)}"
+                        cap = WindowCapture("Gersang")
+                        # 정확한 hwnd 직접 지정
+                        cap.hwnd = w["hwnd"]
+                        cap.window_title = "Gersang"
+                        self.captures[win_id] = cap
+                        response["success"] = True
+                        response["window_id"] = win_id
+                        response["title"] = "Gersang"
+                        found = True
+                        print(f"[OK] 새 Gersang 창 추가: {win_id} (hwnd={w['hwnd']})")
+                        break
+                if not found and "error" not in response:
+                    response["error"] = "추가할 Gersang 창 없음"
 
             elif cmd_type == "list_windows":
                 # 시스템의 모든 창 목록
@@ -682,6 +753,31 @@ class RemoteAgent:
             response["error"] = str(e)
 
         await websocket.send(json.dumps(response))
+
+    def _hid_click_at(self, screen_x: int, screen_y: int):
+        """HID로 특정 화면 좌표 클릭 (타이틀바 활성화용)"""
+        try:
+            # 현재 커서 위치 저장
+            saved_x, saved_y = self.hid._mouse_x, self.hid._mouse_y
+
+            # 현재 커서 위치 초기화
+            cursor = win32gui.GetCursorPos()
+            self.hid._mouse_x = cursor[0]
+            self.hid._mouse_y = cursor[1]
+
+            # 타이틀바로 이동 + 클릭
+            mx, my = self._pixels_to_mickeys(screen_x, screen_y)
+            self.hid.mouse_move_to(mx, my)
+            import time
+            time.sleep(0.05)
+            self.hid.mouse_click("LEFT")
+            time.sleep(0.1)
+
+            # 위치 추적 무효화 (다음 명령에서 GetCursorPos로 재초기화)
+            self.hid._mouse_x = None
+            self.hid._mouse_y = None
+        except Exception as e:
+            print(f"[WARN] HID 창 활성화 실패: {e}")
 
     def _realtime_move_to(self, screen_x: int, screen_y: int):
         """실시간 마우스 이동 (현재 위치 → 목표, HID 상대이동)"""
@@ -853,11 +949,13 @@ class RemoteAgent:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Smart Search Remote Agent")
     parser.add_argument("--port", type=int, default=8765, help="WebSocket 포트 (기본: 8765)")
-    parser.add_argument("--leonardo", type=str, default=None, help="Leonardo COM 포트 (예: COM6)")
+    parser.add_argument("--leonardo", type=str, default=None, help="Leonardo COM 포트 (None=자동감지)")
     parser.add_argument("--window", type=str, action="append", default=None,
-                        help="캡처할 창 제목 (여러 개 지정 가능, 최대 3개)")
+                        help="캡처할 창 제목 (여러 개 지정 가능)")
     parser.add_argument("--select", action="store_true", help="대화형 창 선택 모드")
-    parser.add_argument("--fps", type=int, default=15, help="스트리밍 FPS (기본: 15)")
+    parser.add_argument("--auto", action="store_true", default=True,
+                        help="자동 모드: Gersang + GersangStation Mini 검색 (기본)")
+    parser.add_argument("--fps", type=int, default=60, help="스트리밍 FPS (기본: 60)")
     parser.add_argument("--quality", type=int, default=70, help="JPEG 품질 1-100 (기본: 70)")
     parser.add_argument("--list-windows", action="store_true", help="열린 창 목록 표시")
 
@@ -871,11 +969,15 @@ if __name__ == "__main__":
             print(f"  [{i+1}] {win['title'][:60]} ({win['width']}x{win['height']})")
         exit(0)
 
+    # Leonardo 포트 (자동 감지)
+    leo_port = args.leonardo or auto_detect_leonardo_port()
+
     # 창 선택
     window_titles = None
 
-    if args.select:
-        # 대화형 창 선택
+    if args.window:
+        window_titles = args.window[:MAX_WINDOWS]
+    elif args.select:
         window_titles = WindowCapture.select_windows_interactive(MAX_WINDOWS)
         if window_titles:
             print(f"\n선택된 창: {len(window_titles)}개")
@@ -883,14 +985,20 @@ if __name__ == "__main__":
                 print(f"  - {t[:50]}")
         else:
             print("\n전체 화면 캡처 모드로 시작합니다.")
-    elif args.window:
-        # 명령줄에서 지정된 창들
-        window_titles = args.window[:MAX_WINDOWS]
+    else:
+        # 자동 모드: Gersang + GersangStation Mini 검색
+        window_titles = find_gersang_windows()
+        if window_titles:
+            print(f"\n[AUTO] Gersang 창 {len(window_titles)}개 발견:")
+            for t in window_titles:
+                print(f"  - {t}")
+        else:
+            print("\n[AUTO] Gersang 창 없음 → 전체 화면 캡처")
 
     # 에이전트 생성 및 실행
     agent = RemoteAgent(
         port=args.port,
-        leonardo_port=args.leonardo,
+        leonardo_port=leo_port,
         window_titles=window_titles
     )
     agent.fps = args.fps
