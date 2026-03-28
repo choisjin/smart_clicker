@@ -19,6 +19,7 @@ import serial
 import time
 import random
 import math
+import threading
 from typing import List, Optional
 
 
@@ -31,6 +32,7 @@ class LeonardoHID:
             timeout: 응답 대기 시간
         """
         self.ser = serial.Serial(port, baudrate, timeout=timeout)
+        self._lock = threading.Lock()
         time.sleep(2)  # Leonardo 리셋 대기
 
         # 마우스 위치 추적 (None = 위치 불명 → 첫 이동 시 원점 리셋)
@@ -44,9 +46,10 @@ class LeonardoHID:
         print(f"[OK] Leonardo 연결됨 @ {port}")
 
     def _send(self, cmd: str) -> str:
-        """명령 전송 후 응답 수신"""
-        self.ser.write(f"{cmd}\n".encode("utf-8"))
-        return self._read_response()
+        """명령 전송 후 응답 수신 (스레드 안전)"""
+        with self._lock:
+            self.ser.write(f"{cmd}\n".encode("utf-8"))
+            return self._read_response()
 
     def _read_response(self) -> str:
         """시리얼 응답 읽기"""

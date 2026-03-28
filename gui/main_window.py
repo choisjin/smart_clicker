@@ -30,10 +30,33 @@ from target_finder import TargetFinder, SmartClicker
 
 
 class ScreenWidget(QLabel):
-    """Agent 화면 표시 위젯"""
+    """Agent 화면 표시 위젯 + 수동 조작 모드"""
 
-    clicked = pyqtSignal(int, int)  # 좌클릭 좌표 시그널
-    right_clicked = pyqtSignal(int, int)  # 우클릭 좌표 시그널
+    clicked = pyqtSignal(int, int, str)  # x, y, button
+    manual_key_pressed = pyqtSignal(str)  # HID key name
+    manual_key_released = pyqtSignal(str)  # HID key name
+    manual_mode_changed = pyqtSignal(bool)
+
+    # Qt 키 → Leonardo HID 키 이름 매핑
+    _QT_TO_HID = {
+        Qt.Key.Key_Return: "KEY_RETURN", Qt.Key.Key_Enter: "KEY_RETURN",
+        Qt.Key.Key_Escape: "KEY_ESC", Qt.Key.Key_Backspace: "KEY_BACKSPACE",
+        Qt.Key.Key_Tab: "KEY_TAB", Qt.Key.Key_Space: "KEY_SPACE",
+        Qt.Key.Key_Delete: "KEY_DELETE", Qt.Key.Key_Insert: "KEY_INSERT",
+        Qt.Key.Key_Home: "KEY_HOME", Qt.Key.Key_End: "KEY_END",
+        Qt.Key.Key_PageUp: "KEY_PAGE_UP", Qt.Key.Key_PageDown: "KEY_PAGE_DOWN",
+        Qt.Key.Key_Up: "KEY_UP", Qt.Key.Key_Down: "KEY_DOWN",
+        Qt.Key.Key_Left: "KEY_LEFT", Qt.Key.Key_Right: "KEY_RIGHT",
+        Qt.Key.Key_CapsLock: "KEY_CAPS_LOCK",
+        Qt.Key.Key_F1: "KEY_F1", Qt.Key.Key_F2: "KEY_F2",
+        Qt.Key.Key_F3: "KEY_F3", Qt.Key.Key_F4: "KEY_F4",
+        Qt.Key.Key_F5: "KEY_F5", Qt.Key.Key_F6: "KEY_F6",
+        Qt.Key.Key_F7: "KEY_F7", Qt.Key.Key_F8: "KEY_F8",
+        Qt.Key.Key_F9: "KEY_F9", Qt.Key.Key_F10: "KEY_F10",
+        Qt.Key.Key_F11: "KEY_F11", Qt.Key.Key_F12: "KEY_F12",
+        Qt.Key.Key_Control: "KEY_LEFT_CTRL", Qt.Key.Key_Shift: "KEY_LEFT_SHIFT",
+        Qt.Key.Key_Alt: "KEY_LEFT_ALT", Qt.Key.Key_Meta: "KEY_LEFT_GUI",
+    }
 
     def __init__(self, agent_name: str = ""):
         super().__init__()
@@ -43,12 +66,29 @@ class ScreenWidget(QLabel):
         self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
         self.setText("연결 대기중...")
 
-        # 원본 프레임 크기 저장
         self.original_width = 0
         self.original_height = 0
+        self._manual_mode = False
 
-        # 클릭 이벤트 활성화
-        self.setMouseTracking(True)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+    @property
+    def manual_mode(self) -> bool:
+        return self._manual_mode
+
+    def set_manual_mode(self, enabled: bool):
+        if self._manual_mode == enabled:
+            return
+        self._manual_mode = enabled
+        if enabled:
+            self.grabKeyboard()
+            self.setCursor(Qt.CursorShape.CrossCursor)
+            self.setStyleSheet("background-color: #2d2d2d; border: 2px solid #ff4a4a;")
+        else:
+            self.releaseKeyboard()
+            self.unsetCursor()
+            self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
+        self.manual_mode_changed.emit(enabled)
 
     def update_frame(self, frame: np.ndarray):
         """프레임 업데이트"""
@@ -92,13 +132,55 @@ class ScreenWidget(QLabel):
         return None
 
     def mousePressEvent(self, event):
-        """마우스 클릭 이벤트 (좌클릭 + 우클릭)"""
+        """마우스 클릭 → 수동 조작 모드일 때만 동작"""
+        if not self._manual_mode:
+            return
         coords = self._map_to_original(event)
-        if coords:
-            if event.button() == Qt.MouseButton.LeftButton:
-                self.clicked.emit(*coords)
-            elif event.button() == Qt.MouseButton.RightButton:
-                self.right_clicked.emit(*coords)
+        if not coords:
+            return
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit(*coords, "LEFT")
+        elif event.button() == Qt.MouseButton.RightButton:
+            self.clicked.emit(*coords, "RIGHT")
+        elif event.button() == Qt.MouseButton.MiddleButton:
+            self.clicked.emit(*coords, "MIDDLE")
+
+    def _qt_key_to_hid(self, event) -> Optional[str]:
+        """Qt 키이벤트 → HID 키 이름"""
+        key = event.key()
+        if key in self._QT_TO_HID:
+            return self._QT_TO_HID[key]
+        text = event.text()
+        if text and len(text) == 1 and 32 <= ord(text) <= 126:
+            return text
+        return None
+
+    def keyPressEvent(self, event):
+        if not self._manual_mode:
+            super().keyPressEvent(event)
+            return
+        # Ctrl+Shift+Q: 수동 조작 종료
+        mods = event.modifiers()
+        if (event.key() == Qt.Key.Key_Q and
+                mods & Qt.KeyboardModifier.ControlModifier and
+                mods & Qt.KeyboardModifier.ShiftModifier):
+            self.set_manual_mode(False)
+            return
+        if event.isAutoRepeat():
+            return
+        hid_key = self._qt_key_to_hid(event)
+        if hid_key:
+            self.manual_key_pressed.emit(hid_key)
+
+    def keyReleaseEvent(self, event):
+        if not self._manual_mode:
+            super().keyReleaseEvent(event)
+            return
+        if event.isAutoRepeat():
+            return
+        hid_key = self._qt_key_to_hid(event)
+        if hid_key:
+            self.manual_key_released.emit(hid_key)
 
 
 class AgentPanel(QGroupBox):
@@ -109,6 +191,7 @@ class AgentPanel(QGroupBox):
         self.name = name
         self.ctrl = controller
         self.screen_widgets: Dict[str, ScreenWidget] = {}
+        self.manual_buttons: Dict[str, QPushButton] = {}
         self.active_window_id: str = "screen"
 
         self.setup_ui()
@@ -133,46 +216,66 @@ class AgentPanel(QGroupBox):
         # 간단 컨트롤
         ctrl_layout = QHBoxLayout()
         self.btn_refresh = QPushButton("새로고침")
-        self.btn_click = QPushButton("클릭 모드")
-        self.btn_click.setCheckable(True)
         ctrl_layout.addWidget(self.btn_refresh)
-        ctrl_layout.addWidget(self.btn_click)
         layout.addLayout(ctrl_layout)
 
         self.setLayout(layout)
 
     def ensure_screen_widget(self, window_id: str, title: str = "") -> ScreenWidget:
-        """창 위젯 생성 또는 가져오기"""
+        """창 위젯 생성 (수동 조작 버튼 포함)"""
         if window_id not in self.screen_widgets:
+            container = QVBoxLayout()
+
             screen = ScreenWidget(f"{self.name}:{window_id}")
-            screen.clicked.connect(lambda x, y, wid=window_id: self.on_screen_click(wid, x, y, "LEFT"))
-            screen.right_clicked.connect(lambda x, y, wid=window_id: self.on_screen_click(wid, x, y, "RIGHT"))
+            screen.clicked.connect(
+                lambda x, y, btn, wid=window_id: self.on_screen_click(wid, x, y, btn))
+            screen.manual_key_pressed.connect(
+                lambda key: self.ctrl.send_key(self.name, key, human_like=False))
+            screen.manual_key_released.connect(
+                lambda key: self.ctrl.send_command(self.name, "key_up", {"key": key}, human_like=False))
+
+            btn = QPushButton(f"수동 조작 [{title or window_id}]")
+            btn.setCheckable(True)
+            btn.setStyleSheet("QPushButton:checked { background-color: #cc3333; color: white; }")
+            btn.toggled.connect(lambda checked, s=screen: s.set_manual_mode(checked))
+            screen.manual_mode_changed.connect(lambda on, b=btn: b.setChecked(on))
+
+            container_widget = QWidget()
+            container.addWidget(screen)
+            container.addWidget(btn)
+            container.setContentsMargins(0, 0, 0, 0)
+            container_widget.setLayout(container)
+
             self.screen_widgets[window_id] = screen
-            self.screens_layout.addWidget(screen)
+            self.manual_buttons[window_id] = btn
+            self.screens_layout.addWidget(container_widget)
+
         return self.screen_widgets[window_id]
 
     def on_screen_click(self, window_id: str, x: int, y: int, button: str = "LEFT"):
-        """화면 클릭 시 - 해당 창을 활성화하고 클릭"""
-        if self.btn_click.isChecked():
-            btn_label = "우클릭" if button == "RIGHT" else "좌클릭"
-            print(f"[{self.name}:{window_id}] {btn_label} 명령 전송: ({x}, {y})")
-            success = self.ctrl.send_click_to_window(self.name, window_id, x, y, button=button)
-            if success:
-                print(f"[{self.name}:{window_id}] {btn_label} 성공!")
-            else:
-                print(f"[{self.name}:{window_id}] {btn_label} 실패 (Leonardo 미연결?)")
+        """화면 클릭 → 이동 + 클릭"""
+        btn_label = {"LEFT": "좌클릭", "RIGHT": "우클릭", "MIDDLE": "중클릭"}.get(button, button)
+        print(f"[{self.name}:{window_id}] {btn_label} ({x}, {y})")
+        self.ctrl.send_click_to_window(self.name, window_id, x, y, button=button)
 
     def update_frame(self, window_id: str, frame: np.ndarray, title: str = "", active: bool = False):
         """창별 프레임 업데이트"""
         screen = self.ensure_screen_widget(window_id, title)
         screen.update_frame(frame)
 
-        # 활성 창 표시
-        if active:
-            self.active_window_id = window_id
-            screen.setStyleSheet("background-color: #2d2d2d; border: 2px solid #4a9eff;")
-        else:
-            screen.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
+        # 활성 창 표시 (수동 조작 중이면 빨간 테두리 유지)
+        if not screen.manual_mode:
+            if active:
+                self.active_window_id = window_id
+                screen.setStyleSheet("background-color: #2d2d2d; border: 2px solid #4a9eff;")
+            else:
+                screen.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
+
+        # 수동 조작 버튼 텍스트 업데이트
+        if window_id in self.manual_buttons and title:
+            btn = self.manual_buttons[window_id]
+            if not btn.isChecked():
+                btn.setText(f"수동 조작 [{title[:20]}]")
 
     def update_all_frames(self, windows: dict):
         """모든 창 프레임 업데이트"""

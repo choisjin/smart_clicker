@@ -55,6 +55,7 @@ class AgentInfo:
     # 다중 창 지원
     windows: Dict[str, WindowFrame] = field(default_factory=dict)
     frame_callbacks: List[Callable] = field(default_factory=list)
+    _response_queue: Optional[object] = field(default=None, repr=False)
 
 
 class RemoteController:
@@ -135,7 +136,8 @@ class RemoteController:
                         rect=win_data.get("rect")
                     )
 
-            # 수신 태스크 시작
+            # 응답 큐 초기화 + 수신 태스크 시작
+            agent._response_queue = asyncio.Queue()
             asyncio.create_task(self._receive_loop(agent))
 
         except Exception as e:
@@ -182,8 +184,8 @@ class RemoteController:
                                 print(f"[ERROR] Frame callback: {e}")
 
                     elif msg_type == "response":
-                        # 응답 처리 (필요시 구현)
-                        pass
+                        if agent._response_queue:
+                            await agent._response_queue.put(data)
 
                 except json.JSONDecodeError:
                     pass
@@ -233,16 +235,15 @@ class RemoteController:
     # ── 명령 전송 ──
 
     async def _send_command(self, agent: AgentInfo, cmd: dict) -> dict:
-        """명령 전송 및 응답 수신"""
+        """명령 전송 및 응답 수신 (응답 큐 사용 - recv 경쟁 방지)"""
         if not agent.connected or not agent.websocket:
             return {"success": False, "error": "Not connected"}
 
         try:
             await agent.websocket.send(json.dumps(cmd))
-
-            # 응답 대기 (타임아웃 5초)
-            response = await asyncio.wait_for(agent.websocket.recv(), timeout=5)
-            return json.loads(response)
+            # _receive_loop가 response를 큐에 넣어줌
+            response = await asyncio.wait_for(agent._response_queue.get(), timeout=5)
+            return response
         except asyncio.TimeoutError:
             return {"success": False, "error": "Timeout"}
         except Exception as e:

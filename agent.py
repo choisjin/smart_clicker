@@ -583,7 +583,8 @@ class RemoteAgent:
                 if not self.hid:
                     response["error"] = "Leonardo not connected"
                 else:
-                    result = self.execute_hid_command(action, params)
+                    # 스레드에서 실행 → 스트리밍 블로킹 방지
+                    result = await asyncio.to_thread(self.execute_hid_command, action, params)
                     response["success"] = result
                     response["action"] = action
 
@@ -724,6 +725,10 @@ class RemoteAgent:
                     self.hid.key_human(key)
                 else:
                     self.hid.key(key)
+
+            elif action == "key_up":
+                key = params["key"]
+                self.hid.key_up(key)
 
             elif action == "combo":
                 keys = params["keys"]
