@@ -1,0 +1,757 @@
+"""
+Remote Agent - 대상 PC에서 실행
+화면 캡처 + WebSocket 스트리밍 + Leonardo HID 제어
+
+사용법:
+    # 전체 화면 캡처
+    python agent.py --port 8765 --leonardo COM6
+
+    # 대화형 창 선택 (최대 3개)
+    python agent.py --port 8765 --leonardo COM6 --select
+
+    # 특정 창 지정 (여러 개 가능)
+    python agent.py --leonardo COM6 --window "프로그램1" --window "프로그램2"
+
+    # 열린 창 목록 확인
+    python agent.py --list-windows
+"""
+
+import asyncio
+import json
+import base64
+import time
+import argparse
+from io import BytesIO
+from typing import Optional, Callable, List, Dict
+import threading
+
+import numpy as np
+import mss
+import win32gui
+import win32con
+import win32ui
+import ctypes
+from ctypes import windll
+from PIL import Image
+
+from leonardo_controller import LeonardoHID
+
+try:
+    import websockets
+except ImportError:
+    print("websockets 설치 필요: pip install websockets")
+    exit(1)
+
+MAX_WINDOWS = 3  # 최대 동시 캡처 창 수
+
+
+class WindowCapture:
+    """특정 창 캡처 클래스 - 최소화/가려진 창도 캡처 가능"""
+
+    def __init__(self, window_title: Optional[str] = None, use_printwindow: bool = True):
+        self.hwnd = None
+        self.window_title = window_title
+        self.sct = mss.mss()
+        self.use_printwindow = use_printwindow  # True: 최소화 창도 캡처 가능
+
+        if window_title:
+            self.find_window(window_title)
+
+    def find_window(self, title: str) -> bool:
+        """창 제목으로 윈도우 핸들 찾기 (정확한 일치 우선)"""
+        self.window_title = title
+        self.hwnd = None
+
+        def enum_callback(hwnd, results):
+            if win32gui.IsWindowVisible(hwnd):
+                window_text = win32gui.GetWindowText(hwnd)
+                if window_text:
+                    results.append((hwnd, window_text))
+            return True
+
+        all_windows = []
+        win32gui.EnumWindows(enum_callback, all_windows)
+
+        # 1. 정확히 일치하는 창 찾기
+        for hwnd, window_text in all_windows:
+            if window_text.lower() == title.lower():
+                self.hwnd = hwnd
+                print(f"[OK] 창 찾음 (정확 일치): {window_text}")
+                return True
+
+        # 2. 부분 일치하는 창 찾기 (짧은 제목 우선 = 더 정확한 매칭)
+        matches = []
+        for hwnd, window_text in all_windows:
+            if title.lower() in window_text.lower():
+                matches.append((hwnd, window_text, len(window_text)))
+
+        if matches:
+            # 제목이 짧은 순으로 정렬 (더 정확한 매칭)
+            matches.sort(key=lambda x: x[2])
+            self.hwnd = matches[0][0]
+            print(f"[OK] 창 찾음: {matches[0][1]}")
+            return True
+
+        print(f"[WARN] 창을 찾을 수 없음: {title}")
+        return False
+
+    def get_window_rect(self) -> Optional[tuple]:
+        """창 위치와 크기 반환 (x, y, width, height)"""
+        if not self.hwnd:
+            return None
+
+        try:
+            rect = win32gui.GetWindowRect(self.hwnd)
+            x, y, right, bottom = rect
+            return (x, y, right - x, bottom - y)
+        except:
+            return None
+
+    def capture_printwindow(self, quality: int = 70) -> Optional[bytes]:
+        """
+        PrintWindow API로 창 캡처 (최소화/가려진 창도 가능)
+        """
+        if not self.hwnd:
+            return None
+
+        try:
+            # 창 크기 가져오기 (최소화된 경우 복원 크기 사용)
+            placement = win32gui.GetWindowPlacement(self.hwnd)
+            if placement[1] == win32con.SW_SHOWMINIMIZED:
+                # 최소화된 상태 - 복원 시 크기 사용
+                rect = placement[4]  # (left, top, right, bottom)
+                w = rect[2] - rect[0]
+                h = rect[3] - rect[1]
+            else:
+                rect = win32gui.GetClientRect(self.hwnd)
+                w = rect[2] - rect[0]
+                h = rect[3] - rect[1]
+
+            if w <= 0 or h <= 0:
+                return None
+
+            # 디바이스 컨텍스트 생성
+            hwnd_dc = win32gui.GetWindowDC(self.hwnd)
+            mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
+            save_dc = mfc_dc.CreateCompatibleDC()
+
+            # 비트맵 생성
+            bitmap = win32ui.CreateBitmap()
+            bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
+            save_dc.SelectObject(bitmap)
+
+            # PrintWindow로 캡처 (PW_RENDERFULLCONTENT = 2)
+            result = windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 2)
+
+            if result == 0:
+                # PrintWindow 실패 시 BitBlt 시도
+                save_dc.BitBlt((0, 0), (w, h), mfc_dc, (0, 0), win32con.SRCCOPY)
+
+            # 비트맵 → PIL Image
+            bmp_info = bitmap.GetInfo()
+            bmp_bits = bitmap.GetBitmapBits(True)
+            img = Image.frombuffer('RGB', (bmp_info['bmWidth'], bmp_info['bmHeight']),
+                                   bmp_bits, 'raw', 'BGRX', 0, 1)
+
+            # 정리
+            win32gui.DeleteObject(bitmap.GetHandle())
+            save_dc.DeleteDC()
+            mfc_dc.DeleteDC()
+            win32gui.ReleaseDC(self.hwnd, hwnd_dc)
+
+            # JPEG 압축
+            buffer = BytesIO()
+            img.save(buffer, format="JPEG", quality=quality)
+            return buffer.getvalue()
+
+        except Exception as e:
+            print(f"[ERROR] PrintWindow 캡처 실패: {e}")
+            return None
+
+    def capture_mss(self, quality: int = 70) -> Optional[bytes]:
+        """
+        mss로 창 캡처 (빠르지만 가려진 창은 캡처 불가)
+        """
+        rect = self.get_window_rect()
+        if not rect:
+            # 창이 없으면 전체 화면 캡처
+            monitor = self.sct.monitors[1]
+            rect = (monitor["left"], monitor["top"], monitor["width"], monitor["height"])
+
+        x, y, w, h = rect
+
+        # mss로 캡처
+        monitor = {"left": x, "top": y, "width": w, "height": h}
+        try:
+            screenshot = self.sct.grab(monitor)
+            img = Image.frombytes("RGB", screenshot.size, screenshot.bgra, "raw", "BGRX")
+
+            # JPEG으로 압축
+            buffer = BytesIO()
+            img.save(buffer, format="JPEG", quality=quality)
+            return buffer.getvalue()
+        except Exception as e:
+            print(f"[ERROR] mss 캡처 실패: {e}")
+            return None
+
+    def capture(self, quality: int = 70) -> Optional[bytes]:
+        """
+        창 캡처 후 JPEG 바이트로 반환
+        - use_printwindow=True: 최소화/가려진 창도 캡처 가능
+        - use_printwindow=False: mss 사용 (빠름)
+        """
+        if self.hwnd and self.use_printwindow:
+            result = self.capture_printwindow(quality)
+            if result:
+                return result
+            # PrintWindow 실패 시 mss로 폴백
+
+        return self.capture_mss(quality)
+
+    def capture_numpy(self) -> Optional[np.ndarray]:
+        """창 캡처 후 numpy 배열로 반환 (OpenCV 호환)"""
+        if self.hwnd and self.use_printwindow:
+            try:
+                # PrintWindow 방식
+                placement = win32gui.GetWindowPlacement(self.hwnd)
+                if placement[1] == win32con.SW_SHOWMINIMIZED:
+                    rect = placement[4]
+                    w = rect[2] - rect[0]
+                    h = rect[3] - rect[1]
+                else:
+                    rect = win32gui.GetClientRect(self.hwnd)
+                    w = rect[2] - rect[0]
+                    h = rect[3] - rect[1]
+
+                if w <= 0 or h <= 0:
+                    return None
+
+                hwnd_dc = win32gui.GetWindowDC(self.hwnd)
+                mfc_dc = win32ui.CreateDCFromHandle(hwnd_dc)
+                save_dc = mfc_dc.CreateCompatibleDC()
+
+                bitmap = win32ui.CreateBitmap()
+                bitmap.CreateCompatibleBitmap(mfc_dc, w, h)
+                save_dc.SelectObject(bitmap)
+
+                windll.user32.PrintWindow(self.hwnd, save_dc.GetSafeHdc(), 2)
+
+                bmp_info = bitmap.GetInfo()
+                bmp_bits = bitmap.GetBitmapBits(True)
+                img = np.frombuffer(bmp_bits, dtype=np.uint8)
+                img = img.reshape((bmp_info['bmHeight'], bmp_info['bmWidth'], 4))
+
+                win32gui.DeleteObject(bitmap.GetHandle())
+                save_dc.DeleteDC()
+                mfc_dc.DeleteDC()
+                win32gui.ReleaseDC(self.hwnd, hwnd_dc)
+
+                return img[:, :, :3]  # BGR
+
+            except Exception as e:
+                pass  # mss로 폴백
+
+        # mss 방식
+        rect = self.get_window_rect()
+        if not rect:
+            monitor = self.sct.monitors[1]
+            rect = (monitor["left"], monitor["top"], monitor["width"], monitor["height"])
+
+        x, y, w, h = rect
+        monitor = {"left": x, "top": y, "width": w, "height": h}
+
+        try:
+            screenshot = self.sct.grab(monitor)
+            return np.array(screenshot)[:, :, :3]  # BGR
+        except:
+            return None
+
+    def bring_to_front(self):
+        """창을 앞으로 가져오기 (최선 노력, 실패해도 계속)"""
+        if self.hwnd:
+            success = False
+            try:
+                # 최소화 상태면 복원
+                placement = win32gui.GetWindowPlacement(self.hwnd)
+                if placement[1] == win32con.SW_SHOWMINIMIZED:
+                    win32gui.ShowWindow(self.hwnd, win32con.SW_RESTORE)
+                    success = True
+            except:
+                pass
+
+            try:
+                # 방법 1: ShowWindow
+                win32gui.ShowWindow(self.hwnd, win32con.SW_SHOW)
+                success = True
+            except:
+                pass
+
+            try:
+                # 방법 2: SetForegroundWindow (Alt 키 트릭)
+                import ctypes
+                user32 = ctypes.windll.user32
+                user32.keybd_event(0x12, 0, 0, 0)  # Alt down
+                win32gui.SetForegroundWindow(self.hwnd)
+                user32.keybd_event(0x12, 0, 2, 0)  # Alt up
+                success = True
+            except:
+                pass
+
+            # 실패해도 True 반환 (클릭은 계속 진행)
+            return True
+        return False
+
+    def get_client_rect(self) -> Optional[tuple]:
+        """창 클라이언트 영역 위치 (x, y, width, height) - 타이틀바 제외"""
+        if not self.hwnd:
+            return None
+        try:
+            # 클라이언트 영역 크기
+            client_rect = win32gui.GetClientRect(self.hwnd)
+            # 클라이언트 영역의 화면 좌표
+            point = win32gui.ClientToScreen(self.hwnd, (0, 0))
+            return (point[0], point[1], client_rect[2], client_rect[3])
+        except:
+            return self.get_window_rect()
+
+    @staticmethod
+    def list_windows() -> List[Dict]:
+        """현재 열린 모든 창 목록 (상세 정보)"""
+        windows = []
+
+        def enum_callback(hwnd, results):
+            if win32gui.IsWindowVisible(hwnd):
+                title = win32gui.GetWindowText(hwnd)
+                if title and len(title.strip()) > 0:
+                    try:
+                        rect = win32gui.GetWindowRect(hwnd)
+                        w = rect[2] - rect[0]
+                        h = rect[3] - rect[1]
+                        # 너무 작은 창 제외
+                        if w > 100 and h > 100:
+                            results.append({
+                                "hwnd": hwnd,
+                                "title": title,
+                                "width": w,
+                                "height": h
+                            })
+                    except:
+                        pass
+            return True
+
+        win32gui.EnumWindows(enum_callback, windows)
+        return windows
+
+    @staticmethod
+    def select_windows_interactive(max_count: int = 3) -> List[str]:
+        """대화형으로 창 선택"""
+        windows = WindowCapture.list_windows()
+
+        print("\n=== 창 목록 ===")
+        for i, win in enumerate(windows):
+            print(f"  [{i+1}] {win['title'][:50]} ({win['width']}x{win['height']})")
+
+        print(f"\n스트리밍할 창 번호를 입력하세요 (최대 {max_count}개, 쉼표로 구분)")
+        print("예: 1,3,5 또는 1 (Enter=전체화면)")
+
+        try:
+            selection = input("> ").strip()
+            if not selection:
+                return []  # 전체 화면
+
+            indices = [int(x.strip()) - 1 for x in selection.split(",")]
+            selected = []
+            for idx in indices[:max_count]:
+                if 0 <= idx < len(windows):
+                    selected.append(windows[idx]["title"])
+
+            return selected
+        except:
+            return []
+
+
+class RemoteAgent:
+    """원격 에이전트 - WebSocket 서버 + 다중 창 스트리밍 + HID 제어"""
+
+    def __init__(self, port: int = 8765, leonardo_port: Optional[str] = None,
+                 window_titles: Optional[List[str]] = None):
+        self.port = port
+        self.hid: Optional[LeonardoHID] = None
+        self.leonardo_port = leonardo_port
+
+        # 다중 창 캡처 (최대 3개)
+        self.captures: Dict[str, WindowCapture] = {}
+        self.active_window: str = "screen"  # 현재 활성 창 (HID 명령 대상)
+
+        # 창 설정
+        if window_titles:
+            for i, title in enumerate(window_titles[:MAX_WINDOWS]):
+                win_id = f"win{i}"
+                cap = WindowCapture(title)
+                self.captures[win_id] = cap
+                # 첫 번째 창을 활성 창으로 설정
+                if i == 0:
+                    self.active_window = win_id
+                print(f"[OK] 창 {i+1} 추가: {title}")
+
+        # 창이 없으면 전체 화면
+        if not self.captures:
+            self.captures["screen"] = WindowCapture(None)
+            print("[OK] 전체 화면 캡처 모드")
+
+        # 스트리밍 설정
+        self.streaming = False
+        self.fps = 15
+        self.quality = 70
+        self.clients = set()
+
+        # Leonardo 연결
+        if leonardo_port:
+            try:
+                self.hid = LeonardoHID(leonardo_port)
+                print(f"[OK] Leonardo 연결됨: {leonardo_port}")
+            except Exception as e:
+                print(f"[WARN] Leonardo 연결 실패: {e}")
+
+    async def handle_client(self, websocket):
+        """클라이언트 연결 처리"""
+        self.clients.add(websocket)
+        client_ip = websocket.remote_address[0]
+        print(f"[+] 클라이언트 연결: {client_ip}")
+
+        try:
+            # 초기 정보 전송
+            await self.send_info(websocket)
+
+            # 스트리밍 시작
+            stream_task = asyncio.create_task(self.stream_to_client(websocket))
+
+            # 명령 수신 루프
+            async for message in websocket:
+                try:
+                    cmd = json.loads(message)
+                    await self.handle_command(cmd, websocket)
+                except json.JSONDecodeError:
+                    await websocket.send(json.dumps({"error": "Invalid JSON"}))
+
+        except websockets.exceptions.ConnectionClosed:
+            print(f"[-] 클라이언트 연결 종료: {client_ip}")
+        finally:
+            self.clients.discard(websocket)
+            stream_task.cancel()
+
+    async def send_info(self, websocket):
+        """에이전트 정보 전송"""
+        # 모든 창 정보
+        windows_info = {}
+        for win_id, cap in self.captures.items():
+            rect = cap.get_window_rect()
+            windows_info[win_id] = {
+                "title": cap.window_title or "전체화면",
+                "rect": rect
+            }
+
+        info = {
+            "type": "info",
+            "windows": windows_info,
+            "active_window": self.active_window,
+            "leonardo": self.hid is not None,
+            "fps": self.fps
+        }
+        await websocket.send(json.dumps(info))
+
+    async def stream_to_client(self, websocket):
+        """다중 창 스트리밍"""
+        interval = 1.0 / self.fps
+
+        while True:
+            try:
+                start = time.time()
+
+                # 모든 창 캡처 및 전송
+                for win_id, cap in self.captures.items():
+                    frame_data = cap.capture(quality=self.quality)
+                    if frame_data:
+                        rect = cap.get_window_rect()
+                        message = {
+                            "type": "frame",
+                            "window_id": win_id,
+                            "window_title": cap.window_title or "전체화면",
+                            "data": base64.b64encode(frame_data).decode("utf-8"),
+                            "rect": {
+                                "x": rect[0] if rect else 0,
+                                "y": rect[1] if rect else 0,
+                                "w": rect[2] if rect else 1920,
+                                "h": rect[3] if rect else 1080
+                            },
+                            "active": win_id == self.active_window,
+                            "timestamp": time.time()
+                        }
+                        await websocket.send(json.dumps(message))
+
+                # FPS 유지
+                elapsed = time.time() - start
+                if elapsed < interval:
+                    await asyncio.sleep(interval - elapsed)
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                print(f"[ERROR] 스트리밍 오류: {e}")
+                await asyncio.sleep(1)
+
+    async def handle_command(self, cmd: dict, websocket):
+        """명령 처리"""
+        cmd_type = cmd.get("type")
+        action = cmd.get("action")
+        params = cmd.get("params", {})
+
+        response = {"type": "response", "success": False}
+
+        try:
+            if cmd_type == "command":
+                if not self.hid:
+                    response["error"] = "Leonardo not connected"
+                else:
+                    result = self.execute_hid_command(action, params)
+                    response["success"] = result
+                    response["action"] = action
+
+            elif cmd_type == "add_window":
+                # 창 추가 (최대 3개)
+                title = params.get("title")
+                if len(self.captures) >= MAX_WINDOWS:
+                    response["error"] = f"최대 {MAX_WINDOWS}개 창만 가능"
+                else:
+                    win_id = f"win{len(self.captures)}"
+                    cap = WindowCapture(title)
+                    if cap.hwnd:
+                        self.captures[win_id] = cap
+                        response["success"] = True
+                        response["window_id"] = win_id
+                        response["title"] = title
+                    else:
+                        response["error"] = f"창을 찾을 수 없음: {title}"
+
+            elif cmd_type == "remove_window":
+                # 창 제거
+                win_id = params.get("window_id")
+                if win_id in self.captures:
+                    del self.captures[win_id]
+                    if self.active_window == win_id:
+                        self.active_window = list(self.captures.keys())[0] if self.captures else "screen"
+                    response["success"] = True
+                else:
+                    response["error"] = f"창을 찾을 수 없음: {win_id}"
+
+            elif cmd_type == "set_active_window":
+                # 활성 창 변경 (HID 명령 대상)
+                win_id = params.get("window_id")
+                if win_id in self.captures:
+                    self.active_window = win_id
+                    # 창을 앞으로 가져오기
+                    self.captures[win_id].bring_to_front()
+                    response["success"] = True
+                    response["active_window"] = win_id
+                else:
+                    response["error"] = f"창을 찾을 수 없음: {win_id}"
+
+            elif cmd_type == "set_fps":
+                self.fps = params.get("fps", 15)
+                response["success"] = True
+                response["fps"] = self.fps
+
+            elif cmd_type == "set_quality":
+                self.quality = params.get("quality", 70)
+                response["success"] = True
+                response["quality"] = self.quality
+
+            elif cmd_type == "list_windows":
+                # 시스템의 모든 창 목록
+                windows = WindowCapture.list_windows()
+                response["success"] = True
+                response["windows"] = [w["title"] for w in windows]
+
+            elif cmd_type == "get_streams":
+                # 현재 스트리밍 중인 창 목록
+                streams = {}
+                for win_id, cap in self.captures.items():
+                    streams[win_id] = {
+                        "title": cap.window_title or "전체화면",
+                        "rect": cap.get_window_rect(),
+                        "active": win_id == self.active_window
+                    }
+                response["success"] = True
+                response["streams"] = streams
+
+            elif cmd_type == "ping":
+                response["success"] = True
+                response["pong"] = time.time()
+
+        except Exception as e:
+            response["error"] = str(e)
+
+        await websocket.send(json.dumps(response))
+
+    def execute_hid_command(self, action: str, params: dict) -> bool:
+        """HID 명령 실행"""
+        if not self.hid:
+            return False
+
+        try:
+            human_like = params.get("human_like", True)
+
+            if action == "mouse_move":
+                x, y = params["x"], params["y"]
+
+                # 창 내부 좌표 → 화면 절대 좌표 변환
+                if self.active_window in self.captures:
+                    cap = self.captures[self.active_window]
+                    client_rect = cap.get_client_rect()
+                    if client_rect:
+                        win_x, win_y, win_w, win_h = client_rect
+                        # 창 위치 + 클릭 좌표 = 화면 절대 좌표
+                        x = win_x + x
+                        y = win_y + y
+                        print(f"[DEBUG] 좌표 변환: 창({win_x},{win_y}) + 클릭({params['x']},{params['y']}) = 절대({x},{y})")
+
+                if human_like:
+                    self.hid.mouse_move_to_human(x, y)
+                else:
+                    self.hid.mouse_move_to(x, y)
+
+            elif action == "mouse_click":
+                button = params.get("button", "LEFT")
+                print(f"[DEBUG] 마우스 클릭: {button}")
+                if human_like:
+                    self.hid.mouse_click_human(button)
+                else:
+                    self.hid.mouse_click(button)
+
+            elif action == "mouse_double_click":
+                button = params.get("button", "LEFT")
+                if human_like:
+                    self.hid.mouse_double_click_human(button)
+                else:
+                    self.hid.mouse_double_click(button)
+
+            elif action == "mouse_drag":
+                from_x, from_y = params["from_x"], params["from_y"]
+                to_x, to_y = params["to_x"], params["to_y"]
+                if human_like:
+                    self.hid.mouse_drag_human(from_x, from_y, to_x, to_y)
+                else:
+                    self.hid.mouse_drag(from_x, from_y, to_x, to_y)
+
+            elif action == "key":
+                key = params["key"]
+                if human_like:
+                    self.hid.key_human(key)
+                else:
+                    self.hid.key(key)
+
+            elif action == "combo":
+                keys = params["keys"]
+                if human_like:
+                    self.hid.combo_human(keys)
+                else:
+                    self.hid.combo(keys)
+
+            elif action == "type_text":
+                text = params["text"]
+                if human_like:
+                    self.hid.type_text_human(text)
+                else:
+                    self.hid.type_text(text)
+
+            elif action == "wait":
+                seconds = params.get("seconds", 1)
+                self.hid.wait(seconds)
+
+            else:
+                print(f"[WARN] 알 수 없는 액션: {action}")
+                return False
+
+            return True
+
+        except Exception as e:
+            print(f"[ERROR] HID 명령 실패: {e}")
+            return False
+
+    async def start(self):
+        """에이전트 서버 시작"""
+        print(f"\n{'='*50}")
+        print(f"  Smart Search Agent")
+        print(f"{'='*50}")
+        print(f"  서버: ws://0.0.0.0:{self.port}")
+        print(f"  Leonardo: {'연결됨 (' + self.leonardo_port + ')' if self.hid else '없음'}")
+        print(f"  FPS: {self.fps}, 품질: {self.quality}")
+        print(f"\n  스트리밍 창 ({len(self.captures)}개):")
+        for win_id, cap in self.captures.items():
+            title = cap.window_title or "전체화면"
+            active = " [활성]" if win_id == self.active_window else ""
+            print(f"    - {win_id}: {title[:40]}{active}")
+        print(f"{'='*50}")
+        print(f"  대기 중... (Ctrl+C로 종료)\n")
+
+        async with websockets.serve(self.handle_client, "0.0.0.0", self.port):
+            await asyncio.Future()  # 무한 대기
+
+    def run(self):
+        """동기 실행"""
+        try:
+            asyncio.run(self.start())
+        except KeyboardInterrupt:
+            print("\n[*] 종료...")
+            if self.hid:
+                self.hid.close()
+
+
+# ── CLI ──
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Smart Search Remote Agent")
+    parser.add_argument("--port", type=int, default=8765, help="WebSocket 포트 (기본: 8765)")
+    parser.add_argument("--leonardo", type=str, default=None, help="Leonardo COM 포트 (예: COM6)")
+    parser.add_argument("--window", type=str, action="append", default=None,
+                        help="캡처할 창 제목 (여러 개 지정 가능, 최대 3개)")
+    parser.add_argument("--select", action="store_true", help="대화형 창 선택 모드")
+    parser.add_argument("--fps", type=int, default=15, help="스트리밍 FPS (기본: 15)")
+    parser.add_argument("--quality", type=int, default=70, help="JPEG 품질 1-100 (기본: 70)")
+    parser.add_argument("--list-windows", action="store_true", help="열린 창 목록 표시")
+
+    args = parser.parse_args()
+
+    # 창 목록 표시
+    if args.list_windows:
+        windows = WindowCapture.list_windows()
+        print("\n=== 열린 창 목록 ===")
+        for i, win in enumerate(windows):
+            print(f"  [{i+1}] {win['title'][:60]} ({win['width']}x{win['height']})")
+        exit(0)
+
+    # 창 선택
+    window_titles = None
+
+    if args.select:
+        # 대화형 창 선택
+        window_titles = WindowCapture.select_windows_interactive(MAX_WINDOWS)
+        if window_titles:
+            print(f"\n선택된 창: {len(window_titles)}개")
+            for t in window_titles:
+                print(f"  - {t[:50]}")
+        else:
+            print("\n전체 화면 캡처 모드로 시작합니다.")
+    elif args.window:
+        # 명령줄에서 지정된 창들
+        window_titles = args.window[:MAX_WINDOWS]
+
+    # 에이전트 생성 및 실행
+    agent = RemoteAgent(
+        port=args.port,
+        leonardo_port=args.leonardo,
+        window_titles=window_titles
+    )
+    agent.fps = args.fps
+    agent.quality = args.quality
+    agent.run()

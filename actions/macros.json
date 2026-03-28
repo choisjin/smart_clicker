@@ -1,0 +1,39 @@
+{
+    "actions": [
+        {
+            "name": "로그인",
+            "steps": [
+                {"action": "find_and_click", "template": "login_button.png"},
+                {"action": "wait", "seconds": 0.5},
+                {"action": "type_text", "text": "username", "human_like": true},
+                {"action": "key", "key": "KEY_TAB"},
+                {"action": "type_text", "text": "password", "human_like": true},
+                {"action": "key", "key": "KEY_RETURN"}
+            ]
+        },
+        {
+            "name": "시작",
+            "steps": [
+                {"action": "find_and_click", "template": "start_button.png"}
+            ]
+        },
+        {
+            "name": "정지",
+            "steps": [
+                {"action": "find_and_click", "template": "stop_button.png"}
+            ]
+        },
+        {
+            "name": "새로고침",
+            "steps": [
+                {"action": "key", "key": "KEY_F5"}
+            ]
+        },
+        {
+            "name": "전체선택",
+            "steps": [
+                {"action": "combo", "keys": ["KEY_LEFT_CTRL", "a"]}
+            ]
+        }
+    ]
+}
