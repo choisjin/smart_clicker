@@ -9,6 +9,7 @@ PyQt6 기반 관제 화면
 import sys
 import json
 import os
+import threading
 from typing import Optional, Dict
 
 from PyQt6.QtWidgets import (
@@ -230,9 +231,13 @@ class AgentPanel(QGroupBox):
             screen.clicked.connect(
                 lambda x, y, btn, wid=window_id: self.on_screen_click(wid, x, y, btn))
             screen.manual_key_pressed.connect(
-                lambda key: self.ctrl.send_key(self.name, key, human_like=False))
+                lambda key: threading.Thread(
+                    target=self.ctrl.send_key, args=(self.name, key),
+                    kwargs={"human_like": False}, daemon=True).start())
             screen.manual_key_released.connect(
-                lambda key: self.ctrl.send_command(self.name, "key_up", {"key": key}, human_like=False))
+                lambda key: threading.Thread(
+                    target=self.ctrl.send_command, args=(self.name, "key_up", {"key": key}),
+                    kwargs={"human_like": False}, daemon=True).start())
 
             btn = QPushButton(f"수동 조작 [{title or window_id}]")
             btn.setCheckable(True)
@@ -253,10 +258,15 @@ class AgentPanel(QGroupBox):
         return self.screen_widgets[window_id]
 
     def on_screen_click(self, window_id: str, x: int, y: int, button: str = "LEFT"):
-        """화면 클릭 → 이동 + 클릭"""
+        """화면 클릭 → 별도 스레드에서 이동 + 클릭 (GUI 블로킹 방지)"""
         btn_label = {"LEFT": "좌클릭", "RIGHT": "우클릭", "MIDDLE": "중클릭"}.get(button, button)
         print(f"[{self.name}:{window_id}] {btn_label} ({x}, {y})")
-        self.ctrl.send_click_to_window(self.name, window_id, x, y, button=button)
+        threading.Thread(
+            target=self.ctrl.send_click_to_window,
+            args=(self.name, window_id, x, y),
+            kwargs={"button": button},
+            daemon=True
+        ).start()
 
     def update_frame(self, window_id: str, frame: np.ndarray, title: str = "", active: bool = False):
         """창별 프레임 업데이트"""
