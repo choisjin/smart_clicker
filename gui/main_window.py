@@ -460,11 +460,11 @@ class AgentPanel(QGroupBox):
 
                 print(f"[{self.name}:{window_id}] 추적 시작 (임계값: {result['threshold']:.2f})")
 
-                # 자동 우클릭 루프 (별도 스레드)
-                threading.Thread(
-                    target=self._tracking_loop, args=(window_id,),
-                    daemon=True
-                ).start()
+                # 오버레이만 표시 (우클릭은 비활성 — 추후 활성화)
+                # threading.Thread(
+                #     target=self._tracking_loop, args=(window_id,),
+                #     daemon=True
+                # ).start()
         else:
             # 취소 → 추적 해제
             if hasattr(self, '_tracking_active'):

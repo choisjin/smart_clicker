@@ -439,7 +439,7 @@ class RemoteAgent:
         # 스트리밍 설정
         self.streaming = False
         self.fps = 15
-        self.quality = 70
+        self.quality = 85
         self.stream_clients = set()  # 스트리밍 WebSocket
         self.cmd_clients = set()  # 명령 WebSocket
 
@@ -951,7 +951,7 @@ if __name__ == "__main__":
     parser.add_argument("--auto", action="store_true", default=True,
                         help="자동 모드: Gersang + GersangStation Mini 검색 (기본)")
     parser.add_argument("--fps", type=int, default=60, help="스트리밍 FPS (기본: 60)")
-    parser.add_argument("--quality", type=int, default=70, help="JPEG 품질 1-100 (기본: 70)")
+    parser.add_argument("--quality", type=int, default=85, help="JPEG 품질 1-100 (기본: 85)")
     parser.add_argument("--list-windows", action="store_true", help="열린 창 목록 표시")
 
     args = parser.parse_args()

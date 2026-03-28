@@ -26,6 +26,12 @@ class ScreenshotLabel(QLabel):
         self._end = QPoint()
         self._roi: Optional[Tuple[int, int, int, int]] = None
 
+        # 스케일 정보 캐시
+        self._scaled_ox = 0
+        self._scaled_oy = 0
+        self._scaled_pw = 1
+        self._scaled_ph = 1
+
         self.setMouseTracking(True)
         self.setCursor(Qt.CursorShape.CrossCursor)
         self._update_display()
@@ -36,7 +42,7 @@ class ScreenshotLabel(QLabel):
         img = QImage(self.frame.data, w, h, ch * w, QImage.Format.Format_RGB888)
         pixmap = QPixmap.fromImage(img)
 
-        # 선택 박스 그리기
+        # 선택 박스 그리기 (원본 해상도에서 그림)
         if self._roi or self._dragging:
             painter = QPainter(pixmap)
             pen = QPen(QColor(255, 50, 50), 2, Qt.PenStyle.SolidLine)
@@ -61,24 +67,19 @@ class ScreenshotLabel(QLabel):
 
             painter.end()
 
-        # 위젯 크기에 맞게 스케일
+        # 위젯 크기에 맞게 스케일 + 스케일 정보 캐시
         scaled = pixmap.scaled(self.size(), Qt.AspectRatioMode.KeepAspectRatio,
                                Qt.TransformationMode.SmoothTransformation)
+        self._scaled_pw = scaled.width()
+        self._scaled_ph = scaled.height()
+        self._scaled_ox = (self.width() - self._scaled_pw) // 2
+        self._scaled_oy = (self.height() - self._scaled_ph) // 2
         self.setPixmap(scaled)
 
     def _widget_to_image(self, pos: QPoint) -> QPoint:
-        """위젯 좌표 → 원본 이미지 좌표"""
-        pixmap = self.pixmap()
-        if not pixmap:
-            return pos
-
-        pw, ph = pixmap.width(), pixmap.height()
-        ww, wh = self.width(), self.height()
-        ox = (ww - pw) // 2
-        oy = (wh - ph) // 2
-
-        ix = int((pos.x() - ox) * self.w / pw)
-        iy = int((pos.y() - oy) * self.h / ph)
+        """위젯 좌표 → 원본 이미지 좌표 (캐시된 스케일 사용)"""
+        ix = int((pos.x() - self._scaled_ox) * self.w / self._scaled_pw)
+        iy = int((pos.y() - self._scaled_oy) * self.h / self._scaled_ph)
         ix = max(0, min(ix, self.w - 1))
         iy = max(0, min(iy, self.h - 1))
         return QPoint(ix, iy)
