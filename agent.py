@@ -276,7 +276,7 @@ class WindowCapture:
             return None
 
     def bring_to_front(self):
-        """창을 앞으로 가져오기 (SPI_SETFOREGROUNDLOCKTIMEOUT 우회)"""
+        """창을 앞으로 가져오기 (클릭 기반 활성화)"""
         if not self.hwnd:
             return False
 
@@ -287,19 +287,15 @@ class WindowCapture:
         except:
             pass
 
+        # 타이틀바 클릭으로 활성화 (SetForegroundWindow 권한 문제 우회)
         try:
-            # foreground lock timeout을 0으로 설정하여 제한 해제
-            SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001
-            ctypes.windll.user32.SystemParametersInfoW(
-                SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0)
-            win32gui.SetForegroundWindow(self.hwnd)
+            rect = win32gui.GetWindowRect(self.hwnd)
+            # 타이틀바 중앙 좌표 (상단에서 10px 아래)
+            click_x = (rect[0] + rect[2]) // 2
+            click_y = rect[1] + 10
+            return (click_x, click_y)
         except:
-            try:
-                win32gui.ShowWindow(self.hwnd, win32con.SW_SHOWNA)
-            except:
-                pass
-
-        return True
+            return True
 
     def get_client_rect(self) -> Optional[tuple]:
         """창 클라이언트 영역 위치 (x, y, width, height) - 타이틀바 제외"""
@@ -404,6 +400,7 @@ class RemoteAgent:
         self.fps = 15
         self.quality = 70
         self.clients = set()
+        self._ws_lock = None  # WebSocket send 직렬화 (handle_client에서 초기화)
 
         # 마우스 설정 보정
         self.mouse_speed_factor = self._detect_mouse_speed_factor()
@@ -485,6 +482,9 @@ class RemoteAgent:
         print(f"[+] 클라이언트 연결: {client_ip}")
 
         try:
+            # WebSocket send 직렬화 Lock
+            self._ws_lock = asyncio.Lock()
+
             # 초기 정보 전송
             await self.send_info(websocket)
 
@@ -497,7 +497,8 @@ class RemoteAgent:
                     cmd = json.loads(message)
                     asyncio.create_task(self.handle_command(cmd, websocket))
                 except json.JSONDecodeError:
-                    await websocket.send(json.dumps({"error": "Invalid JSON"}))
+                    async with self._ws_lock:
+                        await websocket.send(json.dumps({"error": "Invalid JSON"}))
 
         except websockets.exceptions.ConnectionClosed:
             print(f"[-] 클라이언트 연결 종료: {client_ip}")
@@ -560,7 +561,8 @@ class RemoteAgent:
                 frames = await asyncio.to_thread(self._capture_all_frames)
 
                 for message in frames:
-                    await websocket.send(json.dumps(message))
+                    async with self._ws_lock:
+                        await websocket.send(json.dumps(message))
 
                 # FPS 유지
                 elapsed = time.time() - start
@@ -623,8 +625,11 @@ class RemoteAgent:
                 win_id = params.get("window_id")
                 if win_id in self.captures:
                     self.active_window = win_id
-                    # 창을 앞으로 가져오기
-                    self.captures[win_id].bring_to_front()
+                    # Leonardo로 타이틀바 클릭하여 창 활성화 (SetForegroundWindow 불필요)
+                    result = self.captures[win_id].bring_to_front()
+                    if self.hid and isinstance(result, tuple):
+                        click_x, click_y = result
+                        await asyncio.to_thread(self._activate_window_by_click, click_x, click_y)
                     # 마우스 위치 추적 무효화 (외부에서 마우스가 이동됐을 수 있음)
                     if self.hid:
                         self.hid._mouse_x = None
@@ -669,7 +674,19 @@ class RemoteAgent:
         except Exception as e:
             response["error"] = str(e)
 
-        await websocket.send(json.dumps(response))
+        async with self._ws_lock:
+            await websocket.send(json.dumps(response))
+
+    def _activate_window_by_click(self, x: int, y: int):
+        """Leonardo로 타이틀바 클릭하여 창 활성화 (HID 하드웨어 입력)"""
+        try:
+            mx, my = self._pixels_to_mickeys(x, y)
+            self.hid.mouse_move_to(mx, my)
+            time.sleep(0.05)
+            self.hid.mouse_click("LEFT")
+            time.sleep(0.1)
+        except Exception as e:
+            print(f"[WARN] HID 창 활성화 실패: {e}")
 
     def execute_hid_command(self, action: str, params: dict) -> bool:
         """HID 명령 실행"""
