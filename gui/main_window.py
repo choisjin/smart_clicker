@@ -85,6 +85,8 @@ class ScreenWidget(QLabel):
     def manual_mode(self) -> bool:
         return self._manual_mode
 
+    manual_release_all = pyqtSignal()  # 수동 조작 종료 시 모든 키 해제
+
     def set_manual_mode(self, enabled: bool):
         if self._manual_mode == enabled:
             return
@@ -97,7 +99,8 @@ class ScreenWidget(QLabel):
             self._mouse_timer.start()
         else:
             self._mouse_timer.stop()
-            self._flush_mouse_pos()  # 남은 위치 전송
+            self._flush_mouse_pos()
+            self.manual_release_all.emit()  # 모든 키/마우스 해제
             self.releaseKeyboard()
             self.unsetCursor()
             self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
@@ -308,11 +311,15 @@ class AgentPanel(QGroupBox):
                 lambda x, y: self.ctrl.send_realtime_mouse_pos(self.name, x, y))
             screen.manual_key_pressed.connect(
                 lambda key: threading.Thread(
-                    target=self.ctrl.send_key, args=(self.name, key),
+                    target=self.ctrl.send_command, args=(self.name, "key_down", {"key": key}),
                     kwargs={"human_like": False}, daemon=True).start())
             screen.manual_key_released.connect(
                 lambda key: threading.Thread(
                     target=self.ctrl.send_command, args=(self.name, "key_up", {"key": key}),
+                    kwargs={"human_like": False}, daemon=True).start())
+            screen.manual_release_all.connect(
+                lambda: threading.Thread(
+                    target=self.ctrl.send_command, args=(self.name, "release_all", {}),
                     kwargs={"human_like": False}, daemon=True).start())
 
             btn = QPushButton(f"수동 조작 [{title or window_id}]")

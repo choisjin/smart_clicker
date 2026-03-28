@@ -780,26 +780,20 @@ class RemoteAgent:
             print(f"[WARN] HID 창 활성화 실패: {e}")
 
     def _realtime_move_to(self, screen_x: int, screen_y: int):
-        """실시간 마우스 이동 (현재 위치 → 목표, HID 상대이동)"""
-        # 위치 불명이면 OS 커서로 초기화
-        if self.hid._mouse_x is None:
-            try:
-                cursor = win32gui.GetCursorPos()
-                self.hid._mouse_x = cursor[0]
-                self.hid._mouse_y = cursor[1]
-            except:
-                self.hid._mouse_x = screen_x
-                self.hid._mouse_y = screen_y
-                return
-
-        dx = screen_x - self.hid._mouse_x
-        dy = screen_y - self.hid._mouse_y
-        if dx != 0 or dy != 0:
-            # mickey 보정 적용
-            mx, my = self._pixels_to_mickeys(dx, dy)
-            self.hid._send(f"MOUSE_MOVE:{mx},{my}")
+        """실시간 마우스 이동 — 항상 GetCursorPos로 현재 위치 확인 후 이동"""
+        try:
+            # 매번 실제 커서 위치에서 delta 계산 (누적 오차 방지)
+            cursor = win32gui.GetCursorPos()
+            dx = screen_x - cursor[0]
+            dy = screen_y - cursor[1]
+            if dx != 0 or dy != 0:
+                mx, my = self._pixels_to_mickeys(dx, dy)
+                self.hid._send(f"MOUSE_MOVE:{mx},{my}")
+            # 추적 위치도 동기화
             self.hid._mouse_x = screen_x
             self.hid._mouse_y = screen_y
+        except Exception:
+            pass
 
     def execute_hid_command(self, action: str, params: dict) -> bool:
         """HID 명령 실행"""
@@ -821,15 +815,13 @@ class RemoteAgent:
                         x = win_x + x
                         y = win_y + y
 
-                # 위치 불명이면 OS 커서 위치로 초기화 (0,0 리셋 방지)
-                if self.hid._mouse_x is None:
-                    try:
-                        cursor = win32gui.GetCursorPos()
-                        self.hid._mouse_x = cursor[0]
-                        self.hid._mouse_y = cursor[1]
-                        print(f"[DEBUG] 현재 커서 위치로 초기화: ({cursor[0]},{cursor[1]})")
-                    except:
-                        pass
+                # 항상 실제 커서 위치로 동기화 (누적 오차 방지)
+                try:
+                    cursor = win32gui.GetCursorPos()
+                    self.hid._mouse_x = cursor[0]
+                    self.hid._mouse_y = cursor[1]
+                except:
+                    pass
 
                 # 마우스 속도 보정 (pixel → mickey)
                 mx, my = self._pixels_to_mickeys(x, y)
@@ -894,6 +886,9 @@ class RemoteAgent:
                     self.hid.type_text_human(text)
                 else:
                     self.hid.type_text(text)
+
+            elif action == "release_all":
+                self.hid.release_all()
 
             elif action == "wait":
                 seconds = params.get("seconds", 1)
