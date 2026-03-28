@@ -276,7 +276,7 @@ class WindowCapture:
             return None
 
     def bring_to_front(self):
-        """창을 앞으로 가져오기 (클릭 기반 활성화)"""
+        """창을 앞으로 가져오기 (best-effort)"""
         if not self.hwnd:
             return False
 
@@ -287,15 +287,15 @@ class WindowCapture:
         except:
             pass
 
-        # 타이틀바 클릭으로 활성화 (SetForegroundWindow 권한 문제 우회)
         try:
-            rect = win32gui.GetWindowRect(self.hwnd)
-            # 타이틀바 중앙 좌표 (상단에서 10px 아래)
-            click_x = (rect[0] + rect[2]) // 2
-            click_y = rect[1] + 10
-            return (click_x, click_y)
+            win32gui.SetForegroundWindow(self.hwnd)
         except:
-            return True
+            try:
+                win32gui.BringWindowToTop(self.hwnd)
+            except:
+                pass
+
+        return True
 
     def get_client_rect(self) -> Optional[tuple]:
         """창 클라이언트 영역 위치 (x, y, width, height) - 타이틀바 제외"""
@@ -399,8 +399,8 @@ class RemoteAgent:
         self.streaming = False
         self.fps = 15
         self.quality = 70
-        self.clients = set()
-        self._ws_lock = None  # WebSocket send 직렬화 (handle_client에서 초기화)
+        self.stream_clients = set()  # 스트리밍 WebSocket
+        self.cmd_clients = set()  # 명령 WebSocket
 
         # 마우스 설정 보정
         self.mouse_speed_factor = self._detect_mouse_speed_factor()
@@ -475,36 +475,58 @@ class RemoteAgent:
             return px, py
         return int(px / self.mouse_speed_factor), int(py / self.mouse_speed_factor)
 
-    async def handle_client(self, websocket):
-        """클라이언트 연결 처리"""
-        self.clients.add(websocket)
+    async def handle_stream_client(self, websocket):
+        """스트리밍 전용 WebSocket (:stream_port)"""
+        self.stream_clients.add(websocket)
         client_ip = websocket.remote_address[0]
-        print(f"[+] 클라이언트 연결: {client_ip}")
+        print(f"[+] 스트리밍 클라이언트 연결: {client_ip}")
 
         try:
-            # WebSocket send 직렬화 Lock
-            self._ws_lock = asyncio.Lock()
-
             # 초기 정보 전송
             await self.send_info(websocket)
 
-            # 스트리밍 시작
-            stream_task = asyncio.create_task(self.stream_to_client(websocket))
+            # 스트리밍 루프 (이 WebSocket은 send만 함)
+            interval = 1.0 / self.fps
+            while True:
+                start = time.time()
+                frames = await asyncio.to_thread(self._capture_all_frames)
+                for frame_msg in frames:
+                    await websocket.send(json.dumps(frame_msg))
+                elapsed = time.time() - start
+                if elapsed < interval:
+                    await asyncio.sleep(interval - elapsed)
 
-            # 명령 수신 루프 (블로킹 없이 태스크로 처리)
+        except (websockets.exceptions.ConnectionClosed, asyncio.CancelledError):
+            pass
+        except Exception as e:
+            print(f"[ERROR] 스트리밍 오류: {e}")
+        finally:
+            self.stream_clients.discard(websocket)
+            print(f"[-] 스트리밍 클라이언트 종료: {client_ip}")
+
+    async def handle_cmd_client(self, websocket):
+        """명령 전용 WebSocket (:cmd_port)"""
+        self.cmd_clients.add(websocket)
+        client_ip = websocket.remote_address[0]
+        print(f"[+] 명령 클라이언트 연결: {client_ip}")
+
+        try:
+            # 초기 정보 전송
+            await self.send_info(websocket)
+
+            # 명령 수신 루프
             async for message in websocket:
                 try:
                     cmd = json.loads(message)
-                    asyncio.create_task(self.handle_command(cmd, websocket))
+                    await self.handle_command(cmd, websocket)
                 except json.JSONDecodeError:
-                    async with self._ws_lock:
-                        await websocket.send(json.dumps({"error": "Invalid JSON"}))
+                    await websocket.send(json.dumps({"error": "Invalid JSON"}))
 
         except websockets.exceptions.ConnectionClosed:
-            print(f"[-] 클라이언트 연결 종료: {client_ip}")
+            pass
         finally:
-            self.clients.discard(websocket)
-            stream_task.cancel()
+            self.cmd_clients.discard(websocket)
+            print(f"[-] 명령 클라이언트 종료: {client_ip}")
 
     async def send_info(self, websocket):
         """에이전트 정보 전송"""
@@ -548,32 +570,6 @@ class RemoteAgent:
                     "timestamp": time.time()
                 })
         return frames
-
-    async def stream_to_client(self, websocket):
-        """다중 창 스트리밍 (캡처는 스레드, 전송은 비동기)"""
-        interval = 1.0 / self.fps
-
-        while True:
-            try:
-                start = time.time()
-
-                # 캡처를 별도 스레드에서 실행 → 이벤트 루프 블로킹 방지
-                frames = await asyncio.to_thread(self._capture_all_frames)
-
-                for message in frames:
-                    async with self._ws_lock:
-                        await websocket.send(json.dumps(message))
-
-                # FPS 유지
-                elapsed = time.time() - start
-                if elapsed < interval:
-                    await asyncio.sleep(interval - elapsed)
-
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                print(f"[ERROR] 스트리밍 오류: {e}")
-                await asyncio.sleep(1)
 
     async def handle_command(self, cmd: dict, websocket):
         """명령 처리"""
@@ -625,11 +621,7 @@ class RemoteAgent:
                 win_id = params.get("window_id")
                 if win_id in self.captures:
                     self.active_window = win_id
-                    # Leonardo로 타이틀바 클릭하여 창 활성화 (SetForegroundWindow 불필요)
-                    result = self.captures[win_id].bring_to_front()
-                    if self.hid and isinstance(result, tuple):
-                        click_x, click_y = result
-                        await asyncio.to_thread(self._activate_window_by_click, click_x, click_y)
+                    self.captures[win_id].bring_to_front()
                     # 마우스 위치 추적 무효화 (외부에서 마우스가 이동됐을 수 있음)
                     if self.hid:
                         self.hid._mouse_x = None
@@ -674,19 +666,7 @@ class RemoteAgent:
         except Exception as e:
             response["error"] = str(e)
 
-        async with self._ws_lock:
-            await websocket.send(json.dumps(response))
-
-    def _activate_window_by_click(self, x: int, y: int):
-        """Leonardo로 타이틀바 클릭하여 창 활성화 (HID 하드웨어 입력)"""
-        try:
-            mx, my = self._pixels_to_mickeys(x, y)
-            self.hid.mouse_move_to(mx, my)
-            time.sleep(0.05)
-            self.hid.mouse_click("LEFT")
-            time.sleep(0.1)
-        except Exception as e:
-            print(f"[WARN] HID 창 활성화 실패: {e}")
+        await websocket.send(json.dumps(response))
 
     def execute_hid_command(self, action: str, params: dict) -> bool:
         """HID 명령 실행"""
@@ -783,11 +763,14 @@ class RemoteAgent:
             return False
 
     async def start(self):
-        """에이전트 서버 시작"""
+        """에이전트 서버 시작 (듀얼 WebSocket)"""
+        cmd_port = self.port + 1  # 명령 포트 = 스트리밍 포트 + 1
+
         print(f"\n{'='*50}")
         print(f"  Smart Search Agent")
         print(f"{'='*50}")
-        print(f"  서버: ws://0.0.0.0:{self.port}")
+        print(f"  스트리밍: ws://0.0.0.0:{self.port}")
+        print(f"  명령:     ws://0.0.0.0:{cmd_port}")
         print(f"  Leonardo: {'연결됨 (' + self.leonardo_port + ')' if self.hid else '없음'}")
         print(f"  FPS: {self.fps}, 품질: {self.quality}")
         print(f"\n  스트리밍 창 ({len(self.captures)}개):")
@@ -798,8 +781,9 @@ class RemoteAgent:
         print(f"{'='*50}")
         print(f"  대기 중... (Ctrl+C로 종료)\n")
 
-        async with websockets.serve(self.handle_client, "0.0.0.0", self.port):
-            await asyncio.Future()  # 무한 대기
+        async with websockets.serve(self.handle_stream_client, "0.0.0.0", self.port):
+            async with websockets.serve(self.handle_cmd_client, "0.0.0.0", cmd_port):
+                await asyncio.Future()
 
     def run(self):
         """동기 실행"""

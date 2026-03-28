@@ -47,7 +47,8 @@ class AgentInfo:
     name: str
     host: str
     port: int
-    websocket: Optional[object] = None
+    stream_ws: Optional[object] = None  # 스트리밍 전용 WebSocket
+    cmd_ws: Optional[object] = None  # 명령 전용 WebSocket
     connected: bool = False
     has_leonardo: bool = False
     fps: int = 15
@@ -55,7 +56,6 @@ class AgentInfo:
     # 다중 창 지원
     windows: Dict[str, WindowFrame] = field(default_factory=dict)
     frame_callbacks: List[Callable] = field(default_factory=list)
-    _response_queue: Optional[object] = field(default=None, repr=False)
 
 
 class RemoteController:
@@ -112,22 +112,24 @@ class RemoteController:
             return False
 
     async def _connect_agent(self, agent: AgentInfo):
-        """Agent 연결 (비동기)"""
-        uri = f"ws://{agent.host}:{agent.port}"
+        """Agent 연결 (스트리밍 + 명령 듀얼 WebSocket)"""
+        stream_uri = f"ws://{agent.host}:{agent.port}"
+        cmd_uri = f"ws://{agent.host}:{agent.port + 1}"
         try:
-            websocket = await websockets.connect(uri)
-            agent.websocket = websocket
+            # 스트리밍 WebSocket
+            agent.stream_ws = await websockets.connect(stream_uri)
+            # 명령 WebSocket
+            agent.cmd_ws = await websockets.connect(cmd_uri)
             agent.connected = True
-            print(f"[+] Agent 연결됨: {agent.name} ({uri})")
+            print(f"[+] Agent 연결됨: {agent.name} (스트리밍:{stream_uri}, 명령:{cmd_uri})")
 
-            # 초기 정보 수신
-            info_msg = await websocket.recv()
+            # 스트리밍 소켓에서 초기 정보 수신
+            info_msg = await agent.stream_ws.recv()
             info = json.loads(info_msg)
             if info.get("type") == "info":
                 agent.has_leonardo = info.get("leonardo", False)
                 agent.fps = info.get("fps", 15)
                 agent.active_window = info.get("active_window", "screen")
-                # 창 정보 초기화
                 windows_info = info.get("windows", {})
                 for win_id, win_data in windows_info.items():
                     agent.windows[win_id] = WindowFrame(
@@ -136,62 +138,56 @@ class RemoteController:
                         rect=win_data.get("rect")
                     )
 
-            # 응답 큐 초기화 + 수신 태스크 시작
-            agent._response_queue = asyncio.Queue()
-            asyncio.create_task(self._receive_loop(agent))
+            # 명령 소켓의 초기 정보는 버림
+            await agent.cmd_ws.recv()
+
+            # 스트리밍 수신 태스크 (프레임만 수신)
+            asyncio.create_task(self._stream_receive_loop(agent))
 
         except Exception as e:
             agent.connected = False
             raise e
 
-    async def _receive_loop(self, agent: AgentInfo):
-        """Agent로부터 메시지 수신 루프"""
+    async def _stream_receive_loop(self, agent: AgentInfo):
+        """스트리밍 WebSocket에서 프레임만 수신"""
         try:
-            async for message in agent.websocket:
+            async for message in agent.stream_ws:
                 try:
                     data = json.loads(message)
-                    msg_type = data.get("type")
+                    if data.get("type") != "frame":
+                        continue
 
-                    if msg_type == "frame":
-                        # 프레임 디코딩
-                        frame_data = base64.b64decode(data["data"])
-                        img = Image.open(BytesIO(frame_data))
-                        frame_array = np.array(img)
+                    frame_data = base64.b64decode(data["data"])
+                    img = Image.open(BytesIO(frame_data))
+                    frame_array = np.array(img)
 
-                        # 다중 창 지원
-                        window_id = data.get("window_id", "screen")
-                        window_title = data.get("window_title", "")
-                        rect = data.get("rect")
-                        active = data.get("active", False)
-                        timestamp = data.get("timestamp", time.time())
+                    window_id = data.get("window_id", "screen")
+                    window_title = data.get("window_title", "")
+                    rect = data.get("rect")
+                    active = data.get("active", False)
+                    timestamp = data.get("timestamp", time.time())
 
-                        # 창 프레임 업데이트
-                        if window_id not in agent.windows:
-                            agent.windows[window_id] = WindowFrame(window_id=window_id, title=window_title)
+                    if window_id not in agent.windows:
+                        agent.windows[window_id] = WindowFrame(window_id=window_id, title=window_title)
 
-                        wf = agent.windows[window_id]
-                        wf.frame = frame_array
-                        wf.title = window_title
-                        wf.rect = rect
-                        wf.active = active
-                        wf.timestamp = timestamp
+                    wf = agent.windows[window_id]
+                    wf.frame = frame_array
+                    wf.title = window_title
+                    wf.rect = rect
+                    wf.active = active
+                    wf.timestamp = timestamp
 
-                        # 콜백 호출 (window_id 포함)
-                        for callback in agent.frame_callbacks:
-                            try:
-                                callback(agent.name, window_id, frame_array)
-                            except Exception as e:
-                                print(f"[ERROR] Frame callback: {e}")
-
-                    elif msg_type == "response":
-                        if agent._response_queue:
-                            await agent._response_queue.put(data)
+                    for callback in agent.frame_callbacks:
+                        try:
+                            callback(agent.name, window_id, frame_array)
+                        except Exception as e:
+                            print(f"[ERROR] Frame callback: {e}")
 
                 except json.JSONDecodeError:
                     pass
 
         except websockets.exceptions.ConnectionClosed:
-            print(f"[-] Agent 연결 종료: {agent.name}")
+            print(f"[-] Agent 스트리밍 연결 종료: {agent.name}")
             agent.connected = False
 
     def disconnect(self, name: str):
@@ -201,10 +197,12 @@ class RemoteController:
 
         agent = self.agents[name]
         if agent.websocket:
-            try:
-                self._run_async(agent.websocket.close())
-            except:
-                pass
+            for ws in [agent.stream_ws, agent.cmd_ws]:
+                if ws:
+                    try:
+                        self._run_async(ws.close())
+                    except:
+                        pass
 
         del self.agents[name]
         print(f"[-] Agent 연결 해제: {name}")
@@ -235,15 +233,15 @@ class RemoteController:
     # ── 명령 전송 ──
 
     async def _send_command(self, agent: AgentInfo, cmd: dict) -> dict:
-        """명령 전송 및 응답 수신 (응답 큐 사용 - recv 경쟁 방지)"""
-        if not agent.connected or not agent.websocket:
+        """명령 WebSocket으로 전송 + 응답 직접 수신 (스트리밍과 분리)"""
+        if not agent.connected or not agent.cmd_ws:
             return {"success": False, "error": "Not connected"}
 
         try:
-            await agent.websocket.send(json.dumps(cmd))
-            # _receive_loop가 response를 큐에 넣어줌
-            response = await asyncio.wait_for(agent._response_queue.get(), timeout=5)
-            return response
+            await agent.cmd_ws.send(json.dumps(cmd))
+            # 명령 전용 WebSocket이라 프레임과 섞이지 않음
+            response = await asyncio.wait_for(agent.cmd_ws.recv(), timeout=5)
+            return json.loads(response)
         except asyncio.TimeoutError:
             return {"success": False, "error": "Timeout"}
         except Exception as e:
