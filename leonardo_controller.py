@@ -33,6 +33,7 @@ class LeonardoHID:
         """
         self.ser = serial.Serial(port, baudrate, timeout=timeout)
         self._lock = threading.Lock()
+        self._cancel = threading.Event()  # 진행 중 작업 취소 플래그
         time.sleep(2)  # Leonardo 리셋 대기
 
         # 마우스 위치 추적 (None = 위치 불명 → 첫 이동 시 원점 리셋)
@@ -44,6 +45,10 @@ class LeonardoHID:
         if "READY" not in ready:
             print(f"[WARN] Expected READY, got: {ready}")
         print(f"[OK] Leonardo 연결됨 @ {port}")
+
+    def cancel_pending(self):
+        """진행 중인 human-like 작업 취소"""
+        self._cancel.set()
 
     def _send(self, cmd: str) -> str:
         """명령 전송 후 응답 수신 (스레드 안전)"""
@@ -237,20 +242,22 @@ class LeonardoHID:
 
     def type_text_human(self, text: str):
         """
-        사람처럼 한 글자씩 타이핑 (매번 다른 패턴)
+        사람처럼 한 글자씩 타이핑 (매번 다른 패턴, 취소 가능)
         """
         if not text:
             return
 
+        self._cancel.clear()
         profile = self._get_random_profile()
         prev_char = ""
 
         for i, char in enumerate(text):
+            if self._cancel.is_set():
+                return
             self._send(f"KEY:{char}")
             self._typing_delay(profile, prev_char, char)
             prev_char = char
 
-            # 중간에 프로파일 미세 조정 (더 불규칙하게)
             if random.random() < 0.1:
                 profile['base_delay'] += random.uniform(-0.02, 0.02)
                 profile['base_delay'] = max(0.03, min(0.15, profile['base_delay']))
@@ -298,27 +305,23 @@ class LeonardoHID:
     def mouse_move_to_human(self, x: int, y: int, screen_w: int = 1920, screen_h: int = 1080):
         """
         사람처럼 마우스 이동 (현재 위치 → 목표 위치, 베지어 곡선)
-        위치 불명 시에만 원점 리셋
+        _cancel 이벤트로 중도 취소 가능
         """
+        self._cancel.clear()
         profile = self._get_mouse_profile()
 
-        # 이동 전 미세 대기 (랜덤)
         if random.random() < 0.3:
             time.sleep(random.uniform(0.02, 0.1))
 
-        # 위치 불명이면 목표 위치를 현재로 설정 (0,0 리셋 안 함)
         if self._mouse_x is None:
             self._mouse_x = x
             self._mouse_y = y
 
-        # 현재 위치 → 목표 위치의 상대 이동량
         rel_x = x - self._mouse_x
         rel_y = y - self._mouse_y
 
-        # 거리에 따른 단계 수 (불규칙)
         distance = math.sqrt(rel_x**2 + rel_y**2)
         if distance < 3:
-            # 이동 거리가 너무 짧으면 직접 이동
             if rel_x != 0 or rel_y != 0:
                 self._send(f"MOUSE_MOVE:{rel_x},{rel_y}")
             self._mouse_x = x
@@ -328,11 +331,9 @@ class LeonardoHID:
         base_steps = int(distance / 30)
         steps = max(10, min(40, base_steps + random.randint(-5, 10)))
 
-        # 총 이동 시간 (거리 비례 + 랜덤)
         duration = (distance / 1500) * profile['speed_factor']
         duration = max(0.2, min(1.2, duration))
 
-        # 베지어 제어점들 (상대 이동량 기준)
         intensity = profile['curve_intensity']
         ctrl1_x = int(rel_x * random.uniform(0.2, 0.5) + random.uniform(-50, 50) * intensity)
         ctrl1_y = int(rel_y * random.uniform(0.1, 0.4) + random.uniform(-50, 50) * intensity)
@@ -342,16 +343,19 @@ class LeonardoHID:
         prev_px, prev_py = 0, 0
 
         for i in range(1, steps + 1):
-            # 비선형 t (시작과 끝에서 느리게 - ease in/out)
-            t = i / steps
-            t = t * t * (3 - 2 * t)  # smoothstep
+            if self._cancel.is_set():
+                # 취소됨 — 현재까지 이동한 위치를 추적에 반영
+                self._mouse_x += prev_px
+                self._mouse_y += prev_py
+                return
 
-            # 3차 베지어 곡선 (상대 좌표)
+            t = i / steps
+            t = t * t * (3 - 2 * t)
+
             mt = 1 - t
             px = int(mt**3 * 0 + 3*mt**2*t * ctrl1_x + 3*mt*t**2 * ctrl2_x + t**3 * rel_x)
             py = int(mt**3 * 0 + 3*mt**2*t * ctrl1_y + 3*mt*t**2 * ctrl2_y + t**3 * rel_y)
 
-            # 랜덤 흔들림 (마지막 3단계 제외)
             if i < steps - 2:
                 jitter = profile['jitter']
                 px += int(random.gauss(0, jitter))
@@ -364,17 +368,12 @@ class LeonardoHID:
             if dx != 0 or dy != 0:
                 self._send(f"MOUSE_MOVE:{dx},{dy}")
 
-            # 불규칙한 단계별 딜레이
             step_delay = (duration / steps) * random.uniform(0.5, 1.8)
-
-            # 가끔 중간에 멈춤
             if random.random() < profile['pause_chance']:
                 step_delay += random.uniform(0.05, 0.15)
-
             time.sleep(step_delay)
 
-        # 가끔 오버슈트 후 보정 (목표를 살짝 지나쳤다가 돌아오기)
-        if random.random() < profile['overshoot_chance']:
+        if not self._cancel.is_set() and random.random() < profile['overshoot_chance']:
             overshoot_x = random.randint(3, 10) * random.choice([-1, 1])
             overshoot_y = random.randint(3, 10) * random.choice([-1, 1])
             self._send(f"MOUSE_MOVE:{overshoot_x},{overshoot_y}")

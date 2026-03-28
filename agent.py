@@ -583,6 +583,7 @@ class RemoteAgent:
             # 실시간 마우스 절대 위치 (Arduino HID MOUSE_MOVE)
             if cmd_type == "realtime_mouse_pos":
                 if self.hid:
+                    self.hid.cancel_pending()  # 진행 중 작업 취소
                     x, y = params.get("x", 0), params.get("y", 0)
                     if self.active_window in self.captures:
                         cap = self.captures[self.active_window]
@@ -592,13 +593,13 @@ class RemoteAgent:
                             screen_y = client_rect[1] + y
                             await asyncio.to_thread(
                                 self._realtime_move_to, screen_x, screen_y)
-                return  # 응답 전송 생략
+                return
 
             if cmd_type == "command":
                 if not self.hid:
                     response["error"] = "Leonardo not connected"
                 else:
-                    # 스레드에서 실행 → 스트리밍 블로킹 방지
+                    self.hid.cancel_pending()  # 새 명령 → 기존 human-like 작업 취소
                     result = await asyncio.to_thread(self.execute_hid_command, action, params)
                     response["success"] = result
                     response["action"] = action
@@ -775,6 +776,10 @@ class RemoteAgent:
                     self.hid.key_human(key)
                 else:
                     self.hid.key(key)
+
+            elif action == "key_down":
+                key = params["key"]
+                self.hid.key_down(key)
 
             elif action == "key_up":
                 key = params["key"]

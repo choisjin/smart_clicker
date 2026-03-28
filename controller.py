@@ -325,16 +325,17 @@ class RemoteController:
 
     def send_click_to_window(self, name: str, window_id: str, x: int, y: int,
                               button: str = "LEFT", human_like: bool = True) -> bool:
-        """특정 창에 클릭 (창 활성화 → 클릭)"""
-        # 1. 해당 창을 활성화
-        if not self.set_active_window(name, window_id):
-            print(f"[WARN] 창 활성화 실패: {window_id}")
-            # 실패해도 클릭 시도
+        """특정 창에 클릭 (활성 창 변경 시에만 활성화)"""
+        if name not in self.agents:
+            return False
 
-        import time
-        time.sleep(0.1)  # 창 전환 대기
+        # 활성 창이 다를 때만 전환
+        agent = self.agents[name]
+        if agent.active_window != window_id:
+            self.set_active_window(name, window_id)
+            import time
+            time.sleep(0.1)
 
-        # 2. 클릭
         return self.send_click(name, x, y, button, human_like)
 
     # ── 실시간 마우스 (fire-and-forget) ──

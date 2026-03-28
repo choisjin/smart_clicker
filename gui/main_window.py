@@ -33,7 +33,7 @@ from target_finder import TargetFinder, SmartClicker
 class ScreenWidget(QLabel):
     """Agent 화면 표시 위젯 + 수동 조작 모드"""
 
-    clicked = pyqtSignal(int, int, str)  # x, y, button
+    clicked = pyqtSignal(int, int, str, list)  # x, y, button, modifiers
     manual_mouse_pos = pyqtSignal(int, int)  # 절대 이미지 좌표 (x, y)
     manual_key_pressed = pyqtSignal(str)
     manual_key_released = pyqtSignal(str)
@@ -158,19 +158,32 @@ class ScreenWidget(QLabel):
             self.manual_mouse_pos.emit(*self._pending_pos)
             self._pending_pos = None
 
+    def _get_modifiers(self, event) -> list:
+        """현재 눌린 수정자 키 목록 반환"""
+        mods = event.modifiers()
+        result = []
+        if mods & Qt.KeyboardModifier.ControlModifier:
+            result.append("KEY_LEFT_CTRL")
+        if mods & Qt.KeyboardModifier.ShiftModifier:
+            result.append("KEY_LEFT_SHIFT")
+        if mods & Qt.KeyboardModifier.AltModifier:
+            result.append("KEY_LEFT_ALT")
+        return result
+
     def mousePressEvent(self, event):
-        """마우스 클릭 → 수동 조작 모드일 때만 동작"""
+        """마우스 클릭 → 수동 조작 모드일 때만 동작 (수정자 키 포함)"""
         if not self._manual_mode:
             return
         coords = self._map_to_original(event)
         if not coords:
             return
+        modifiers = self._get_modifiers(event)
         if event.button() == Qt.MouseButton.LeftButton:
-            self.clicked.emit(*coords, "LEFT")
+            self.clicked.emit(*coords, "LEFT", modifiers)
         elif event.button() == Qt.MouseButton.RightButton:
-            self.clicked.emit(*coords, "RIGHT")
+            self.clicked.emit(*coords, "RIGHT", modifiers)
         elif event.button() == Qt.MouseButton.MiddleButton:
-            self.clicked.emit(*coords, "MIDDLE")
+            self.clicked.emit(*coords, "MIDDLE", modifiers)
 
     def _qt_key_to_hid(self, event) -> Optional[str]:
         """Qt 키이벤트 → HID 키 이름"""
@@ -255,7 +268,7 @@ class AgentPanel(QGroupBox):
 
             screen = ScreenWidget(f"{self.name}:{window_id}")
             screen.clicked.connect(
-                lambda x, y, btn, wid=window_id: self.on_screen_click(wid, x, y, btn))
+                lambda x, y, btn, mods, wid=window_id: self.on_screen_click(wid, x, y, btn, mods))
             screen.manual_mouse_pos.connect(
                 lambda x, y: self.ctrl.send_realtime_mouse_pos(self.name, x, y))
             screen.manual_key_pressed.connect(
@@ -285,16 +298,33 @@ class AgentPanel(QGroupBox):
 
         return self.screen_widgets[window_id]
 
-    def on_screen_click(self, window_id: str, x: int, y: int, button: str = "LEFT"):
-        """화면 클릭 → 별도 스레드에서 이동 + 클릭 (GUI 블로킹 방지)"""
+    def on_screen_click(self, window_id: str, x: int, y: int,
+                        button: str = "LEFT", modifiers: list = None):
+        """화면 클릭 → 별도 스레드에서 수정자키+이동+클릭"""
+        mods = modifiers or []
+        mod_label = "+".join(m.replace("KEY_LEFT_", "") for m in mods)
         btn_label = {"LEFT": "좌클릭", "RIGHT": "우클릭", "MIDDLE": "중클릭"}.get(button, button)
-        print(f"[{self.name}:{window_id}] {btn_label} ({x}, {y})")
+        if mod_label:
+            print(f"[{self.name}:{window_id}] {mod_label}+{btn_label} ({x}, {y})")
+        else:
+            print(f"[{self.name}:{window_id}] {btn_label} ({x}, {y})")
         threading.Thread(
-            target=self.ctrl.send_click_to_window,
-            args=(self.name, window_id, x, y),
-            kwargs={"button": button},
+            target=self._do_click_with_modifiers,
+            args=(window_id, x, y, button, mods),
             daemon=True
         ).start()
+
+    def _do_click_with_modifiers(self, window_id: str, x: int, y: int,
+                                  button: str, modifiers: list):
+        """수정자 키 누르기 → 이동+클릭 → 수정자 키 떼기"""
+        # 수정자 키 누르기
+        for mod in modifiers:
+            self.ctrl.send_command(self.name, "key_down", {"key": mod}, human_like=False)
+        # 이동 + 클릭
+        self.ctrl.send_click_to_window(self.name, window_id, x, y, button=button)
+        # 수정자 키 떼기
+        for mod in modifiers:
+            self.ctrl.send_command(self.name, "key_up", {"key": mod}, human_like=False)
 
     def update_frame(self, window_id: str, frame: np.ndarray, title: str = "", active: bool = False):
         """창별 프레임 업데이트"""
