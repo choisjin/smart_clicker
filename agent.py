@@ -414,8 +414,9 @@ class RemoteAgent:
         self.quality = 70
         self.clients = set()
 
-        # 마우스 속도 보정 계수 (mickey → pixel 변환)
+        # 마우스 설정 보정
         self.mouse_speed_factor = self._detect_mouse_speed_factor()
+        self._original_mouse_accel = self._disable_mouse_acceleration()
 
         # Leonardo 연결
         if leonardo_port:
@@ -424,6 +425,37 @@ class RemoteAgent:
                 print(f"[OK] Leonardo 연결됨: {leonardo_port}")
             except Exception as e:
                 print(f"[WARN] Leonardo 연결 실패: {e}")
+
+    def _disable_mouse_acceleration(self) -> tuple:
+        """마우스 가속(Enhance pointer precision) 비활성화 - HID 상대이동 정확도 확보"""
+        try:
+            # SPI_GETMOUSE = 0x0003: 현재 마우스 가속 설정 읽기
+            # [0]=threshold1, [1]=threshold2, [2]=acceleration (0=off, 1=on)
+            original = (ctypes.c_int * 3)()
+            windll.user32.SystemParametersInfoW(0x0003, 0, ctypes.byref(original), 0)
+
+            if original[2] != 0:
+                # SPI_SETMOUSE = 0x0004: 가속 비활성화
+                no_accel = (ctypes.c_int * 3)(0, 0, 0)
+                windll.user32.SystemParametersInfoW(0x0004, 0, no_accel, 0)
+                print(f"[INFO] 마우스 가속(EPP) 비활성화됨 (원래: threshold={original[0]},{original[1]}, accel={original[2]})")
+            else:
+                print(f"[INFO] 마우스 가속(EPP) 이미 꺼져 있음")
+
+            return (original[0], original[1], original[2])
+        except Exception as e:
+            print(f"[WARN] 마우스 가속 설정 실패: {e}")
+            return (0, 0, 0)
+
+    def _restore_mouse_acceleration(self):
+        """종료 시 마우스 가속 설정 복원"""
+        try:
+            if hasattr(self, '_original_mouse_accel') and self._original_mouse_accel[2] != 0:
+                restore = (ctypes.c_int * 3)(*self._original_mouse_accel)
+                windll.user32.SystemParametersInfoW(0x0004, 0, restore, 0)
+                print(f"[INFO] 마우스 가속 설정 복원됨")
+        except Exception:
+            pass
 
     def _detect_mouse_speed_factor(self) -> float:
         """Windows 마우스 포인터 속도 설정에 따른 보정 계수 (mickey → pixel)"""
@@ -749,6 +781,8 @@ class RemoteAgent:
             asyncio.run(self.start())
         except KeyboardInterrupt:
             print("\n[*] 종료...")
+        finally:
+            self._restore_mouse_acceleration()
             if self.hid:
                 self.hid.close()
 
