@@ -323,7 +323,7 @@ class ConnectDialog(QDialog):
         layout = QFormLayout()
 
         self.name_edit = QLineEdit("PC1")
-        self.host_edit = QLineEdit("192.168.1.100")
+        self.host_edit = QLineEdit("192.168.123.111")
         self.port_spin = QSpinBox()
         self.port_spin.setRange(1, 65535)
         self.port_spin.setValue(8765)
