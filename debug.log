@@ -1,19 +1,6 @@
-(venv) PS E:\Projects\Smart_Search> python agent.py --leonardo COM6 --select --fps 30
-
-=== 창 목록 ===
-  [1] controller.py - Projects - Visual Studio Code (1936x1048)
-  [2] Smart_Search - 파일 탐색기 (1047x636)
-  [3] SSH remote connection setup logs - Claude - Chrome (1936x1048)    
-  [4] GersangStation Mini (412x320)
-  [5] 장치 관리자 (370x1039)
-  [6] Windows 입력 환경 (1920x1080)
-  [7] NVIDIA GeForce Overlay (1920x1080)
-  [8] Gersang (1024x768)
-  [9] Program Manager (1920x1080)
-
 스트리밍할 창 번호를 입력하세요 (최대 3개, 쉼표로 구분)
 예: 1,3,5 또는 1 (Enter=전체화면)
-> 4,8
+> 2,8
 
 선택된 창: 2개
   - GersangStation Mini
@@ -23,6 +10,7 @@
 [OK] 창 찾음 (정확 일치): Gersang
 [OK] 창 2 추가: Gersang
 [INFO] 마우스 속도: 10/20, 보정 계수: 1.0
+[INFO] 마우스 가속(EPP) 비활성화됨 (원래: threshold=6,10, accel=1)
 [WARN] Expected READY, got: 
 [OK] Leonardo 연결됨 @ COM6
 [OK] Leonardo 연결됨: COM6
@@ -41,5 +29,7 @@
   대기 중... (Ctrl+C로 종료)
 
 [+] 클라이언트 연결: 192.168.123.102
-[DEBUG] 좌표 변환: 이미지(628,442) → 화면(1509,452) → mickey(1509,452) [속도계수:1.0]
+[DEBUG] 좌표 변환: 이미지(467,422) → 화면(1348,432) → mickey(1348,432) [속도계수:1.0]
+[DEBUG] 마우스 클릭: LEFT
+[DEBUG] 좌표 변환: 이미지(466,227) → 화면(1347,237) → mickey(1347,237) [속도계수:1.0]
 [DEBUG] 마우스 클릭: LEFT
