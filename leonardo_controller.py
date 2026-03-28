@@ -126,10 +126,11 @@ class LeonardoHID:
             self._mouse_y += dy
 
     def mouse_move_to(self, x: int, y: int, screen_w: int = 1920, screen_h: int = 1080):
-        """마우스 절대 좌표 이동 - 이전 위치에서 상대 이동 (위치 불명 시 원점 리셋)"""
+        """마우스 절대 좌표 이동 - 이전 위치에서 상대 이동"""
         if self._mouse_x is None:
-            # 첫 이동: 원점 리셋 후 절대 이동
-            self._send(f"MOUSE_ABS:{x},{y},{screen_w},{screen_h}")
+            # 위치 불명이면 현재 위치로 간주 (agent에서 OS 커서로 초기화됨)
+            self._mouse_x = x
+            self._mouse_y = y
         else:
             # 현재 위치에서 상대 이동
             dx = x - self._mouse_x
@@ -305,12 +306,10 @@ class LeonardoHID:
         if random.random() < 0.3:
             time.sleep(random.uniform(0.02, 0.1))
 
-        # 위치 불명이면 원점 리셋
+        # 위치 불명이면 목표 위치를 현재로 설정 (0,0 리셋 안 함)
         if self._mouse_x is None:
-            self._send(f"MOUSE_ABS:0,0,{screen_w},{screen_h}")
-            time.sleep(random.uniform(0.03, 0.08))
-            self._mouse_x = 0
-            self._mouse_y = 0
+            self._mouse_x = x
+            self._mouse_y = y
 
         # 현재 위치 → 목표 위치의 상대 이동량
         rel_x = x - self._mouse_x

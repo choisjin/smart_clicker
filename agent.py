@@ -688,6 +688,16 @@ class RemoteAgent:
                         x = win_x + x
                         y = win_y + y
 
+                # 위치 불명이면 OS 커서 위치로 초기화 (0,0 리셋 방지)
+                if self.hid._mouse_x is None:
+                    try:
+                        cursor = win32gui.GetCursorPos()
+                        self.hid._mouse_x = cursor[0]
+                        self.hid._mouse_y = cursor[1]
+                        print(f"[DEBUG] 현재 커서 위치로 초기화: ({cursor[0]},{cursor[1]})")
+                    except:
+                        pass
+
                 # 마우스 속도 보정 (pixel → mickey)
                 mx, my = self._pixels_to_mickeys(x, y)
                 print(f"[DEBUG] 좌표 변환: 이미지({params['x']},{params['y']}) → 화면({x},{y}) → mickey({mx},{my}) [속도계수:{self.mouse_speed_factor}]")
