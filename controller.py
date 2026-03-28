@@ -347,12 +347,12 @@ class RemoteController:
             except Exception:
                 pass
 
-    def send_realtime_mouse_move(self, name: str, dx: int, dy: int):
-        """실시간 마우스 상대 이동 (fire-and-forget, 응답 안 기다림)"""
+    def send_realtime_mouse_pos(self, name: str, x: int, y: int):
+        """실시간 마우스 절대 위치 (fire-and-forget, SetCursorPos용)"""
         if name not in self.agents or not self._loop:
             return
         agent = self.agents[name]
-        cmd = {"type": "realtime_mouse_move", "params": {"dx": dx, "dy": dy}}
+        cmd = {"type": "realtime_mouse_pos", "params": {"x": x, "y": y}}
         asyncio.run_coroutine_threadsafe(self._send_fire_and_forget(agent, cmd), self._loop)
 
     # ── 화면 수신 ──

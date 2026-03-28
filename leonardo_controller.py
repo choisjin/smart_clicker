@@ -24,7 +24,7 @@ from typing import List, Optional
 
 
 class LeonardoHID:
-    def __init__(self, port: str, baudrate: int = 9600, timeout: float = 2.0):
+    def __init__(self, port: str, baudrate: int = 115200, timeout: float = 2.0):
         """
         Args:
             port: 시리얼 포트 (예: "COM3", "/dev/ttyACM0")

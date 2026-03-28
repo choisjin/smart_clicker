@@ -34,9 +34,9 @@ class ScreenWidget(QLabel):
     """Agent 화면 표시 위젯 + 수동 조작 모드"""
 
     clicked = pyqtSignal(int, int, str)  # x, y, button
-    manual_mouse_delta = pyqtSignal(int, int)  # dx, dy (원본 이미지 스케일)
-    manual_key_pressed = pyqtSignal(str)  # HID key name
-    manual_key_released = pyqtSignal(str)  # HID key name
+    manual_mouse_pos = pyqtSignal(int, int)  # 절대 이미지 좌표 (x, y)
+    manual_key_pressed = pyqtSignal(str)
+    manual_key_released = pyqtSignal(str)
     manual_mode_changed = pyqtSignal(bool)
 
     # Qt 키 → Leonardo HID 키 이름 매핑
@@ -72,13 +72,11 @@ class ScreenWidget(QLabel):
         self.original_height = 0
         self._manual_mode = False
 
-        # 실시간 마우스 추적 (delta 누적 → 30Hz 전송)
-        self._last_mouse_pos = None
-        self._accum_dx = 0
-        self._accum_dy = 0
+        # 실시간 마우스 추적 (절대 좌표 → 60Hz 전송)
+        self._pending_pos = None
         self._mouse_timer = QTimer()
-        self._mouse_timer.timeout.connect(self._flush_mouse_delta)
-        self._mouse_timer.setInterval(33)  # ~30Hz
+        self._mouse_timer.timeout.connect(self._flush_mouse_pos)
+        self._mouse_timer.setInterval(16)  # ~60Hz (SetCursorPos는 시리얼 불필요)
 
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -95,13 +93,11 @@ class ScreenWidget(QLabel):
             self.grabKeyboard()
             self.setCursor(Qt.CursorShape.CrossCursor)
             self.setStyleSheet("background-color: #2d2d2d; border: 2px solid #ff4a4a;")
-            self._last_mouse_pos = None
-            self._accum_dx = 0
-            self._accum_dy = 0
+            self._pending_pos = None
             self._mouse_timer.start()
         else:
             self._mouse_timer.stop()
-            self._flush_mouse_delta()  # 남은 delta 전송
+            self._flush_mouse_pos()  # 남은 위치 전송
             self.releaseKeyboard()
             self.unsetCursor()
             self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
@@ -148,34 +144,19 @@ class ScreenWidget(QLabel):
             return int(click_x * scale_x), int(click_y * scale_y)
         return None
 
-    def _get_scale(self) -> tuple:
-        """위젯→원본 스케일 (scale_x, scale_y). 실패 시 None"""
-        pixmap = self.pixmap()
-        if not pixmap or self.original_width <= 0:
-            return None
-        return self.original_width / pixmap.width(), self.original_height / pixmap.height()
-
     def mouseMoveEvent(self, event):
-        """수동 조작 중 마우스 delta 누적"""
+        """수동 조작 중 마우스 절대 좌표 추적"""
         if not self._manual_mode:
             return
-        pos = event.position().toPoint()
-        if self._last_mouse_pos is not None:
-            dx = pos.x() - self._last_mouse_pos.x()
-            dy = pos.y() - self._last_mouse_pos.y()
-            if dx != 0 or dy != 0:
-                scale = self._get_scale()
-                if scale:
-                    self._accum_dx += int(dx * scale[0])
-                    self._accum_dy += int(dy * scale[1])
-        self._last_mouse_pos = pos
+        coords = self._map_to_original(event)
+        if coords:
+            self._pending_pos = coords
 
-    def _flush_mouse_delta(self):
-        """누적된 delta를 한 번에 전송 (30Hz 타이머)"""
-        if self._accum_dx != 0 or self._accum_dy != 0:
-            self.manual_mouse_delta.emit(self._accum_dx, self._accum_dy)
-            self._accum_dx = 0
-            self._accum_dy = 0
+    def _flush_mouse_pos(self):
+        """마지막 마우스 위치를 전송 (60Hz 타이머)"""
+        if self._pending_pos:
+            self.manual_mouse_pos.emit(*self._pending_pos)
+            self._pending_pos = None
 
     def mousePressEvent(self, event):
         """마우스 클릭 → 수동 조작 모드일 때만 동작"""
@@ -275,8 +256,8 @@ class AgentPanel(QGroupBox):
             screen = ScreenWidget(f"{self.name}:{window_id}")
             screen.clicked.connect(
                 lambda x, y, btn, wid=window_id: self.on_screen_click(wid, x, y, btn))
-            screen.manual_mouse_delta.connect(
-                lambda dx, dy: self.ctrl.send_realtime_mouse_move(self.name, dx, dy))
+            screen.manual_mouse_pos.connect(
+                lambda x, y: self.ctrl.send_realtime_mouse_pos(self.name, x, y))
             screen.manual_key_pressed.connect(
                 lambda key: threading.Thread(
                     target=self.ctrl.send_key, args=(self.name, key),

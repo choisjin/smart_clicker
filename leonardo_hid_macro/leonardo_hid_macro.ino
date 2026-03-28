@@ -311,7 +311,7 @@ void processCommand(String cmd) {
 void setup() {
   Keyboard.begin();
   Mouse.begin();
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) { ; }
   Serial.println("READY");
 }

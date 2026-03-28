@@ -580,12 +580,18 @@ class RemoteAgent:
         response = {"type": "response", "success": False}
 
         try:
-            # 실시간 마우스 (응답 안 보냄 - 저지연)
-            if cmd_type == "realtime_mouse_move":
+            # 실시간 마우스 절대 위치 (Arduino HID MOUSE_MOVE)
+            if cmd_type == "realtime_mouse_pos":
                 if self.hid:
-                    dx, dy = params.get("dx", 0), params.get("dy", 0)
-                    if dx != 0 or dy != 0:
-                        await asyncio.to_thread(self.hid._send, f"MOUSE_MOVE:{dx},{dy}")
+                    x, y = params.get("x", 0), params.get("y", 0)
+                    if self.active_window in self.captures:
+                        cap = self.captures[self.active_window]
+                        client_rect = cap.get_client_rect()
+                        if client_rect:
+                            screen_x = client_rect[0] + x
+                            screen_y = client_rect[1] + y
+                            await asyncio.to_thread(
+                                self._realtime_move_to, screen_x, screen_y)
                 return  # 응답 전송 생략
 
             if cmd_type == "command":
@@ -675,6 +681,28 @@ class RemoteAgent:
             response["error"] = str(e)
 
         await websocket.send(json.dumps(response))
+
+    def _realtime_move_to(self, screen_x: int, screen_y: int):
+        """실시간 마우스 이동 (현재 위치 → 목표, HID 상대이동)"""
+        # 위치 불명이면 OS 커서로 초기화
+        if self.hid._mouse_x is None:
+            try:
+                cursor = win32gui.GetCursorPos()
+                self.hid._mouse_x = cursor[0]
+                self.hid._mouse_y = cursor[1]
+            except:
+                self.hid._mouse_x = screen_x
+                self.hid._mouse_y = screen_y
+                return
+
+        dx = screen_x - self.hid._mouse_x
+        dy = screen_y - self.hid._mouse_y
+        if dx != 0 or dy != 0:
+            # mickey 보정 적용
+            mx, my = self._pixels_to_mickeys(dx, dy)
+            self.hid._send(f"MOUSE_MOVE:{mx},{my}")
+            self.hid._mouse_x = screen_x
+            self.hid._mouse_y = screen_y
 
     def execute_hid_command(self, action: str, params: dict) -> bool:
         """HID 명령 실행"""
