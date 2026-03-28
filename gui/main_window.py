@@ -600,21 +600,16 @@ class MainWindow(QMainWindow):
 
     def add_agent_panel(self, name: str):
         """Agent 패널 추가"""
-        # 빈 라벨 제거
         if self.empty_label.isVisible():
             self.empty_label.hide()
 
         panel = AgentPanel(name, self.ctrl)
         self.agent_panels[name] = panel
 
-        # 그리드에 추가 (2열)
-        count = len(self.agent_panels) - 1
-        row = count // 2
-        col = count % 2
-        self.screen_layout.addWidget(panel, row, col)
+        # 전체 영역에 추가 (AgentPanel이 내부 2x2 그리드 가짐)
+        self.screen_layout.addWidget(panel, 0, 0)
 
-        # 프레임 콜백 등록 (3개 인자: agent_name, window_id, frame)
-        self.ctrl.on_frame(name, lambda n, w, f: None)  # 콜백은 타이머에서 처리
+        self.ctrl.on_frame(name, lambda n, w, f: None)
 
     def disconnect_all(self):
         """모든 연결 해제"""
@@ -788,6 +783,11 @@ def main():
     app.setStyle("Fusion")
 
     window = MainWindow()
+    # 화면 중앙 배치
+    screen = app.primaryScreen().availableGeometry()
+    window.resize(min(1400, screen.width()), min(900, screen.height()))
+    window.move((screen.width() - window.width()) // 2,
+                (screen.height() - window.height()) // 2)
     window.show()
 
     sys.exit(app.exec())
