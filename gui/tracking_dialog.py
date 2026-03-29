@@ -1,17 +1,84 @@
 """
 추적 셋팅 다이얼로그 — 스크린샷 정지 + 8방향 프리셋 드래그 박싱
-기존 프리셋 유지 + 개별 삭제 가능
+기존 프리셋 유지 + 개별 삭제 + 저장/불러오기
 """
 
+import os
+import json
 import numpy as np
+from pathlib import Path
 from typing import Optional, Tuple, List
 
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
-    QSlider, QGroupBox, QGridLayout
+    QSlider, QGroupBox, QGridLayout, QInputDialog, QComboBox, QMessageBox
 )
 from PyQt6.QtCore import Qt, QPoint, QRect, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap, QPainter, QPen, QColor, QIcon
+
+PRESETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tracking_presets")
+
+
+def save_preset(name: str, crops: List[np.ndarray], threshold: float,
+                exclude_rect: tuple = None):
+    """프리셋 저장 (크롭 이미지 PNG + 메타 JSON)"""
+    from PIL import Image
+    preset_dir = os.path.join(PRESETS_DIR, name)
+    os.makedirs(preset_dir, exist_ok=True)
+
+    for f in Path(preset_dir).glob("*.png"):
+        f.unlink()
+
+    for i, crop in enumerate(crops):
+        # PIL로 저장 (한글 경로 지원)
+        Image.fromarray(crop).save(os.path.join(preset_dir, f"{i}.png"))
+
+    meta = {"threshold": threshold, "count": len(crops)}
+    if exclude_rect:
+        meta["exclude_rect"] = list(exclude_rect)
+    with open(os.path.join(preset_dir, "meta.json"), "w") as f:
+        json.dump(meta, f)
+
+
+def load_preset(name: str) -> Optional[dict]:
+    """프리셋 불러오기 → {crops: [RGB ndarray], threshold: float}"""
+    from PIL import Image
+    preset_dir = os.path.join(PRESETS_DIR, name)
+    meta_path = os.path.join(preset_dir, "meta.json")
+    if not os.path.exists(meta_path):
+        return None
+
+    with open(meta_path) as f:
+        meta = json.load(f)
+
+    crops = []
+    for i in range(meta["count"]):
+        img_path = os.path.join(preset_dir, f"{i}.png")
+        if os.path.exists(img_path):
+            img = np.array(Image.open(img_path).convert("RGB"))
+            crops.append(img)
+
+    result = {"crops": crops, "threshold": meta["threshold"]}
+    if "exclude_rect" in meta:
+        result["exclude_rect"] = tuple(meta["exclude_rect"])
+    return result
+
+
+def list_presets() -> List[str]:
+    """저장된 프리셋 이름 목록"""
+    if not os.path.exists(PRESETS_DIR):
+        return []
+    return sorted([d for d in os.listdir(PRESETS_DIR)
+                    if os.path.isdir(os.path.join(PRESETS_DIR, d))
+                    and os.path.exists(os.path.join(PRESETS_DIR, d, "meta.json"))])
+
+
+def delete_preset(name: str):
+    """프리셋 삭제"""
+    import shutil
+    preset_dir = os.path.join(PRESETS_DIR, name)
+    if os.path.exists(preset_dir):
+        shutil.rmtree(preset_dir)
 
 
 class ScreenshotLabel(QLabel):
@@ -94,20 +161,23 @@ class TrackingSetupDialog(QDialog):
 
     MAX_PRESETS = 8
 
-    def __init__(self, frame: np.ndarray, existing_crops: List[np.ndarray] = None, parent=None):
+    def __init__(self, frame: np.ndarray, existing_crops: List[np.ndarray] = None,
+                 exclude_rect: Tuple[int, int, int, int] = None, parent=None):
         """
         Args:
             frame: 현재 스크린샷 (RGB)
             existing_crops: 기존 프리셋 크롭 이미지 리스트 (RGB)
+            exclude_rect: 내 캐릭터 제외 영역 (x, y, w, h)
         """
         super().__init__(parent)
         self.setWindowTitle("추적 셋팅 — 유닛 프리셋 등록 (최대 8개)")
         self.setMinimumSize(900, 650)
 
         self.frame = frame
-        # 크롭 이미지 저장 (RGB)
         self._crop_images: List[np.ndarray] = list(existing_crops) if existing_crops else []
-        self._new_rois: List[Tuple[int, int, int, int]] = []  # 이번 세션에서 새로 추가된 ROI
+        self._new_rois: List[Tuple[int, int, int, int]] = []
+        self._exclude_rect: Optional[Tuple[int, int, int, int]] = exclude_rect
+        self._setting_exclude = False  # 제외 영역 지정 모드
 
         layout = QVBoxLayout()
 
@@ -120,7 +190,6 @@ class TrackingSetupDialog(QDialog):
 
         self.screenshot = ScreenshotLabel(frame)
         self.screenshot.setMinimumSize(600, 450)
-        self.screenshot.roi_selected.connect(self._add_crop)
         top_layout.addWidget(self.screenshot, 4)
 
         # 프리셋 미리보기 패널
@@ -145,7 +214,32 @@ class TrackingSetupDialog(QDialog):
         btn_clear = QPushButton("전체 초기화")
         btn_clear.clicked.connect(self._clear_all)
         preset_inner.addWidget(btn_clear)
+
+        # 저장/불러오기
+        save_load_group = QGroupBox("프리셋 파일")
+        sl_layout = QVBoxLayout()
+
+        # 불러오기 콤보박스
+        self._preset_combo = QComboBox()
+        self._refresh_preset_list()
+        sl_layout.addWidget(self._preset_combo)
+
+        sl_btn_layout = QHBoxLayout()
+        btn_load = QPushButton("불러오기")
+        btn_load.clicked.connect(self._load_preset)
+        btn_save = QPushButton("저장")
+        btn_save.clicked.connect(self._save_preset)
+        btn_del = QPushButton("삭제")
+        btn_del.clicked.connect(self._delete_preset)
+        sl_btn_layout.addWidget(btn_load)
+        sl_btn_layout.addWidget(btn_save)
+        sl_btn_layout.addWidget(btn_del)
+        sl_layout.addLayout(sl_btn_layout)
+
+        save_load_group.setLayout(sl_layout)
+        preset_inner.addWidget(save_load_group)
         preset_inner.addStretch()
+
         preset_group.setLayout(preset_inner)
         preset_group.setFixedWidth(210)
         top_layout.addWidget(preset_group)
@@ -164,6 +258,22 @@ class TrackingSetupDialog(QDialog):
         slider_layout.addWidget(self._thr_label)
         layout.addLayout(slider_layout)
 
+        # 내 캐릭터 제외 영역
+        exclude_layout = QHBoxLayout()
+        self._btn_exclude = QPushButton("내 캐릭터 영역 지정")
+        self._btn_exclude.setCheckable(True)
+        self._btn_exclude.setStyleSheet("padding: 4px;")
+        self._btn_exclude.toggled.connect(self._toggle_exclude_mode)
+        exclude_layout.addWidget(self._btn_exclude)
+        self._exclude_label = QLabel(self._format_exclude())
+        self._exclude_label.setStyleSheet("color: #aaa; font-size: 11px;")
+        exclude_layout.addWidget(self._exclude_label)
+        btn_exclude_clear = QPushButton("해제")
+        btn_exclude_clear.setFixedWidth(40)
+        btn_exclude_clear.clicked.connect(self._clear_exclude)
+        exclude_layout.addWidget(btn_exclude_clear)
+        layout.addLayout(exclude_layout)
+
         # 버튼
         btn_layout = QHBoxLayout()
         self.btn_confirm = QPushButton("적용")
@@ -179,8 +289,40 @@ class TrackingSetupDialog(QDialog):
 
         self.setLayout(layout)
 
+        # 스크린샷 드래그 → 제외 영역 or 크롭
+        self.screenshot.roi_selected.connect(self._on_roi_selected)
+
         # 기존 프리셋 미리보기 표시
         self._refresh_previews()
+
+    def _format_exclude(self) -> str:
+        if self._exclude_rect:
+            x, y, w, h = self._exclude_rect
+            return f"({x},{y}) {w}x{h}"
+        return "미설정"
+
+    def _toggle_exclude_mode(self, on: bool):
+        self._setting_exclude = on
+        if on:
+            self._btn_exclude.setText("화면에서 드래그하세요...")
+            self._btn_exclude.setStyleSheet("background-color: #3366cc; color: white; padding: 4px;")
+        else:
+            self._btn_exclude.setText("내 캐릭터 영역 지정")
+            self._btn_exclude.setStyleSheet("padding: 4px;")
+
+    def _clear_exclude(self):
+        self._exclude_rect = None
+        self._exclude_label.setText(self._format_exclude())
+
+    def _on_roi_selected(self, roi: tuple):
+        """드래그 완료 → 제외 영역 모드이면 제외 영역, 아니면 크롭 추가"""
+        if self._setting_exclude:
+            self._exclude_rect = roi
+            self._exclude_label.setText(self._format_exclude())
+            self._btn_exclude.setChecked(False)
+            print(f"[추적 셋팅] 제외 영역 설정: {roi}")
+        else:
+            self._add_crop(roi)
 
     def _add_crop(self, roi: tuple):
         if len(self._crop_images) >= self.MAX_PRESETS:
@@ -213,7 +355,7 @@ class TrackingSetupDialog(QDialog):
                 pm = QPixmap.fromImage(img).scaled(
                     70, 70, Qt.AspectRatioMode.KeepAspectRatio,
                     Qt.TransformationMode.SmoothTransformation)
-                btn.setIcon(pm)
+                btn.setIcon(QIcon(pm))
                 btn.setIconSize(pm.size())
                 btn.setStyleSheet("background-color: #1a1a1a; border: 2px solid #4a9eff;")
             else:
@@ -223,10 +365,59 @@ class TrackingSetupDialog(QDialog):
         self._preset_group.setTitle(f"프리셋 ({len(self._crop_images)}/8)")
         self.btn_confirm.setEnabled(len(self._crop_images) > 0)
 
+    def _refresh_preset_list(self):
+        """저장된 프리셋 목록 갱신"""
+        self._preset_combo.clear()
+        names = list_presets()
+        if names:
+            self._preset_combo.addItems(names)
+        else:
+            self._preset_combo.addItem("(저장된 프리셋 없음)")
+
+    def _save_preset(self):
+        """현재 크롭을 프리셋으로 저장"""
+        if not self._crop_images:
+            QMessageBox.warning(self, "저장 실패", "크롭 이미지가 없습니다.")
+            return
+        name, ok = QInputDialog.getText(self, "프리셋 저장", "프리셋 이름:")
+        if ok and name.strip():
+            save_preset(name.strip(), self._crop_images, self.slider.value() / 100.0,
+                       self._exclude_rect)
+            self._refresh_preset_list()
+            self._preset_combo.setCurrentText(name.strip())
+            print(f"[프리셋] '{name.strip()}' 저장 완료 ({len(self._crop_images)}개 크롭)")
+
+    def _load_preset(self):
+        """프리셋 불러오기"""
+        name = self._preset_combo.currentText()
+        if not name or name.startswith("("):
+            return
+        data = load_preset(name)
+        if data:
+            self._crop_images = data["crops"]
+            self._new_rois.clear()
+            self.slider.setValue(int(data["threshold"] * 100))
+            self._exclude_rect = data.get("exclude_rect")
+            self._exclude_label.setText(self._format_exclude())
+            self._refresh_previews()
+            print(f"[프리셋] '{name}' 불러오기 완료 ({len(data['crops'])}개 크롭, 임계값 {data['threshold']:.2f})")
+
+    def _delete_preset(self):
+        """프리셋 삭제"""
+        name = self._preset_combo.currentText()
+        if not name or name.startswith("("):
+            return
+        reply = QMessageBox.question(self, "프리셋 삭제", f"'{name}' 프리셋을 삭제하시겠습니까?")
+        if reply == QMessageBox.StandardButton.Yes:
+            delete_preset(name)
+            self._refresh_preset_list()
+            print(f"[프리셋] '{name}' 삭제됨")
+
     def get_result(self) -> Optional[dict]:
         if self._crop_images:
             return {
                 "crop_images": [c.copy() for c in self._crop_images],
-                "threshold": self.slider.value() / 100.0
+                "threshold": self.slider.value() / 100.0,
+                "exclude_rect": self._exclude_rect
             }
         return None

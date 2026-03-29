@@ -113,9 +113,10 @@ class ScreenWidget(QLabel):
             self.setStyleSheet("background-color: #2d2d2d; border: 1px solid #555;")
         self.manual_mode_changed.emit(enabled)
 
-    def set_tracker(self, tracker: Optional['UnitTracker']):
+    def set_tracker(self, tracker: Optional['UnitTracker'], exclude_rect=None):
         """추적기 설정/해제"""
         self._tracker = tracker
+        self._exclude_rect = exclude_rect
         if not tracker:
             self._last_matches = []
 
@@ -143,27 +144,47 @@ class ScreenWidget(QLabel):
         pixmap = QPixmap.fromImage(img)
 
         # 추적 박스 오버레이 그리기
-        if self._last_matches:
+        if self._last_matches or (self._tracker and self._tracker.has_target()):
             painter = QPainter(pixmap)
-            # 화면 중앙 좌표
             cx, cy = w // 2, h // 2
-            nearest_idx = 0
-            nearest_dist = float('inf')
 
+            # 사용자 지정 제외 영역 표시
+            exclude = self._exclude_rect if hasattr(self, '_exclude_rect') else None
+            if exclude:
+                ex, ey, ew, eh = exclude
+                painter.setPen(QPen(QColor(100, 100, 255, 80), 1, Qt.PenStyle.DashLine))
+                painter.setBrush(QColor(100, 100, 255, 30))
+                painter.drawRect(ex, ey, ew, eh)
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+
+            # 제외 영역 외 가장 가까운 유닛 찾기
+            nearest_idx = -1
+            nearest_dist = float('inf')
             for i, m in enumerate(self._last_matches):
                 mx = m.x + m.w // 2
                 my = m.y + m.h // 2
+                if exclude:
+                    ex, ey, ew, eh = exclude
+                    if ex <= mx <= ex + ew and ey <= my <= ey + eh:
+                        continue
                 dist = ((mx - cx) ** 2 + (my - cy) ** 2) ** 0.5
                 if dist < nearest_dist:
                     nearest_dist = dist
                     nearest_idx = i
 
             for i, m in enumerate(self._last_matches):
-                if i == nearest_idx:
-                    # 최근접 유닛: 빨간 박스 + 두꺼운 선
+                mx = m.x + m.w // 2
+                my = m.y + m.h // 2
+                in_exclude = False
+                if exclude:
+                    ex, ey, ew, eh = exclude
+                    in_exclude = ex <= mx <= ex + ew and ey <= my <= ey + eh
+
+                if in_exclude:
+                    pen = QPen(QColor(128, 128, 128, 100), 1)
+                elif i == nearest_idx:
                     pen = QPen(QColor(255, 50, 50), 3)
                 else:
-                    # 기타 유닛: 초록 박스
                     pen = QPen(QColor(50, 255, 50), 2)
                 painter.setPen(pen)
                 painter.drawRect(m.x, m.y, m.w, m.h)
@@ -429,10 +450,16 @@ class AgentPanel(QGroupBox):
 
         if on:
             self._tracking_active[window_id] = True
+            exclude = getattr(self, '_exclude_rects', {}).get(window_id)
             if window_id in self.screen_widgets:
-                self.screen_widgets[window_id].set_tracker(self._trackers[window_id])
+                self.screen_widgets[window_id].set_tracker(self._trackers[window_id], exclude)
             btn.setText("⏸")
             btn.setStyleSheet("background-color: #cc8800; color: white; padding: 4px;")
+            # 우클릭 루프 재시작
+            threading.Thread(
+                target=self._tracking_loop, args=(window_id,),
+                daemon=True
+            ).start()
             print(f"[{self.name}:{window_id}] 추적 재개")
         else:
             self._tracking_active[window_id] = False
@@ -455,16 +482,17 @@ class AgentPanel(QGroupBox):
             self._trackers = {}
             self._tracking_active = {}
 
-        # 기존 프리셋 크롭 이미지 전달
+        # 기존 프리셋 크롭 이미지 + 제외 영역 전달
         existing = self._trackers.get(window_id)
         existing_crops = existing.get_crop_images_rgb() if existing else []
+        existing_exclude = getattr(self, '_exclude_rects', {}).get(window_id)
 
-        dialog = TrackingSetupDialog(frame, existing_crops=existing_crops, parent=None)
+        dialog = TrackingSetupDialog(frame, existing_crops=existing_crops,
+                                     exclude_rect=existing_exclude, parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
             result = dialog.get_result()
             if result:
-                # 새 추적기 생성 (다이얼로그에서 최종 목록을 반환하므로)
                 tracker = FastUnitTracker()
                 tracker.match_threshold = result["threshold"]
 
@@ -473,10 +501,16 @@ class AgentPanel(QGroupBox):
                     tracker.add_preset_from_crop(crop_bgr)
 
                 self._trackers[window_id] = tracker
+
+                # 제외 영역 저장
+                if not hasattr(self, '_exclude_rects'):
+                    self._exclude_rects = {}
+                self._exclude_rects[window_id] = result.get("exclude_rect")
                 self._tracking_active[window_id] = True
 
                 if window_id in self.screen_widgets:
-                    self.screen_widgets[window_id].set_tracker(tracker)
+                    self.screen_widgets[window_id].set_tracker(
+                        tracker, self._exclude_rects.get(window_id))
 
                 toggle_btn = self._track_toggle_buttons.get(window_id)
                 if toggle_btn:
@@ -485,13 +519,25 @@ class AgentPanel(QGroupBox):
 
                 print(f"[{self.name}:{window_id}] 추적 — 프리셋 {len(tracker.presets)}개, 임계값 {result['threshold']:.2f}")
 
+                # 자동 우클릭 루프 시작
+                threading.Thread(
+                    target=self._tracking_loop, args=(window_id,),
+                    daemon=True
+                ).start()
+
     def _tracking_loop(self, window_id: str):
-        """추적 루프 — 프레임마다 매칭 + 가장 가까운 유닛 우클릭"""
-        cooldown = 1.0  # 우클릭 후 대기 시간
+        """추적 루프 — 매칭 + 가장 가까운 유닛 우클릭 (사용자 지정 제외 영역)"""
+        cooldown = 2.0
         last_click = 0
 
         while self._tracking_active.get(window_id, False):
             try:
+                # 쿨다운 중이면 대기
+                remaining = cooldown - (_time.time() - last_click)
+                if remaining > 0:
+                    _time.sleep(min(remaining, 0.1))
+                    continue
+
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
                     break
@@ -502,16 +548,38 @@ class AgentPanel(QGroupBox):
                     continue
 
                 frame = windows[window_id].frame
+                fh, fw = frame.shape[:2]
+                cx, cy = fw // 2, fh // 2
 
-                # 화면 중앙 최근접 매칭
-                match = tracker.find_nearest_to_center(frame)
+                # 사용자 지정 제외 영역
+                exclude = getattr(self, '_exclude_rects', {}).get(window_id)
 
-                if match and (_time.time() - last_click) >= cooldown:
-                    click_x = match.x + match.w // 2
-                    click_y = match.y + match.h // 2
-                    print(f"[추적:{window_id}] 유닛 발견 ({click_x},{click_y}) score={match.score:.2f} → 우클릭")
-                    self.ctrl.send_click_to_window(
-                        self.name, window_id, click_x, click_y, button="RIGHT")
+                bgr = frame[:, :, ::-1].copy() if frame.shape[2] == 3 else frame
+                matches = tracker.find_matches(bgr)
+
+                # 제외 영역 내 매칭 필터링
+                filtered = []
+                for m in matches:
+                    mx = m.x + m.w // 2
+                    my = m.y + m.h // 2
+                    if exclude:
+                        ex, ey, ew, eh = exclude
+                        if ex <= mx <= ex + ew and ey <= my <= ey + eh:
+                            continue
+                    filtered.append(m)
+
+                if filtered:
+                    nearest = min(filtered, key=lambda m:
+                        ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
+                    click_x = nearest.x + nearest.w // 2
+                    click_y = nearest.y + nearest.h // 2
+                    print(f"[추적:{window_id}] 우클릭 ({click_x},{click_y}) score={nearest.score:.2f}")
+                    # 빠른 우클릭: 이동 → 클릭 (set_active_window 생략)
+                    self.ctrl.send_command(self.name, "mouse_move",
+                        {"x": click_x, "y": click_y}, human_like=False)
+                    _time.sleep(0.05)
+                    self.ctrl.send_command(self.name, "mouse_click",
+                        {"button": "RIGHT"}, human_like=False)
                     last_click = _time.time()
 
                 _time.sleep(0.1)  # 10Hz 매칭 주기

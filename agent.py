@@ -823,14 +823,21 @@ class RemoteAgent:
                 except:
                     pass
 
-                # 마우스 속도 보정 (pixel → mickey)
-                mx, my = self._pixels_to_mickeys(x, y)
-                print(f"[DEBUG] 좌표 변환: 이미지({params['x']},{params['y']}) → 화면({x},{y}) → mickey({mx},{my}) [속도계수:{self.mouse_speed_factor}]")
+                # delta 계산 후 mickey 보정하여 이동
+                cur_x = self.hid._mouse_x or x
+                cur_y = self.hid._mouse_y or y
+                dx = x - cur_x
+                dy = y - cur_y
+                print(f"[DEBUG] 이동: ({cur_x},{cur_y}) → ({x},{y}) delta=({dx},{dy})")
 
-                if human_like:
-                    self.hid.mouse_move_to_human(mx, my)
-                else:
-                    self.hid.mouse_move_to(mx, my)
+                if dx != 0 or dy != 0:
+                    mdx, mdy = self._pixels_to_mickeys(dx, dy)
+                    if human_like:
+                        self.hid.mouse_move_to_human(x, y)
+                    else:
+                        self.hid._send(f"MOUSE_MOVE:{mdx},{mdy}")
+                self.hid._mouse_x = x
+                self.hid._mouse_y = y
 
             elif action == "mouse_click":
                 button = params.get("button", "LEFT")
