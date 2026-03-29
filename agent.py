@@ -1046,15 +1046,22 @@ if __name__ == "__main__":
             win32gui.EnumWindows(enum_cb, None)
             if hwnd:
                 print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}")
+                # 최소화 복원
                 win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                time.sleep(0.3)
+                # 최상위로 강제 올리기
+                win32gui.SetWindowPos(
+                    hwnd, win32con.HWND_TOPMOST,
+                    0, 0, 0, 0,
+                    win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+                win32gui.SetWindowPos(
+                    hwnd, win32con.HWND_NOTOPMOST,
+                    0, 0, 0, 0,
+                    win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
                 try:
                     win32gui.SetForegroundWindow(hwnd)
                 except:
-                    # RDP 등에서 실패 시 Alt 트릭으로 우회
-                    import win32api
-                    win32api.keybd_event(0x12, 0, 0, 0)  # Alt down
-                    win32gui.SetForegroundWindow(hwnd)
-                    win32api.keybd_event(0x12, 0, 2, 0)  # Alt up
+                    pass
                 time.sleep(0.5)
                 # Leonardo HID로 클릭
                 rect = win32gui.GetWindowRect(hwnd)
