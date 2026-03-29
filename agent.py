@@ -839,6 +839,21 @@ class RemoteAgent:
                 self.hid._mouse_x = x
                 self.hid._mouse_y = y
 
+            elif action == "move_and_click":
+                # 이동 + 클릭을 하나의 액션으로 (추적 우클릭용)
+                x, y = params["x"], params["y"]
+                button = params.get("button", "RIGHT")
+                if self.active_window in self.captures:
+                    cap = self.captures[self.active_window]
+                    client_rect = cap.get_client_rect()
+                    if client_rect:
+                        x = client_rect[0] + x
+                        y = client_rect[1] + y
+                self._realtime_move_to(x, y)
+                import time
+                time.sleep(0.05)
+                self.hid.mouse_click(button)
+
             elif action == "mouse_click":
                 button = params.get("button", "LEFT")
                 print(f"[DEBUG] 마우스 클릭: {button}")
