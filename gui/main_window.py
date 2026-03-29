@@ -505,7 +505,9 @@ class AgentPanel(QGroupBox):
         dialog = TrackingSetupDialog(frame, existing_crops=existing_crops,
                                      exclude_rect=existing_exclude,
                                      verify_click=existing_verify.get("click"),
+                                     verify_click_roi=existing_verify.get("click_roi"),
                                      verify_transition=existing_verify.get("transition"),
+                                     verify_transition_roi=existing_verify.get("transition_roi"),
                                      parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
@@ -528,7 +530,9 @@ class AgentPanel(QGroupBox):
                 # 확인 이미지 저장 (RGB)
                 self._verify_images[window_id] = {
                     "click": result.get("verify_click"),
+                    "click_roi": result.get("verify_click_roi"),
                     "transition": result.get("verify_transition"),
+                    "transition_roi": result.get("verify_transition_roi"),
                 }
                 self._tracking_active[window_id] = False  # 토글로 직접 시작
 
@@ -584,7 +588,9 @@ class AgentPanel(QGroupBox):
         # 확인 이미지 로드
         verify = getattr(self, '_verify_images', {}).get(window_id, {})
         verify_click_img = verify.get("click")      # 우클릭 성공 확인 (RGB)
+        verify_click_roi = verify.get("click_roi")   # 고정 좌표 (x,y,w,h)
         verify_trans_img = verify.get("transition")  # 화면 전환 확인 (RGB)
+        verify_trans_roi = verify.get("transition_roi")
 
         print(f"[추적] 루프 시작: window_id={window_id}, "
               f"확인이미지: click={'있음' if verify_click_img is not None else '없음'}, "
@@ -661,16 +667,17 @@ class AgentPanel(QGroupBox):
 
                 # ── 2. 우클릭 성공 확인 (내 캐릭터 제외 영역에서만) ──
                 if verify_click_img is not None:
-                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초, 제외영역={exclude})")
+                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초, roi={verify_click_roi})")
                     if self._check_image(window_id, verify_click_img, threshold=0.8,
-                                         timeout=3.0, region=exclude):
+                                         timeout=3.0, region=verify_click_roi):
                         print(f"[추적:{window_id}] ✓ 우클릭 성공 확인됨")
                         clicked_set.add(target_key)
 
                         # ── 3. 화면 전환 확인 ──
                         if verify_trans_img is not None:
-                            print(f"[추적:{window_id}] 화면 전환 확인 중... (5초)")
-                            if self._check_image(window_id, verify_trans_img, threshold=0.8, timeout=5.0):
+                            print(f"[추적:{window_id}] 화면 전환 확인 중... (5초, roi={verify_trans_roi})")
+                            if self._check_image(window_id, verify_trans_img, threshold=0.8,
+                                                 timeout=5.0, region=verify_trans_roi):
                                 print(f"[추적:{window_id}] ✓ 화면 전환 확인됨")
                             else:
                                 print(f"[추적:{window_id}] ✗ 화면 전환 안됨 → 다시 추적")

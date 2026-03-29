@@ -20,8 +20,10 @@ PRESETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 
 def save_preset(name: str, crops: List[np.ndarray], threshold: float,
-                exclude_rect: tuple = None):
-    """프리셋 저장 (크롭 이미지 PNG + 메타 JSON)"""
+                exclude_rect: tuple = None,
+                verify_click: np.ndarray = None, verify_click_roi: tuple = None,
+                verify_transition: np.ndarray = None, verify_transition_roi: tuple = None):
+    """프리셋 저장 (크롭 이미지 PNG + 확인 이미지 + 메타 JSON)"""
     from PIL import Image
     preset_dir = os.path.join(PRESETS_DIR, name)
     os.makedirs(preset_dir, exist_ok=True)
@@ -30,18 +32,28 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
         f.unlink()
 
     for i, crop in enumerate(crops):
-        # PIL로 저장 (한글 경로 지원)
         Image.fromarray(crop).save(os.path.join(preset_dir, f"{i}.png"))
 
-    meta = {"threshold": threshold, "count": len(crops)}
+    if verify_click is not None:
+        Image.fromarray(verify_click).save(os.path.join(preset_dir, "verify_click.png"))
+    if verify_transition is not None:
+        Image.fromarray(verify_transition).save(os.path.join(preset_dir, "verify_transition.png"))
+
+    meta = {"threshold": threshold, "count": len(crops),
+            "has_verify_click": verify_click is not None,
+            "has_verify_transition": verify_transition is not None}
     if exclude_rect:
         meta["exclude_rect"] = list(exclude_rect)
+    if verify_click_roi:
+        meta["verify_click_roi"] = list(verify_click_roi)
+    if verify_transition_roi:
+        meta["verify_transition_roi"] = list(verify_transition_roi)
     with open(os.path.join(preset_dir, "meta.json"), "w") as f:
         json.dump(meta, f)
 
 
 def load_preset(name: str) -> Optional[dict]:
-    """프리셋 불러오기 → {crops: [RGB ndarray], threshold: float}"""
+    """프리셋 불러오기 → {crops, threshold, exclude_rect, verify_click, verify_transition}"""
     from PIL import Image
     preset_dir = os.path.join(PRESETS_DIR, name)
     meta_path = os.path.join(preset_dir, "meta.json")
@@ -61,6 +73,18 @@ def load_preset(name: str) -> Optional[dict]:
     result = {"crops": crops, "threshold": meta["threshold"]}
     if "exclude_rect" in meta:
         result["exclude_rect"] = tuple(meta["exclude_rect"])
+
+    vc_path = os.path.join(preset_dir, "verify_click.png")
+    if meta.get("has_verify_click") and os.path.exists(vc_path):
+        result["verify_click"] = np.array(Image.open(vc_path).convert("RGB"))
+        if "verify_click_roi" in meta:
+            result["verify_click_roi"] = tuple(meta["verify_click_roi"])
+    vt_path = os.path.join(preset_dir, "verify_transition.png")
+    if meta.get("has_verify_transition") and os.path.exists(vt_path):
+        result["verify_transition"] = np.array(Image.open(vt_path).convert("RGB"))
+        if "verify_transition_roi" in meta:
+            result["verify_transition_roi"] = tuple(meta["verify_transition_roi"])
+
     return result
 
 
@@ -163,7 +187,8 @@ class TrackingSetupDialog(QDialog):
 
     def __init__(self, frame: np.ndarray, existing_crops: List[np.ndarray] = None,
                  exclude_rect: Tuple[int, int, int, int] = None,
-                 verify_click: np.ndarray = None, verify_transition: np.ndarray = None,
+                 verify_click: np.ndarray = None, verify_click_roi: tuple = None,
+                 verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
                  parent=None):
         """
         Args:
@@ -184,7 +209,9 @@ class TrackingSetupDialog(QDialog):
         self._setting_exclude = False  # 제외 영역 지정 모드
         self._setting_verify: Optional[str] = None  # "click" or "transition"
         self._verify_click: Optional[np.ndarray] = verify_click
+        self._verify_click_roi: Optional[Tuple[int, int, int, int]] = verify_click_roi
         self._verify_transition: Optional[np.ndarray] = verify_transition
+        self._verify_transition_roi: Optional[Tuple[int, int, int, int]] = verify_transition_roi
 
         layout = QVBoxLayout()
 
@@ -378,8 +405,10 @@ class TrackingSetupDialog(QDialog):
         """확인 이미지 삭제"""
         if kind == "click":
             self._verify_click = None
+            self._verify_click_roi = None
         else:
             self._verify_transition = None
+            self._verify_transition_roi = None
         self._refresh_verify_previews()
 
     def _refresh_verify_previews(self):
@@ -410,10 +439,12 @@ class TrackingSetupDialog(QDialog):
             crop = self.frame[y:y+h, x:x+w].copy()
             if self._setting_verify == "click":
                 self._verify_click = crop
+                self._verify_click_roi = roi
                 self._btn_verify_click.setChecked(False)
                 print(f"[추적 셋팅] 우클릭 성공 확인 이미지 설정: {roi}")
             else:
                 self._verify_transition = crop
+                self._verify_transition_roi = roi
                 self._btn_verify_trans.setChecked(False)
                 print(f"[추적 셋팅] 화면 전환 확인 이미지 설정: {roi}")
             self._refresh_verify_previews()
@@ -483,7 +514,9 @@ class TrackingSetupDialog(QDialog):
         name, ok = QInputDialog.getText(self, "프리셋 저장", "프리셋 이름:")
         if ok and name.strip():
             save_preset(name.strip(), self._crop_images, self.slider.value() / 100.0,
-                       self._exclude_rect)
+                       self._exclude_rect,
+                       self._verify_click, self._verify_click_roi,
+                       self._verify_transition, self._verify_transition_roi)
             self._refresh_preset_list()
             self._preset_combo.setCurrentText(name.strip())
             print(f"[프리셋] '{name.strip()}' 저장 완료 ({len(self._crop_images)}개 크롭)")
@@ -500,7 +533,12 @@ class TrackingSetupDialog(QDialog):
             self.slider.setValue(int(data["threshold"] * 100))
             self._exclude_rect = data.get("exclude_rect")
             self._exclude_label.setText(self._format_exclude())
+            self._verify_click = data.get("verify_click")
+            self._verify_click_roi = data.get("verify_click_roi")
+            self._verify_transition = data.get("verify_transition")
+            self._verify_transition_roi = data.get("verify_transition_roi")
             self._refresh_previews()
+            self._refresh_verify_previews()
             print(f"[프리셋] '{name}' 불러오기 완료 ({len(data['crops'])}개 크롭, 임계값 {data['threshold']:.2f})")
 
     def _delete_preset(self):
@@ -523,7 +561,9 @@ class TrackingSetupDialog(QDialog):
             }
             if self._verify_click is not None:
                 result["verify_click"] = self._verify_click.copy()
+                result["verify_click_roi"] = self._verify_click_roi
             if self._verify_transition is not None:
                 result["verify_transition"] = self._verify_transition.copy()
+                result["verify_transition_roi"] = self._verify_transition_roi
             return result
         return None
