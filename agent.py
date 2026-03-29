@@ -1024,6 +1024,48 @@ if __name__ == "__main__":
         else:
             print("\n[AUTO] Gersang 창 없음 → 전체 화면 캡처")
 
+    # 5초 후 GersangStation.exe 활성화 + 클릭
+    def activate_gersang_station():
+        time.sleep(5)
+        import subprocess
+        try:
+            hwnd = None
+            def enum_cb(h, _):
+                nonlocal hwnd
+                if win32gui.IsWindowVisible(h):
+                    _, pid = ctypes.c_ulong(), ctypes.c_ulong()
+                    ctypes.windll.user32.GetWindowThreadProcessId(h, ctypes.byref(pid))
+                    try:
+                        import psutil
+                        proc = psutil.Process(pid.value)
+                        if proc.name().lower() == "gersangstation.exe":
+                            hwnd = h
+                    except:
+                        pass
+                return True
+            win32gui.EnumWindows(enum_cb, None)
+            if hwnd:
+                print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}")
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                win32gui.SetForegroundWindow(hwnd)
+                time.sleep(0.5)
+                # 창 기준 (350, 130) 좌클릭
+                rect = win32gui.GetWindowRect(hwnd)
+                abs_x = rect[0] + 350
+                abs_y = rect[1] + 130
+                ctypes.windll.user32.SetCursorPos(abs_x, abs_y)
+                time.sleep(0.3)
+                ctypes.windll.user32.mouse_event(0x0002, 0, 0, 0, 0)  # LEFTDOWN
+                time.sleep(0.05)
+                ctypes.windll.user32.mouse_event(0x0004, 0, 0, 0, 0)  # LEFTUP
+                print(f"[STARTUP] GersangStation ({abs_x},{abs_y}) 좌클릭 완료")
+            else:
+                print("[STARTUP] GersangStation.exe 창을 찾을 수 없음")
+        except Exception as e:
+            print(f"[STARTUP] GersangStation 활성화 오류: {e}")
+
+    threading.Thread(target=activate_gersang_station, daemon=True).start()
+
     # 에이전트 생성 및 실행
     agent = RemoteAgent(
         port=args.port,
