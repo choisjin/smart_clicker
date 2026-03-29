@@ -1024,19 +1024,19 @@ if __name__ == "__main__":
         else:
             print("\n[AUTO] Gersang 창 없음 → 전체 화면 캡처")
 
-    # 5초 후 GersangStation.exe 활성화 + 클릭
-    def activate_gersang_station():
+    # GersangStation 클릭 → 20초 대기 → Gersang 창 찾기 → agent에 등록
+    def startup_sequence(agent_ref):
+        # 1. 5초 대기 후 GersangStation 활성화 + 클릭
         time.sleep(5)
-        import subprocess
         try:
+            import psutil
             hwnd = None
             def enum_cb(h, _):
                 nonlocal hwnd
                 if win32gui.IsWindowVisible(h):
-                    _, pid = ctypes.c_ulong(), ctypes.c_ulong()
+                    pid = ctypes.c_ulong()
                     ctypes.windll.user32.GetWindowThreadProcessId(h, ctypes.byref(pid))
                     try:
-                        import psutil
                         proc = psutil.Process(pid.value)
                         if proc.name().lower() == "gersangstation.exe":
                             hwnd = h
@@ -1049,29 +1049,64 @@ if __name__ == "__main__":
                 win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
                 win32gui.SetForegroundWindow(hwnd)
                 time.sleep(0.5)
-                # 창 기준 (350, 130) 좌클릭
+                # Leonardo HID로 클릭
                 rect = win32gui.GetWindowRect(hwnd)
                 abs_x = rect[0] + 350
                 abs_y = rect[1] + 130
-                ctypes.windll.user32.SetCursorPos(abs_x, abs_y)
-                time.sleep(0.3)
-                ctypes.windll.user32.mouse_event(0x0002, 0, 0, 0, 0)  # LEFTDOWN
-                time.sleep(0.05)
-                ctypes.windll.user32.mouse_event(0x0004, 0, 0, 0, 0)  # LEFTUP
-                print(f"[STARTUP] GersangStation ({abs_x},{abs_y}) 좌클릭 완료")
+                if agent_ref.hid:
+                    cursor = win32gui.GetCursorPos()
+                    agent_ref.hid._mouse_x = cursor[0]
+                    agent_ref.hid._mouse_y = cursor[1]
+                    agent_ref.hid.mouse_move_to(abs_x, abs_y)
+                    time.sleep(0.3)
+                    agent_ref.hid.mouse_click("LEFT")
+                    print(f"[STARTUP] GersangStation ({abs_x},{abs_y}) Leonardo 좌클릭 완료")
+                else:
+                    print("[STARTUP] Leonardo 미연결 — 클릭 불가")
             else:
                 print("[STARTUP] GersangStation.exe 창을 찾을 수 없음")
         except Exception as e:
             print(f"[STARTUP] GersangStation 활성화 오류: {e}")
 
-    threading.Thread(target=activate_gersang_station, daemon=True).start()
+        # 2. 20초 대기 (게임 로딩)
+        print("[STARTUP] 20초 대기 (게임 로딩)...")
+        time.sleep(20)
 
-    # 에이전트 생성 및 실행
+        # 3. Gersang 창 찾아서 agent에 등록
+        titles = find_gersang_windows()
+        if titles:
+            print(f"[STARTUP] Gersang 창 {len(titles)}개 발견: {titles}")
+            all_wins = WindowCapture.list_windows()
+            used_hwnds = set()
+            for i, title in enumerate(titles[:MAX_WINDOWS]):
+                win_id = f"win{i}"
+                cap = WindowCapture(None)
+                cap.window_title = title
+                for w in all_wins:
+                    if w["title"] == title and w["hwnd"] not in used_hwnds:
+                        cap.hwnd = w["hwnd"]
+                        used_hwnds.add(w["hwnd"])
+                        break
+                if cap.hwnd:
+                    agent_ref.captures[win_id] = cap
+                    if i == 0:
+                        agent_ref.active_window = win_id
+                    print(f"[STARTUP] 창 등록: {win_id} = {title} (hwnd={cap.hwnd})")
+            print(f"[STARTUP] 스트리밍 준비 완료 ({len(agent_ref.captures)}개 창)")
+        else:
+            print("[STARTUP] Gersang 창을 찾을 수 없음")
+
+    # 에이전트 생성 (빈 상태로 시작, 스타트업 시퀀스에서 창 등록)
     agent = RemoteAgent(
         port=args.port,
         leonardo_port=leo_port,
-        window_titles=window_titles
+        window_titles=window_titles  # 이미 있으면 즉시 등록, 없으면 빈 상태
     )
     agent.fps = args.fps
     agent.quality = args.quality
+
+    # 자동 모드이고 창이 없으면 스타트업 시퀀스 실행
+    if not window_titles:
+        threading.Thread(target=startup_sequence, args=(agent,), daemon=True).start()
+
     agent.run()
