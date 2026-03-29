@@ -1045,32 +1045,14 @@ if __name__ == "__main__":
                 return True
             win32gui.EnumWindows(enum_cb, None)
             if hwnd:
-                print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}")
-                # 최소화 복원
-                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-                time.sleep(0.3)
-                # 최상위로 강제 올리기
-                win32gui.SetWindowPos(
-                    hwnd, win32con.HWND_TOPMOST,
-                    0, 0, 0, 0,
-                    win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
-                win32gui.SetWindowPos(
-                    hwnd, win32con.HWND_NOTOPMOST,
-                    0, 0, 0, 0,
-                    win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
-                try:
-                    win32gui.SetForegroundWindow(hwnd)
-                except:
-                    pass
-                time.sleep(0.5)
-                # Leonardo HID로 클릭
                 rect = win32gui.GetWindowRect(hwnd)
                 abs_x = rect[0] + 350
                 abs_y = rect[1] + 130
+                print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}, 클릭좌표=({abs_x},{abs_y})")
                 if agent_ref.hid:
-                    cursor = win32gui.GetCursorPos()
-                    agent_ref.hid._mouse_x = cursor[0]
-                    agent_ref.hid._mouse_y = cursor[1]
+                    # Leonardo HID로 절대좌표 클릭 (GUI API 불필요)
+                    agent_ref.hid.mouse_reset_position()
+                    time.sleep(0.3)
                     agent_ref.hid.mouse_move_to(abs_x, abs_y)
                     time.sleep(0.3)
                     agent_ref.hid.mouse_click("LEFT")
