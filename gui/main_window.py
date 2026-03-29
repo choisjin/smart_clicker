@@ -265,7 +265,7 @@ class ScreenWidget(QLabel):
 
     def event(self, event):
         """수동 조작 중 Tab 키가 포커스 전환에 소비되지 않도록 가로채기"""
-        if (self._manual_mode and event.type() in (
+        if (getattr(self, '_manual_mode', False) and event.type() in (
                 event.Type.KeyPress, event.Type.KeyRelease)
                 and event.key() == Qt.Key.Key_Tab):
             if event.type() == event.Type.KeyPress:
@@ -538,25 +538,27 @@ class AgentPanel(QGroupBox):
                 ).start()
 
     def _tracking_loop(self, window_id: str):
-        """추적 루프 — 매칭 + 가장 가까운 유닛으로 마우스 이동 (사용자 지정 제외 영역)"""
-        click_cooldown = 2.0
+        """추적 루프 — 중심부터 가까운 유닛 순서로 이동+우클릭, 클릭 후 3초 대기"""
+        click_cooldown = 3.0
         last_click = 0
-        loop_count = 0
+        clicked_set = set()  # 이미 클릭한 유닛 위치 (중복 방지)
 
-        print(f"[추적-DBG] 루프 시작: window_id={window_id}, agent={self.name}")
+        print(f"[추적] 루프 시작: window_id={window_id}, agent={self.name}")
 
         while self._tracking_active.get(window_id, False):
             try:
-                loop_count += 1
+                # 쿨다운 대기
+                remaining = click_cooldown - (_time.time() - last_click)
+                if remaining > 0:
+                    _time.sleep(min(remaining, 0.1))
+                    continue
+
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
-                    print(f"[추적-DBG] 루프 종료: tracker={tracker is not None}, has_target={tracker.has_target() if tracker else 'N/A'}")
                     break
 
                 windows = self.ctrl.get_windows(self.name)
                 if window_id not in windows or windows[window_id].frame is None:
-                    if loop_count <= 3:
-                        print(f"[추적-DBG] 프레임 없음: window_id={window_id}, available={list(windows.keys())}")
                     _time.sleep(0.1)
                     continue
 
@@ -581,27 +583,48 @@ class AgentPanel(QGroupBox):
                             continue
                     filtered.append(m)
 
-                if loop_count <= 3:
-                    print(f"[추적-DBG] 매칭: total={len(matches)}, filtered={len(filtered)}")
+                if not filtered:
+                    # 매칭 없으면 클릭 기록 초기화
+                    clicked_set.clear()
+                    _time.sleep(0.1)
+                    continue
 
-                if filtered:
-                    nearest = min(filtered, key=lambda m:
-                        ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
-                    click_x = int(nearest.x + nearest.w // 2)
-                    click_y = int(nearest.y + nearest.h // 2)
+                # 중심부터 가까운 순으로 정렬
+                filtered.sort(key=lambda m:
+                    ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
 
-                    print(f"[추적:{window_id}] 이동+우클릭 ({click_x},{click_y}) score={nearest.score:.2f}")
-                    # human-like 이동 + 우클릭 (agent에서 베지어 곡선 이동)
-                    if self.name in self.ctrl.agents and self.ctrl._loop:
-                        import asyncio
-                        agent = self.ctrl.agents[self.name]
-                        cmd = {"type": "move_and_click",
-                               "params": {"x": click_x, "y": click_y, "button": "RIGHT"}}
-                        asyncio.run_coroutine_threadsafe(
-                            self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
-                    last_click = _time.time()
+                # 아직 클릭하지 않은 가장 가까운 유닛 선택
+                target = None
+                for m in filtered:
+                    pos_key = (int(m.x + m.w // 2) // 20, int(m.y + m.h // 2) // 20)
+                    if pos_key not in clicked_set:
+                        target = m
+                        target_key = pos_key
+                        break
 
-                _time.sleep(0.1)  # 10Hz 매칭 주기
+                if target is None:
+                    # 모두 클릭 완료 → 초기화 후 다시 중심부터
+                    clicked_set.clear()
+                    _time.sleep(0.5)
+                    continue
+
+                click_x = int(target.x + target.w // 2)
+                click_y = int(target.y + target.h // 2)
+
+                print(f"[추적:{window_id}] 이동+우클릭 ({click_x},{click_y}) score={target.score:.2f} 남은={len(filtered)-len(clicked_set)}")
+
+                if self.name in self.ctrl.agents and self.ctrl._loop:
+                    import asyncio
+                    agent = self.ctrl.agents[self.name]
+                    cmd = {"type": "move_and_click",
+                           "params": {"x": click_x, "y": click_y, "button": "RIGHT"}}
+                    asyncio.run_coroutine_threadsafe(
+                        self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
+
+                clicked_set.add(target_key)
+                last_click = _time.time()
+
+                _time.sleep(0.1)
 
             except Exception as e:
                 print(f"[추적:{window_id}] 오류: {e}")
