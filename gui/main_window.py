@@ -578,7 +578,7 @@ class AgentPanel(QGroupBox):
         deadline = _time.time() + timeout
 
         while _time.time() < deadline:
-            if not self._tracking_active.get(window_id, False):
+            if self._is_killed(window_id):
                 return False
             windows = self.ctrl.get_windows(self.name)
             if window_id not in windows or windows[window_id].frame is None:

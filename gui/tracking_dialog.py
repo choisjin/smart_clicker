@@ -215,7 +215,7 @@ class TrackingSetupDialog(QDialog):
         """
         super().__init__(parent)
         self.setWindowTitle("추적 셋팅 — 유닛 프리셋 등록 (최대 8개)")
-        self.setMinimumSize(900, 650)
+        self.setMinimumSize(1100, 700)
 
         self.frame = frame
         self._crop_images: List[np.ndarray] = list(existing_crops) if existing_crops else []
