@@ -23,7 +23,9 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
                 exclude_rect: tuple = None,
                 verify_click: np.ndarray = None, verify_click_roi: tuple = None,
                 verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
-                verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None):
+                verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None,
+                verify_satiety: np.ndarray = None, verify_satiety_roi: tuple = None,
+                satiety_click_pos: tuple = None):
     """프리셋 저장 (크롭 이미지 PNG + 확인 이미지 + 메타 JSON)"""
     from PIL import Image
     preset_dir = os.path.join(PRESETS_DIR, name)
@@ -44,11 +46,14 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
         Image.fromarray(verify_transition).save(os.path.join(preset_dir, "verify_transition.png"))
     if verify_battle_end is not None:
         Image.fromarray(verify_battle_end).save(os.path.join(preset_dir, "verify_battle_end.png"))
+    if verify_satiety is not None:
+        Image.fromarray(verify_satiety).save(os.path.join(preset_dir, "verify_satiety.png"))
 
     meta = {"threshold": threshold, "count": len(crops),
             "has_verify_click": verify_click is not None,
             "has_verify_transition": verify_transition is not None,
-            "has_verify_battle_end": verify_battle_end is not None}
+            "has_verify_battle_end": verify_battle_end is not None,
+            "has_verify_satiety": verify_satiety is not None}
     if exclude_rect:
         meta["exclude_rect"] = list(exclude_rect)
     if verify_click_roi:
@@ -57,6 +62,10 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
         meta["verify_transition_roi"] = list(verify_transition_roi)
     if verify_battle_end_roi:
         meta["verify_battle_end_roi"] = list(verify_battle_end_roi)
+    if verify_satiety_roi:
+        meta["verify_satiety_roi"] = list(verify_satiety_roi)
+    if satiety_click_pos:
+        meta["satiety_click_pos"] = list(satiety_click_pos)
     with open(os.path.join(preset_dir, "meta.json"), "w") as f:
         json.dump(meta, f)
 
@@ -98,6 +107,13 @@ def load_preset(name: str) -> Optional[dict]:
         result["verify_battle_end"] = np.array(Image.open(vb_path).convert("RGB"))
         if "verify_battle_end_roi" in meta:
             result["verify_battle_end_roi"] = tuple(meta["verify_battle_end_roi"])
+    vs_path = os.path.join(preset_dir, "verify_satiety.png")
+    if meta.get("has_verify_satiety") and os.path.exists(vs_path):
+        result["verify_satiety"] = np.array(Image.open(vs_path).convert("RGB"))
+        if "verify_satiety_roi" in meta:
+            result["verify_satiety_roi"] = tuple(meta["verify_satiety_roi"])
+    if "satiety_click_pos" in meta:
+        result["satiety_click_pos"] = tuple(meta["satiety_click_pos"])
 
     return result
 
@@ -204,6 +220,8 @@ class TrackingSetupDialog(QDialog):
                  verify_click: np.ndarray = None, verify_click_roi: tuple = None,
                  verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
                  verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None,
+                 verify_satiety: np.ndarray = None, verify_satiety_roi: tuple = None,
+                 satiety_click_pos: tuple = None,
                  parent=None):
         """
         Args:
@@ -230,6 +248,9 @@ class TrackingSetupDialog(QDialog):
         self._verify_transition_roi: Optional[Tuple[int, int, int, int]] = verify_transition_roi
         self._verify_battle_end: Optional[np.ndarray] = verify_battle_end
         self._verify_battle_end_roi: Optional[Tuple[int, int, int, int]] = verify_battle_end_roi
+        self._verify_satiety: Optional[np.ndarray] = verify_satiety
+        self._verify_satiety_roi: Optional[Tuple[int, int, int, int]] = verify_satiety_roi
+        self._satiety_click_pos: Optional[Tuple[int, int]] = satiety_click_pos
 
         layout = QVBoxLayout()
 
@@ -374,6 +395,36 @@ class TrackingSetupDialog(QDialog):
         verify_group.setLayout(verify_layout)
         layout.addWidget(verify_group)
 
+        # 포만감 체크
+        satiety_group = QGroupBox("포만감 체크 (선택사항)")
+        satiety_layout = QHBoxLayout()
+
+        self._btn_verify_satiety = QPushButton("포만감 이미지")
+        self._btn_verify_satiety.setCheckable(True)
+        self._btn_verify_satiety.setStyleSheet("padding: 4px;")
+        self._btn_verify_satiety.toggled.connect(lambda on: self._toggle_verify_mode("satiety", on))
+        satiety_layout.addWidget(self._btn_verify_satiety)
+        self._verify_satiety_preview = QPushButton()
+        self._verify_satiety_preview.setFixedSize(60, 60)
+        self._verify_satiety_preview.setToolTip("클릭하여 삭제")
+        self._verify_satiety_preview.clicked.connect(lambda: self._clear_verify("satiety"))
+        satiety_layout.addWidget(self._verify_satiety_preview)
+
+        satiety_layout.addSpacing(20)
+
+        self._btn_satiety_click = QPushButton("우클릭 위치 지정")
+        self._btn_satiety_click.setCheckable(True)
+        self._btn_satiety_click.setStyleSheet("padding: 4px;")
+        self._btn_satiety_click.toggled.connect(lambda on: self._toggle_verify_mode("satiety_pos", on))
+        satiety_layout.addWidget(self._btn_satiety_click)
+        self._satiety_pos_label = QLabel(self._format_satiety_pos())
+        self._satiety_pos_label.setStyleSheet("color: #aaa; font-size: 11px;")
+        satiety_layout.addWidget(self._satiety_pos_label)
+
+        satiety_layout.addStretch()
+        satiety_group.setLayout(satiety_layout)
+        layout.addWidget(satiety_group)
+
         self._refresh_verify_previews()
 
         # 버튼
@@ -416,14 +467,23 @@ class TrackingSetupDialog(QDialog):
         self._exclude_rect = None
         self._exclude_label.setText(self._format_exclude())
 
+    def _format_satiety_pos(self) -> str:
+        if self._satiety_click_pos:
+            return f"({self._satiety_click_pos[0]},{self._satiety_click_pos[1]})"
+        return "미설정"
+
     def _toggle_verify_mode(self, kind: str, on: bool):
         """확인 이미지 지정 모드 토글"""
         all_btns = {"click": self._btn_verify_click,
                     "transition": self._btn_verify_trans,
-                    "battle_end": self._btn_verify_battle}
+                    "battle_end": self._btn_verify_battle,
+                    "satiety": self._btn_verify_satiety,
+                    "satiety_pos": self._btn_satiety_click}
         labels = {"click": "우클릭 성공 확인",
                   "transition": "화면 전환 확인",
-                  "battle_end": "전투 종료 확인"}
+                  "battle_end": "전투 종료 확인",
+                  "satiety": "포만감 이미지",
+                  "satiety_pos": "우클릭 위치 지정"}
         btn = all_btns[kind]
         if on:
             self._setting_verify = kind
@@ -450,6 +510,9 @@ class TrackingSetupDialog(QDialog):
         elif kind == "battle_end":
             self._verify_battle_end = None
             self._verify_battle_end_roi = None
+        elif kind == "satiety":
+            self._verify_satiety = None
+            self._verify_satiety_roi = None
         self._refresh_verify_previews()
 
     def _refresh_verify_previews(self):
@@ -458,6 +521,7 @@ class TrackingSetupDialog(QDialog):
             (self._verify_click, self._verify_click_preview),
             (self._verify_transition, self._verify_trans_preview),
             (self._verify_battle_end, self._verify_battle_preview),
+            (self._verify_satiety, self._verify_satiety_preview),
         ]:
             if img is not None:
                 h, w = img.shape[:2]
@@ -494,6 +558,17 @@ class TrackingSetupDialog(QDialog):
                 self._verify_battle_end_roi = roi
                 self._btn_verify_battle.setChecked(False)
                 print(f"[추적 셋팅] 전투 종료 확인 이미지 설정: {roi}")
+            elif self._setting_verify == "satiety":
+                self._verify_satiety = crop
+                self._verify_satiety_roi = roi
+                self._btn_verify_satiety.setChecked(False)
+                print(f"[추적 셋팅] 포만감 확인 이미지 설정: {roi}")
+            elif self._setting_verify == "satiety_pos":
+                # 드래그 영역의 중심을 클릭 위치로 저장
+                self._satiety_click_pos = (x + w // 2, y + h // 2)
+                self._satiety_pos_label.setText(self._format_satiety_pos())
+                self._btn_satiety_click.setChecked(False)
+                print(f"[추적 셋팅] 포만감 우클릭 위치 설정: {self._satiety_click_pos}")
             self._refresh_verify_previews()
         elif self._setting_exclude:
             self._exclude_rect = roi
@@ -566,7 +641,9 @@ class TrackingSetupDialog(QDialog):
                        self._exclude_rect,
                        self._verify_click, self._verify_click_roi,
                        self._verify_transition, self._verify_transition_roi,
-                       self._verify_battle_end, self._verify_battle_end_roi)
+                       self._verify_battle_end, self._verify_battle_end_roi,
+                       self._verify_satiety, self._verify_satiety_roi,
+                       self._satiety_click_pos)
             self._refresh_preset_list()
             self._preset_combo.setCurrentText(name.strip())
             print(f"[프리셋] '{name.strip()}' 저장 완료 ({len(self._crop_images)}개 크롭)")
@@ -590,6 +667,10 @@ class TrackingSetupDialog(QDialog):
             self._verify_transition_roi = data.get("verify_transition_roi")
             self._verify_battle_end = data.get("verify_battle_end")
             self._verify_battle_end_roi = data.get("verify_battle_end_roi")
+            self._verify_satiety = data.get("verify_satiety")
+            self._verify_satiety_roi = data.get("verify_satiety_roi")
+            self._satiety_click_pos = data.get("satiety_click_pos")
+            self._satiety_pos_label.setText(self._format_satiety_pos())
             self._refresh_previews()
             self._refresh_verify_previews()
             print(f"[프리셋] '{name}' 불러오기 완료 ({len(data['crops'])}개 크롭, 임계값 {data['threshold']:.2f})")
@@ -621,6 +702,11 @@ class TrackingSetupDialog(QDialog):
             if self._verify_battle_end is not None:
                 result["verify_battle_end"] = self._verify_battle_end.copy()
                 result["verify_battle_end_roi"] = self._verify_battle_end_roi
+            if self._verify_satiety is not None:
+                result["verify_satiety"] = self._verify_satiety.copy()
+                result["verify_satiety_roi"] = self._verify_satiety_roi
+            if self._satiety_click_pos is not None:
+                result["satiety_click_pos"] = self._satiety_click_pos
 
             # 프리셋 불러온 상태면 적용 시 자동 저장
             if self._loaded_preset_name:
@@ -628,7 +714,9 @@ class TrackingSetupDialog(QDialog):
                            self.slider.value() / 100.0, self._exclude_rect,
                            self._verify_click, self._verify_click_roi,
                            self._verify_transition, self._verify_transition_roi,
-                           self._verify_battle_end, self._verify_battle_end_roi)
+                           self._verify_battle_end, self._verify_battle_end_roi,
+                           self._verify_satiety, self._verify_satiety_roi,
+                           self._satiety_click_pos)
                 print(f"[프리셋] '{self._loaded_preset_name}' 자동 저장됨")
 
             return result
