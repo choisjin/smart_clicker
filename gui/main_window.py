@@ -574,10 +574,14 @@ class AgentPanel(QGroupBox):
                     click_x = nearest.x + nearest.w // 2
                     click_y = nearest.y + nearest.h // 2
                     print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f}")
-                    # 이동만 테스트 (우클릭 비활성)
-                    self.ctrl.send_command(self.name, "move_and_click",
-                        {"x": click_x, "y": click_y, "button": "NONE"},
-                        human_like=False)
+                    # fire-and-forget (응답 없는 타입)
+                    if self.name in self.ctrl.agents and self.ctrl._loop:
+                        import asyncio
+                        agent = self.ctrl.agents[self.name]
+                        cmd = {"type": "move_and_click",
+                               "params": {"x": click_x, "y": click_y, "button": "NONE"}}
+                        asyncio.run_coroutine_threadsafe(
+                            self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
                     last_click = _time.time()
 
                 _time.sleep(0.1)  # 10Hz 매칭 주기

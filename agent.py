@@ -621,6 +621,32 @@ class RemoteAgent:
         response = {"type": "response", "success": False}
 
         try:
+            # 추적 이동+클릭 (응답 없음 — fire-and-forget)
+            if cmd_type == "move_and_click":
+                if self.hid:
+                    x, y = params.get("x", 0), params.get("y", 0)
+                    button = params.get("button", "RIGHT")
+                    if self.active_window in self.captures:
+                        cap = self.captures[self.active_window]
+                        client_rect = cap.get_client_rect()
+                        if client_rect:
+                            x = client_rect[0] + x
+                            y = client_rect[1] + y
+                    cursor = win32gui.GetCursorPos()
+                    dx = x - cursor[0]
+                    dy = y - cursor[1]
+                    print(f"[TRACK] 이동: 커서({cursor[0]},{cursor[1]}) → ({x},{y}) delta({dx},{dy})")
+                    if dx != 0 or dy != 0:
+                        mx, my = self._pixels_to_mickeys(dx, dy)
+                        await asyncio.to_thread(self.hid._send, f"MOUSE_MOVE:{mx},{my}")
+                    if button and button != "NONE":
+                        import time
+                        time.sleep(0.05)
+                        await asyncio.to_thread(self.hid.mouse_click, button)
+                    self.hid._mouse_x = x
+                    self.hid._mouse_y = y
+                return  # 응답 없음
+
             # 실시간 마우스 절대 위치 (Arduino HID MOUSE_MOVE)
             if cmd_type == "realtime_mouse_pos":
                 if self.hid:
@@ -836,30 +862,6 @@ class RemoteAgent:
                         self.hid.mouse_move_to_human(x, y)
                     else:
                         self.hid._send(f"MOUSE_MOVE:{mdx},{mdy}")
-                self.hid._mouse_x = x
-                self.hid._mouse_y = y
-
-            elif action == "move_and_click":
-                x, y = params["x"], params["y"]
-                button = params.get("button", "RIGHT")
-                if self.active_window in self.captures:
-                    cap = self.captures[self.active_window]
-                    client_rect = cap.get_client_rect()
-                    if client_rect:
-                        x = client_rect[0] + x
-                        y = client_rect[1] + y
-                cursor = win32gui.GetCursorPos()
-                dx = x - cursor[0]
-                dy = y - cursor[1]
-                print(f"[DEBUG] move_and_click: 이미지({params['x']},{params['y']}) → 화면({x},{y}) 커서({cursor[0]},{cursor[1]}) delta({dx},{dy})")
-                if dx != 0 or dy != 0:
-                    mx, my = self._pixels_to_mickeys(dx, dy)
-                    print(f"[DEBUG] MOUSE_MOVE:{mx},{my}")
-                    self.hid._send(f"MOUSE_MOVE:{mx},{my}")
-                import time
-                time.sleep(0.05)
-                if button != "NONE":
-                    self.hid.mouse_click(button)
                 self.hid._mouse_x = x
                 self.hid._mouse_y = y
 
