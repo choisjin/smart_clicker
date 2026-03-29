@@ -263,6 +263,18 @@ class ScreenWidget(QLabel):
         elif event.button() == Qt.MouseButton.MiddleButton:
             self.clicked.emit(*coords, "MIDDLE", modifiers)
 
+    def event(self, event):
+        """수동 조작 중 Tab 키가 포커스 전환에 소비되지 않도록 가로채기"""
+        if (self._manual_mode and event.type() in (
+                event.Type.KeyPress, event.Type.KeyRelease)
+                and event.key() == Qt.Key.Key_Tab):
+            if event.type() == event.Type.KeyPress:
+                self.keyPressEvent(event)
+            else:
+                self.keyReleaseEvent(event)
+            return True
+        return super().event(event)
+
     def _qt_key_to_hid(self, event) -> Optional[str]:
         """Qt 키이벤트 → HID 키 이름"""
         key = event.key()
@@ -578,14 +590,16 @@ class AgentPanel(QGroupBox):
                     click_x = int(nearest.x + nearest.w // 2)
                     click_y = int(nearest.y + nearest.h // 2)
 
-                    print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f} agent={self.name}")
-                    # 마우스 이동 — 수동 조작과 동일한 realtime_mouse_pos 경로 사용
-                    self.ctrl.send_realtime_mouse_pos(self.name, click_x, click_y)
-
-                    # 클릭 쿨다운 체크 (이동은 항상, 클릭은 쿨다운 후)
-                    now = _time.time()
-                    if now - last_click >= click_cooldown:
-                        last_click = now
+                    print(f"[추적:{window_id}] 이동+우클릭 ({click_x},{click_y}) score={nearest.score:.2f}")
+                    # human-like 이동 + 우클릭 (agent에서 베지어 곡선 이동)
+                    if self.name in self.ctrl.agents and self.ctrl._loop:
+                        import asyncio
+                        agent = self.ctrl.agents[self.name]
+                        cmd = {"type": "move_and_click",
+                               "params": {"x": click_x, "y": click_y, "button": "RIGHT"}}
+                        asyncio.run_coroutine_threadsafe(
+                            self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
+                    last_click = _time.time()
 
                 _time.sleep(0.1)  # 10Hz 매칭 주기
 
