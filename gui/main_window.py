@@ -635,12 +635,24 @@ class AgentPanel(QGroupBox):
             try:
                 # ── 포만감 체크 (매 사이클) ──
                 if satiety_img is not None and satiety_open is not None and satiety_pos is not None:
-                    if (_time.time() - getattr(self, '_last_satiety_time', 0) > 30
+                    cooldown = getattr(self, '_satiety_cooldown', 60)
+                    if (_time.time() - getattr(self, '_last_satiety_time', 0) > cooldown
                             and self._check_image(window_id, satiety_img, threshold=0.8,
                                                   timeout=0.3, region=satiety_roi)):
                         print(f"[추적:{window_id}] 포만감 감지! → 인벤({satiety_open}) + 우클릭×3({satiety_pos})")
                         self._handle_satiety(window_id, satiety_open, satiety_pos)
                         self._last_satiety_time = _time.time()
+                        # 먹은 후 포만감 이미지가 사라졌는지 확인
+                        _time.sleep(2.0)
+                        if self._check_image(window_id, satiety_img, threshold=0.8,
+                                             timeout=0.3, region=satiety_roi):
+                            # 아직 표시됨 → 음식 없거나 이미 가득 참, 5분 대기
+                            self._satiety_cooldown = 300
+                            print(f"[추적:{window_id}] 포만감 여전히 표시 → 5분 쿨다운")
+                        else:
+                            # 해결됨 → 정상 쿨다운 60초
+                            self._satiety_cooldown = 60
+                            print(f"[추적:{window_id}] 포만감 해결됨")
 
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
@@ -777,7 +789,7 @@ class AgentPanel(QGroupBox):
         asyncio.run_coroutine_threadsafe(
             self.ctrl._send_fire_and_forget(agent, cmd_open), self.ctrl._loop)
         print(f"[추적:{window_id}] 인벤 열기 좌클릭 ({ox},{oy})")
-        _time.sleep(2.0)
+        _time.sleep(3.0)  # 인벤 열리는 시간 + human-like 이동 대기
 
         # 음식 우클릭 3회
         for i in range(3):
@@ -786,13 +798,15 @@ class AgentPanel(QGroupBox):
             asyncio.run_coroutine_threadsafe(
                 self.ctrl._send_fire_and_forget(agent, cmd_click), self.ctrl._loop)
             print(f"[추적:{window_id}] 음식 우클릭 {i+1}/3 ({cx},{cy})")
-            _time.sleep(2.0)
+            _time.sleep(3.0)  # 이전 클릭 완료 대기 (human-like 이동+클릭)
 
         # 인벤토리 닫기 (같은 위치 좌클릭)
+        cmd_close = {"type": "move_and_click",
+                     "params": {"x": ox, "y": oy, "button": "LEFT"}}
         asyncio.run_coroutine_threadsafe(
-            self.ctrl._send_fire_and_forget(agent, cmd_open), self.ctrl._loop)
+            self.ctrl._send_fire_and_forget(agent, cmd_close), self.ctrl._loop)
         print(f"[추적:{window_id}] 인벤 닫기 좌클릭 ({ox},{oy})")
-        _time.sleep(1.0)
+        _time.sleep(2.0)
         print(f"[추적:{window_id}] 포만감 처리 완료")
 
     def _full_stop_tracking(self, window_id: str):
