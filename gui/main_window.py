@@ -573,10 +573,10 @@ class AgentPanel(QGroupBox):
                         ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
                     click_x = nearest.x + nearest.w // 2
                     click_y = nearest.y + nearest.h // 2
-                    print(f"[추적:{window_id}] 우클릭 ({click_x},{click_y}) score={nearest.score:.2f}")
-                    # 이동+우클릭을 하나의 명령으로 (동기)
+                    print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f}")
+                    # 이동만 테스트 (우클릭 비활성)
                     self.ctrl.send_command(self.name, "move_and_click",
-                        {"x": click_x, "y": click_y, "button": "RIGHT"},
+                        {"x": click_x, "y": click_y, "button": "NONE"},
                         human_like=False)
                     last_click = _time.time()
 

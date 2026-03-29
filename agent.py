@@ -840,7 +840,6 @@ class RemoteAgent:
                 self.hid._mouse_y = y
 
             elif action == "move_and_click":
-                # 이동 + 클릭을 하나의 액션으로 (추적 우클릭용)
                 x, y = params["x"], params["y"]
                 button = params.get("button", "RIGHT")
                 if self.active_window in self.captures:
@@ -849,10 +848,20 @@ class RemoteAgent:
                     if client_rect:
                         x = client_rect[0] + x
                         y = client_rect[1] + y
-                self._realtime_move_to(x, y)
+                cursor = win32gui.GetCursorPos()
+                dx = x - cursor[0]
+                dy = y - cursor[1]
+                print(f"[DEBUG] move_and_click: 이미지({params['x']},{params['y']}) → 화면({x},{y}) 커서({cursor[0]},{cursor[1]}) delta({dx},{dy})")
+                if dx != 0 or dy != 0:
+                    mx, my = self._pixels_to_mickeys(dx, dy)
+                    print(f"[DEBUG] MOUSE_MOVE:{mx},{my}")
+                    self.hid._send(f"MOUSE_MOVE:{mx},{my}")
                 import time
                 time.sleep(0.05)
-                self.hid.mouse_click(button)
+                if button != "NONE":
+                    self.hid.mouse_click(button)
+                self.hid._mouse_x = x
+                self.hid._mouse_y = y
 
             elif action == "mouse_click":
                 button = params.get("button", "LEFT")
