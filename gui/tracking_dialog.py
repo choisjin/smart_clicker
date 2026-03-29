@@ -25,7 +25,7 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
                 verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
                 verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None,
                 verify_satiety: np.ndarray = None, verify_satiety_roi: tuple = None,
-                satiety_click_pos: tuple = None):
+                satiety_open_pos: tuple = None, satiety_click_pos: tuple = None):
     """프리셋 저장 (크롭 이미지 PNG + 확인 이미지 + 메타 JSON)"""
     from PIL import Image
     preset_dir = os.path.join(PRESETS_DIR, name)
@@ -64,6 +64,8 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
         meta["verify_battle_end_roi"] = list(verify_battle_end_roi)
     if verify_satiety_roi:
         meta["verify_satiety_roi"] = list(verify_satiety_roi)
+    if satiety_open_pos:
+        meta["satiety_open_pos"] = list(satiety_open_pos)
     if satiety_click_pos:
         meta["satiety_click_pos"] = list(satiety_click_pos)
     with open(os.path.join(preset_dir, "meta.json"), "w") as f:
@@ -112,6 +114,8 @@ def load_preset(name: str) -> Optional[dict]:
         result["verify_satiety"] = np.array(Image.open(vs_path).convert("RGB"))
         if "verify_satiety_roi" in meta:
             result["verify_satiety_roi"] = tuple(meta["verify_satiety_roi"])
+    if "satiety_open_pos" in meta:
+        result["satiety_open_pos"] = tuple(meta["satiety_open_pos"])
     if "satiety_click_pos" in meta:
         result["satiety_click_pos"] = tuple(meta["satiety_click_pos"])
 
@@ -221,7 +225,7 @@ class TrackingSetupDialog(QDialog):
                  verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
                  verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None,
                  verify_satiety: np.ndarray = None, verify_satiety_roi: tuple = None,
-                 satiety_click_pos: tuple = None,
+                 satiety_open_pos: tuple = None, satiety_click_pos: tuple = None,
                  parent=None):
         """
         Args:
@@ -250,6 +254,7 @@ class TrackingSetupDialog(QDialog):
         self._verify_battle_end_roi: Optional[Tuple[int, int, int, int]] = verify_battle_end_roi
         self._verify_satiety: Optional[np.ndarray] = verify_satiety
         self._verify_satiety_roi: Optional[Tuple[int, int, int, int]] = verify_satiety_roi
+        self._satiety_open_pos: Optional[Tuple[int, int]] = satiety_open_pos
         self._satiety_click_pos: Optional[Tuple[int, int]] = satiety_click_pos
 
         layout = QVBoxLayout()
@@ -412,12 +417,23 @@ class TrackingSetupDialog(QDialog):
 
         satiety_layout.addSpacing(20)
 
-        self._btn_satiety_click = QPushButton("우클릭 위치 지정")
+        self._btn_satiety_open = QPushButton("인벤 열기 위치")
+        self._btn_satiety_open.setCheckable(True)
+        self._btn_satiety_open.setStyleSheet("padding: 4px;")
+        self._btn_satiety_open.toggled.connect(lambda on: self._toggle_verify_mode("satiety_open", on))
+        satiety_layout.addWidget(self._btn_satiety_open)
+        self._satiety_open_label = QLabel(self._format_pos(self._satiety_open_pos))
+        self._satiety_open_label.setStyleSheet("color: #aaa; font-size: 11px;")
+        satiety_layout.addWidget(self._satiety_open_label)
+
+        satiety_layout.addSpacing(20)
+
+        self._btn_satiety_click = QPushButton("음식 우클릭 위치")
         self._btn_satiety_click.setCheckable(True)
         self._btn_satiety_click.setStyleSheet("padding: 4px;")
         self._btn_satiety_click.toggled.connect(lambda on: self._toggle_verify_mode("satiety_pos", on))
         satiety_layout.addWidget(self._btn_satiety_click)
-        self._satiety_pos_label = QLabel(self._format_satiety_pos())
+        self._satiety_pos_label = QLabel(self._format_pos(self._satiety_click_pos))
         self._satiety_pos_label.setStyleSheet("color: #aaa; font-size: 11px;")
         satiety_layout.addWidget(self._satiety_pos_label)
 
@@ -467,9 +483,10 @@ class TrackingSetupDialog(QDialog):
         self._exclude_rect = None
         self._exclude_label.setText(self._format_exclude())
 
-    def _format_satiety_pos(self) -> str:
-        if self._satiety_click_pos:
-            return f"({self._satiety_click_pos[0]},{self._satiety_click_pos[1]})"
+    @staticmethod
+    def _format_pos(pos) -> str:
+        if pos:
+            return f"({pos[0]},{pos[1]})"
         return "미설정"
 
     def _toggle_verify_mode(self, kind: str, on: bool):
@@ -478,12 +495,14 @@ class TrackingSetupDialog(QDialog):
                     "transition": self._btn_verify_trans,
                     "battle_end": self._btn_verify_battle,
                     "satiety": self._btn_verify_satiety,
+                    "satiety_open": self._btn_satiety_open,
                     "satiety_pos": self._btn_satiety_click}
         labels = {"click": "우클릭 성공 확인",
                   "transition": "화면 전환 확인",
                   "battle_end": "전투 종료 확인",
                   "satiety": "포만감 이미지",
-                  "satiety_pos": "우클릭 위치 지정"}
+                  "satiety_open": "인벤 열기 위치",
+                  "satiety_pos": "음식 우클릭 위치"}
         btn = all_btns[kind]
         if on:
             self._setting_verify = kind
@@ -563,12 +582,16 @@ class TrackingSetupDialog(QDialog):
                 self._verify_satiety_roi = roi
                 self._btn_verify_satiety.setChecked(False)
                 print(f"[추적 셋팅] 포만감 확인 이미지 설정: {roi}")
+            elif self._setting_verify == "satiety_open":
+                self._satiety_open_pos = (x + w // 2, y + h // 2)
+                self._satiety_open_label.setText(self._format_pos(self._satiety_open_pos))
+                self._btn_satiety_open.setChecked(False)
+                print(f"[추적 셋팅] 인벤 열기 위치 설정: {self._satiety_open_pos}")
             elif self._setting_verify == "satiety_pos":
-                # 드래그 영역의 중심을 클릭 위치로 저장
                 self._satiety_click_pos = (x + w // 2, y + h // 2)
-                self._satiety_pos_label.setText(self._format_satiety_pos())
+                self._satiety_pos_label.setText(self._format_pos(self._satiety_click_pos))
                 self._btn_satiety_click.setChecked(False)
-                print(f"[추적 셋팅] 포만감 우클릭 위치 설정: {self._satiety_click_pos}")
+                print(f"[추적 셋팅] 음식 우클릭 위치 설정: {self._satiety_click_pos}")
             self._refresh_verify_previews()
         elif self._setting_exclude:
             self._exclude_rect = roi
@@ -643,7 +666,7 @@ class TrackingSetupDialog(QDialog):
                        self._verify_transition, self._verify_transition_roi,
                        self._verify_battle_end, self._verify_battle_end_roi,
                        self._verify_satiety, self._verify_satiety_roi,
-                       self._satiety_click_pos)
+                       self._satiety_open_pos, self._satiety_click_pos)
             self._refresh_preset_list()
             self._preset_combo.setCurrentText(name.strip())
             print(f"[프리셋] '{name.strip()}' 저장 완료 ({len(self._crop_images)}개 크롭)")
@@ -669,8 +692,10 @@ class TrackingSetupDialog(QDialog):
             self._verify_battle_end_roi = data.get("verify_battle_end_roi")
             self._verify_satiety = data.get("verify_satiety")
             self._verify_satiety_roi = data.get("verify_satiety_roi")
+            self._satiety_open_pos = data.get("satiety_open_pos")
             self._satiety_click_pos = data.get("satiety_click_pos")
-            self._satiety_pos_label.setText(self._format_satiety_pos())
+            self._satiety_open_label.setText(self._format_pos(self._satiety_open_pos))
+            self._satiety_pos_label.setText(self._format_pos(self._satiety_click_pos))
             self._refresh_previews()
             self._refresh_verify_previews()
             print(f"[프리셋] '{name}' 불러오기 완료 ({len(data['crops'])}개 크롭, 임계값 {data['threshold']:.2f})")
@@ -705,6 +730,8 @@ class TrackingSetupDialog(QDialog):
             if self._verify_satiety is not None:
                 result["verify_satiety"] = self._verify_satiety.copy()
                 result["verify_satiety_roi"] = self._verify_satiety_roi
+            if self._satiety_open_pos is not None:
+                result["satiety_open_pos"] = self._satiety_open_pos
             if self._satiety_click_pos is not None:
                 result["satiety_click_pos"] = self._satiety_click_pos
 

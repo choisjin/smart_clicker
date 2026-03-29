@@ -529,6 +529,7 @@ class AgentPanel(QGroupBox):
                                      verify_battle_end_roi=existing_verify.get("battle_end_roi"),
                                      verify_satiety=existing_verify.get("satiety"),
                                      verify_satiety_roi=existing_verify.get("satiety_roi"),
+                                     satiety_open_pos=existing_verify.get("satiety_open_pos"),
                                      satiety_click_pos=existing_verify.get("satiety_click_pos"),
                                      parent=None)
 
@@ -559,6 +560,7 @@ class AgentPanel(QGroupBox):
                     "battle_end_roi": result.get("verify_battle_end_roi"),
                     "satiety": result.get("verify_satiety"),
                     "satiety_roi": result.get("verify_satiety_roi"),
+                    "satiety_open_pos": result.get("satiety_open_pos"),
                     "satiety_click_pos": result.get("satiety_click_pos"),
                 }
                 self._tracking_active[window_id] = False  # 토글로 직접 시작
@@ -622,7 +624,8 @@ class AgentPanel(QGroupBox):
         verify_battle_roi = verify.get("battle_end_roi")
         satiety_img = verify.get("satiety")        # 포만감 확인 (RGB)
         satiety_roi = verify.get("satiety_roi")
-        satiety_pos = verify.get("satiety_click_pos")  # 포만감 우클릭 위치 (x, y)
+        satiety_open = verify.get("satiety_open_pos")  # 인벤 열기 좌클릭 위치
+        satiety_pos = verify.get("satiety_click_pos")  # 음식 우클릭 위치
 
         print(f"[추적] 루프 시작: window_id={window_id}, "
               f"확인이미지: click={'있음' if verify_click_img is not None else '없음'}, "
@@ -631,11 +634,11 @@ class AgentPanel(QGroupBox):
         while self._tracking_active.get(window_id, False):
             try:
                 # ── 포만감 체크 (매 사이클) ──
-                if satiety_img is not None and satiety_pos is not None:
+                if satiety_img is not None and satiety_open is not None and satiety_pos is not None:
                     if self._check_image(window_id, satiety_img, threshold=0.8,
                                          timeout=0.3, region=satiety_roi):
-                        print(f"[추적:{window_id}] 포만감 감지! → i키 + 우클릭×3 ({satiety_pos})")
-                        self._handle_satiety(window_id, satiety_pos)
+                        print(f"[추적:{window_id}] 포만감 감지! → 인벤({satiety_open}) + 우클릭×3({satiety_pos})")
+                        self._handle_satiety(window_id, satiety_open, satiety_pos)
 
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
@@ -757,32 +760,36 @@ class AgentPanel(QGroupBox):
 
         print(f"[추적] 루프 종료: window_id={window_id}")
 
-    def _handle_satiety(self, window_id: str, click_pos: tuple):
-        """포만감 처리: i키 입력 → 지정 위치 우클릭 3회"""
+    def _handle_satiety(self, window_id: str, open_pos: tuple, click_pos: tuple):
+        """포만감 처리: 인벤 열기(좌클릭) → 음식 우클릭 3회 → 인벤 닫기(좌클릭)"""
         if self.name not in self.ctrl.agents or not self.ctrl._loop:
             return
         import asyncio
         agent = self.ctrl.agents[self.name]
-
-        # i키 입력
-        cmd_key = {"type": "command", "action": "key_press", "params": {"key": "i"}}
-        asyncio.run_coroutine_threadsafe(
-            self.ctrl._send_fire_and_forget(agent, cmd_key), self.ctrl._loop)
-        _time.sleep(1.0)
-
-        # 지정 위치 우클릭 3회
+        ox, oy = int(open_pos[0]), int(open_pos[1])
         cx, cy = int(click_pos[0]), int(click_pos[1])
+
+        # 인벤토리 열기 (지정 위치 좌클릭)
+        cmd_open = {"type": "move_and_click",
+                    "params": {"x": ox, "y": oy, "button": "LEFT"}}
+        asyncio.run_coroutine_threadsafe(
+            self.ctrl._send_fire_and_forget(agent, cmd_open), self.ctrl._loop)
+        print(f"[추적:{window_id}] 인벤 열기 좌클릭 ({ox},{oy})")
+        _time.sleep(2.0)
+
+        # 음식 우클릭 3회
         for i in range(3):
             cmd_click = {"type": "move_and_click",
                          "params": {"x": cx, "y": cy, "button": "RIGHT"}}
             asyncio.run_coroutine_threadsafe(
                 self.ctrl._send_fire_and_forget(agent, cmd_click), self.ctrl._loop)
-            print(f"[추적:{window_id}] 포만감 우클릭 {i+1}/3 ({cx},{cy})")
+            print(f"[추적:{window_id}] 음식 우클릭 {i+1}/3 ({cx},{cy})")
             _time.sleep(2.0)
 
-        # i키로 창 닫기
+        # 인벤토리 닫기 (같은 위치 좌클릭)
         asyncio.run_coroutine_threadsafe(
-            self.ctrl._send_fire_and_forget(agent, cmd_key), self.ctrl._loop)
+            self.ctrl._send_fire_and_forget(agent, cmd_open), self.ctrl._loop)
+        print(f"[추적:{window_id}] 인벤 닫기 좌클릭 ({ox},{oy})")
         _time.sleep(1.0)
         print(f"[추적:{window_id}] 포만감 처리 완료")
 
