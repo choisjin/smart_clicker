@@ -1050,11 +1050,17 @@ if __name__ == "__main__":
                 print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}, 클릭좌표=({abs_x},{abs_y})")
                 if agent_ref.hid:
                     # Leonardo HID로 절대좌표 클릭 (GUI API 불필요)
+                    print(f"[STARTUP] 1) 마우스 리셋...")
                     agent_ref.hid.mouse_reset_position()
-                    time.sleep(0.3)
-                    agent_ref.hid.mouse_move_to(abs_x, abs_y)
-                    time.sleep(0.3)
+                    time.sleep(1.0)
+                    print(f"[STARTUP] 2) 이동: (0,0) → ({abs_x},{abs_y})")
+                    agent_ref.hid._send(f"MOUSE_MOVE:{abs_x},{abs_y}")
+                    agent_ref.hid._mouse_x = abs_x
+                    agent_ref.hid._mouse_y = abs_y
+                    time.sleep(0.5)
+                    print(f"[STARTUP] 3) 좌클릭")
                     agent_ref.hid.mouse_click("LEFT")
+                    time.sleep(0.5)
                     print(f"[STARTUP] GersangStation ({abs_x},{abs_y}) Leonardo 좌클릭 완료")
                 else:
                     print("[STARTUP] Leonardo 미연결 — 클릭 불가")
