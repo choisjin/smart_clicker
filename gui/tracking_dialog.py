@@ -162,12 +162,16 @@ class TrackingSetupDialog(QDialog):
     MAX_PRESETS = 8
 
     def __init__(self, frame: np.ndarray, existing_crops: List[np.ndarray] = None,
-                 exclude_rect: Tuple[int, int, int, int] = None, parent=None):
+                 exclude_rect: Tuple[int, int, int, int] = None,
+                 verify_click: np.ndarray = None, verify_transition: np.ndarray = None,
+                 parent=None):
         """
         Args:
             frame: 현재 스크린샷 (RGB)
             existing_crops: 기존 프리셋 크롭 이미지 리스트 (RGB)
             exclude_rect: 내 캐릭터 제외 영역 (x, y, w, h)
+            verify_click: 우클릭 성공 확인 이미지 (RGB)
+            verify_transition: 화면 전환 확인 이미지 (RGB)
         """
         super().__init__(parent)
         self.setWindowTitle("추적 셋팅 — 유닛 프리셋 등록 (최대 8개)")
@@ -178,6 +182,9 @@ class TrackingSetupDialog(QDialog):
         self._new_rois: List[Tuple[int, int, int, int]] = []
         self._exclude_rect: Optional[Tuple[int, int, int, int]] = exclude_rect
         self._setting_exclude = False  # 제외 영역 지정 모드
+        self._setting_verify: Optional[str] = None  # "click" or "transition"
+        self._verify_click: Optional[np.ndarray] = verify_click
+        self._verify_transition: Optional[np.ndarray] = verify_transition
 
         layout = QVBoxLayout()
 
@@ -274,6 +281,42 @@ class TrackingSetupDialog(QDialog):
         exclude_layout.addWidget(btn_exclude_clear)
         layout.addLayout(exclude_layout)
 
+        # 확인 이미지 (우클릭 성공 / 화면 전환)
+        verify_group = QGroupBox("확인 이미지 (선택사항)")
+        verify_layout = QHBoxLayout()
+
+        # 우클릭 성공 확인
+        self._btn_verify_click = QPushButton("우클릭 성공 확인")
+        self._btn_verify_click.setCheckable(True)
+        self._btn_verify_click.setStyleSheet("padding: 4px;")
+        self._btn_verify_click.toggled.connect(lambda on: self._toggle_verify_mode("click", on))
+        verify_layout.addWidget(self._btn_verify_click)
+        self._verify_click_preview = QPushButton()
+        self._verify_click_preview.setFixedSize(60, 60)
+        self._verify_click_preview.setToolTip("클릭하여 삭제")
+        self._verify_click_preview.clicked.connect(lambda: self._clear_verify("click"))
+        verify_layout.addWidget(self._verify_click_preview)
+
+        verify_layout.addSpacing(20)
+
+        # 화면 전환 확인
+        self._btn_verify_trans = QPushButton("화면 전환 확인")
+        self._btn_verify_trans.setCheckable(True)
+        self._btn_verify_trans.setStyleSheet("padding: 4px;")
+        self._btn_verify_trans.toggled.connect(lambda on: self._toggle_verify_mode("transition", on))
+        verify_layout.addWidget(self._btn_verify_trans)
+        self._verify_trans_preview = QPushButton()
+        self._verify_trans_preview.setFixedSize(60, 60)
+        self._verify_trans_preview.setToolTip("클릭하여 삭제")
+        self._verify_trans_preview.clicked.connect(lambda: self._clear_verify("transition"))
+        verify_layout.addWidget(self._verify_trans_preview)
+
+        verify_layout.addStretch()
+        verify_group.setLayout(verify_layout)
+        layout.addWidget(verify_group)
+
+        self._refresh_verify_previews()
+
         # 버튼
         btn_layout = QHBoxLayout()
         self.btn_confirm = QPushButton("적용")
@@ -314,9 +357,67 @@ class TrackingSetupDialog(QDialog):
         self._exclude_rect = None
         self._exclude_label.setText(self._format_exclude())
 
+    def _toggle_verify_mode(self, kind: str, on: bool):
+        """확인 이미지 지정 모드 토글"""
+        btn = self._btn_verify_click if kind == "click" else self._btn_verify_trans
+        other = self._btn_verify_trans if kind == "click" else self._btn_verify_click
+        if on:
+            self._setting_verify = kind
+            self._setting_exclude = False
+            self._btn_exclude.setChecked(False)
+            other.setChecked(False)
+            btn.setText("화면에서 드래그하세요...")
+            btn.setStyleSheet("background-color: #cc6600; color: white; padding: 4px;")
+        else:
+            self._setting_verify = None
+            label = "우클릭 성공 확인" if kind == "click" else "화면 전환 확인"
+            btn.setText(label)
+            btn.setStyleSheet("padding: 4px;")
+
+    def _clear_verify(self, kind: str):
+        """확인 이미지 삭제"""
+        if kind == "click":
+            self._verify_click = None
+        else:
+            self._verify_transition = None
+        self._refresh_verify_previews()
+
+    def _refresh_verify_previews(self):
+        """확인 이미지 미리보기 갱신"""
+        for img, btn in [
+            (self._verify_click, self._verify_click_preview),
+            (self._verify_transition, self._verify_trans_preview),
+        ]:
+            if img is not None:
+                h, w = img.shape[:2]
+                ch = img.shape[2] if len(img.shape) == 3 else 1
+                fmt = QImage.Format.Format_RGB888 if ch == 3 else QImage.Format.Format_Grayscale8
+                qimg = QImage(img.tobytes(), w, h, ch * w, fmt)
+                pm = QPixmap.fromImage(qimg).scaled(
+                    55, 55, Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation)
+                btn.setIcon(QIcon(pm))
+                btn.setIconSize(pm.size())
+                btn.setStyleSheet("background-color: #1a1a1a; border: 2px solid #cc6600;")
+            else:
+                btn.setIcon(QIcon())
+                btn.setStyleSheet("background-color: #1a1a1a; border: 1px solid #444;")
+
     def _on_roi_selected(self, roi: tuple):
-        """드래그 완료 → 제외 영역 모드이면 제외 영역, 아니면 크롭 추가"""
-        if self._setting_exclude:
+        """드래그 완료 → 모드에 따라 제외 영역/확인 이미지/크롭 추가"""
+        if self._setting_verify:
+            x, y, w, h = roi
+            crop = self.frame[y:y+h, x:x+w].copy()
+            if self._setting_verify == "click":
+                self._verify_click = crop
+                self._btn_verify_click.setChecked(False)
+                print(f"[추적 셋팅] 우클릭 성공 확인 이미지 설정: {roi}")
+            else:
+                self._verify_transition = crop
+                self._btn_verify_trans.setChecked(False)
+                print(f"[추적 셋팅] 화면 전환 확인 이미지 설정: {roi}")
+            self._refresh_verify_previews()
+        elif self._setting_exclude:
             self._exclude_rect = roi
             self._exclude_label.setText(self._format_exclude())
             self._btn_exclude.setChecked(False)
@@ -415,9 +516,14 @@ class TrackingSetupDialog(QDialog):
 
     def get_result(self) -> Optional[dict]:
         if self._crop_images:
-            return {
+            result = {
                 "crop_images": [c.copy() for c in self._crop_images],
                 "threshold": self.slider.value() / 100.0,
-                "exclude_rect": self._exclude_rect
+                "exclude_rect": self._exclude_rect,
             }
+            if self._verify_click is not None:
+                result["verify_click"] = self._verify_click.copy()
+            if self._verify_transition is not None:
+                result["verify_transition"] = self._verify_transition.copy()
+            return result
         return None

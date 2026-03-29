@@ -494,13 +494,19 @@ class AgentPanel(QGroupBox):
             self._trackers = {}
             self._tracking_active = {}
 
-        # 기존 프리셋 크롭 이미지 + 제외 영역 전달
+        # 기존 프리셋 크롭 이미지 + 제외 영역 + 확인 이미지 전달
         existing = self._trackers.get(window_id)
         existing_crops = existing.get_crop_images_rgb() if existing else []
         existing_exclude = getattr(self, '_exclude_rects', {}).get(window_id)
+        if not hasattr(self, '_verify_images'):
+            self._verify_images = {}
+        existing_verify = self._verify_images.get(window_id, {})
 
         dialog = TrackingSetupDialog(frame, existing_crops=existing_crops,
-                                     exclude_rect=existing_exclude, parent=None)
+                                     exclude_rect=existing_exclude,
+                                     verify_click=existing_verify.get("click"),
+                                     verify_transition=existing_verify.get("transition"),
+                                     parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
             result = dialog.get_result()
@@ -518,6 +524,12 @@ class AgentPanel(QGroupBox):
                 if not hasattr(self, '_exclude_rects'):
                     self._exclude_rects = {}
                 self._exclude_rects[window_id] = result.get("exclude_rect")
+
+                # 확인 이미지 저장 (RGB)
+                self._verify_images[window_id] = {
+                    "click": result.get("verify_click"),
+                    "transition": result.get("verify_transition"),
+                }
                 self._tracking_active[window_id] = True
 
                 if window_id in self.screen_widgets:
@@ -537,22 +549,48 @@ class AgentPanel(QGroupBox):
                     daemon=True
                 ).start()
 
-    def _tracking_loop(self, window_id: str):
-        """추적 루프 — 중심부터 가까운 유닛 순서로 이동+우클릭, 클릭 후 3초 대기"""
-        click_cooldown = 3.0
-        last_click = 0
-        clicked_set = set()  # 이미 클릭한 유닛 위치 (중복 방지)
+    def _check_image(self, window_id: str, template_rgb: np.ndarray,
+                     threshold: float = 0.8, timeout: float = 3.0,
+                     interval: float = 0.3) -> bool:
+        """일정 시간 동안 화면에서 template 이미지가 나타나는지 반복 확인"""
+        import cv2
+        template_bgr = template_rgb[:, :, ::-1].copy()
+        tmpl_gray = cv2.cvtColor(template_bgr, cv2.COLOR_BGR2GRAY)
+        deadline = _time.time() + timeout
 
-        print(f"[추적] 루프 시작: window_id={window_id}, agent={self.name}")
+        while _time.time() < deadline:
+            if not self._tracking_active.get(window_id, False):
+                return False
+            windows = self.ctrl.get_windows(self.name)
+            if window_id not in windows or windows[window_id].frame is None:
+                _time.sleep(interval)
+                continue
+            frame = windows[window_id].frame
+            bgr = frame[:, :, ::-1].copy() if frame.shape[2] == 3 else frame
+            frame_gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+            result = cv2.matchTemplate(frame_gray, tmpl_gray, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, _ = cv2.minMaxLoc(result)
+            if max_val >= threshold:
+                return True
+            _time.sleep(interval)
+        return False
+
+    def _tracking_loop(self, window_id: str):
+        """추적 루프 — 중심→바깥 우클릭 + 2단계 검증 (클릭 성공 / 화면 전환)"""
+        click_cooldown = 3.0
+        clicked_set = set()
+
+        # 확인 이미지 로드
+        verify = getattr(self, '_verify_images', {}).get(window_id, {})
+        verify_click_img = verify.get("click")      # 우클릭 성공 확인 (RGB)
+        verify_trans_img = verify.get("transition")  # 화면 전환 확인 (RGB)
+
+        print(f"[추적] 루프 시작: window_id={window_id}, "
+              f"확인이미지: click={'있음' if verify_click_img is not None else '없음'}, "
+              f"transition={'있음' if verify_trans_img is not None else '없음'}")
 
         while self._tracking_active.get(window_id, False):
             try:
-                # 쿨다운 대기
-                remaining = click_cooldown - (_time.time() - last_click)
-                if remaining > 0:
-                    _time.sleep(min(remaining, 0.1))
-                    continue
-
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
                     break
@@ -566,13 +604,11 @@ class AgentPanel(QGroupBox):
                 fh, fw = frame.shape[:2]
                 cx, cy = fw // 2, fh // 2
 
-                # 사용자 지정 제외 영역
                 exclude = getattr(self, '_exclude_rects', {}).get(window_id)
-
                 bgr = frame[:, :, ::-1].copy() if frame.shape[2] == 3 else frame
                 matches = tracker.find_matches(bgr)
 
-                # 제외 영역 내 매칭 필터링
+                # 제외 영역 필터링
                 filtered = []
                 for m in matches:
                     mx = m.x + m.w // 2
@@ -584,7 +620,6 @@ class AgentPanel(QGroupBox):
                     filtered.append(m)
 
                 if not filtered:
-                    # 매칭 없으면 클릭 기록 초기화
                     clicked_set.clear()
                     _time.sleep(0.1)
                     continue
@@ -603,7 +638,6 @@ class AgentPanel(QGroupBox):
                         break
 
                 if target is None:
-                    # 모두 클릭 완료 → 초기화 후 다시 중심부터
                     clicked_set.clear()
                     _time.sleep(0.5)
                     continue
@@ -611,8 +645,8 @@ class AgentPanel(QGroupBox):
                 click_x = int(target.x + target.w // 2)
                 click_y = int(target.y + target.h // 2)
 
-                print(f"[추적:{window_id}] 이동+우클릭 ({click_x},{click_y}) score={target.score:.2f} 남은={len(filtered)-len(clicked_set)}")
-
+                # ── 1. 이동 + 우클릭 ──
+                print(f"[추적:{window_id}] 이동+우클릭 ({click_x},{click_y}) score={target.score:.2f}")
                 if self.name in self.ctrl.agents and self.ctrl._loop:
                     import asyncio
                     agent = self.ctrl.agents[self.name]
@@ -621,10 +655,31 @@ class AgentPanel(QGroupBox):
                     asyncio.run_coroutine_threadsafe(
                         self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
 
-                clicked_set.add(target_key)
-                last_click = _time.time()
+                # human-like 이동 시간 대기 (베지어 곡선 ~0.5~1.5초)
+                _time.sleep(1.5)
 
-                _time.sleep(0.1)
+                # ── 2. 우클릭 성공 확인 ──
+                if verify_click_img is not None:
+                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초)")
+                    if self._check_image(window_id, verify_click_img, threshold=0.8, timeout=3.0):
+                        print(f"[추적:{window_id}] ✓ 우클릭 성공 확인됨")
+                        clicked_set.add(target_key)
+
+                        # ── 3. 화면 전환 확인 ──
+                        if verify_trans_img is not None:
+                            print(f"[추적:{window_id}] 화면 전환 확인 중... (5초)")
+                            if self._check_image(window_id, verify_trans_img, threshold=0.8, timeout=5.0):
+                                print(f"[추적:{window_id}] ✓ 화면 전환 확인됨")
+                            else:
+                                print(f"[추적:{window_id}] ✗ 화면 전환 안됨 → 다시 추적")
+                    else:
+                        print(f"[추적:{window_id}] ✗ 우클릭 실패 → 다시 추적")
+                else:
+                    # 확인 이미지 없으면 무조건 성공 처리
+                    clicked_set.add(target_key)
+
+                # 쿨다운 후 다시 중심부터 추적
+                _time.sleep(click_cooldown)
 
             except Exception as e:
                 print(f"[추적:{window_id}] 오류: {e}")
@@ -632,7 +687,7 @@ class AgentPanel(QGroupBox):
                 traceback.print_exc()
                 _time.sleep(0.5)
 
-        print(f"[추적-DBG] 루프 종료: loop_count={loop_count}, active={self._tracking_active.get(window_id, False)}")
+        print(f"[추적] 루프 종료: window_id={window_id}")
 
     def stop_tracking(self, window_id: str):
         """추적 중지 (프리셋은 유지)"""
