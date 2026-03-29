@@ -635,10 +635,12 @@ class AgentPanel(QGroupBox):
             try:
                 # ── 포만감 체크 (매 사이클) ──
                 if satiety_img is not None and satiety_open is not None and satiety_pos is not None:
-                    if self._check_image(window_id, satiety_img, threshold=0.8,
-                                         timeout=0.3, region=satiety_roi):
+                    if (_time.time() - getattr(self, '_last_satiety_time', 0) > 30
+                            and self._check_image(window_id, satiety_img, threshold=0.8,
+                                                  timeout=0.3, region=satiety_roi)):
                         print(f"[추적:{window_id}] 포만감 감지! → 인벤({satiety_open}) + 우클릭×3({satiety_pos})")
                         self._handle_satiety(window_id, satiety_open, satiety_pos)
+                        self._last_satiety_time = _time.time()
 
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
