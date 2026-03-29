@@ -1045,9 +1045,8 @@ if __name__ == "__main__":
                 return True
             win32gui.EnumWindows(enum_cb, None)
             if hwnd:
-                rect = win32gui.GetWindowRect(hwnd)
-                abs_x = rect[0] + 350
-                abs_y = rect[1] + 130
+                # Client 좌표 (350, 129) → 화면 절대 좌표로 변환
+                abs_x, abs_y = win32gui.ClientToScreen(hwnd, (350, 129))
                 print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}, 클릭좌표=({abs_x},{abs_y})")
                 if agent_ref.hid:
                     # Leonardo HID로 절대좌표 클릭 (GUI API 불필요)
