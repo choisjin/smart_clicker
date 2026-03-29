@@ -1045,6 +1045,17 @@ if __name__ == "__main__":
                 return True
             win32gui.EnumWindows(enum_cb, None)
             if hwnd:
+                # 화면 잠금 해제 (Leonardo HID로 키 입력)
+                if agent_ref.hid:
+                    print("[STARTUP] 화면 잠금 해제 시도...")
+                    agent_ref.hid._send("KEY:KEY_SPACE")  # 잠금 화면 깨우기
+                    time.sleep(2.0)
+                    agent_ref.hid._send("TYPE:0608")
+                    time.sleep(0.5)
+                    agent_ref.hid._send("SPECIAL:KEY_RETURN")
+                    time.sleep(3.0)
+                    print("[STARTUP] 잠금 해제 완료 대기")
+
                 # Client 좌표 (350, 129) → 화면 절대 좌표로 변환
                 abs_x, abs_y = win32gui.ClientToScreen(hwnd, (350, 129))
                 print(f"[STARTUP] GersangStation 창 발견: hwnd={hwnd}, 클릭좌표=({abs_x},{abs_y})")
