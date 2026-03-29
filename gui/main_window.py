@@ -575,8 +575,8 @@ class AgentPanel(QGroupBox):
                 if filtered:
                     nearest = min(filtered, key=lambda m:
                         ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
-                    click_x = nearest.x + nearest.w // 2
-                    click_y = nearest.y + nearest.h // 2
+                    click_x = int(nearest.x + nearest.w // 2)
+                    click_y = int(nearest.y + nearest.h // 2)
 
                     print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f} agent={self.name}")
                     # 마우스 이동 — 수동 조작과 동일한 realtime_mouse_pos 경로 사용
