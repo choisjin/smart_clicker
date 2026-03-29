@@ -353,15 +353,24 @@ class RemoteController:
 
     async def _send_fire_and_forget(self, agent: 'AgentInfo', cmd: dict):
         """명령 전송 (응답 안 기다림)"""
-        if agent.connected and agent.cmd_ws:
-            try:
-                await agent.cmd_ws.send(json.dumps(cmd))
-            except Exception:
-                pass
+        if not agent.connected:
+            print(f"[FF] 전송 실패: agent 미연결 (cmd={cmd.get('type')})")
+            return
+        if not agent.cmd_ws:
+            print(f"[FF] 전송 실패: cmd_ws 없음 (cmd={cmd.get('type')})")
+            return
+        try:
+            await agent.cmd_ws.send(json.dumps(cmd))
+        except Exception as e:
+            print(f"[FF] 전송 예외: {e} (cmd={cmd.get('type')})")
 
     def send_realtime_mouse_pos(self, name: str, x: int, y: int):
         """실시간 마우스 절대 위치 (fire-and-forget, SetCursorPos용)"""
-        if name not in self.agents or not self._loop:
+        if name not in self.agents:
+            print(f"[TRACK-DBG] agent '{name}' not in agents: {list(self.agents.keys())}")
+            return
+        if not self._loop:
+            print(f"[TRACK-DBG] event loop 없음")
             return
         agent = self.agents[name]
         cmd = {"type": "realtime_mouse_pos", "params": {"x": x, "y": y}}

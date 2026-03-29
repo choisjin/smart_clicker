@@ -529,15 +529,22 @@ class AgentPanel(QGroupBox):
         """추적 루프 — 매칭 + 가장 가까운 유닛으로 마우스 이동 (사용자 지정 제외 영역)"""
         click_cooldown = 2.0
         last_click = 0
+        loop_count = 0
+
+        print(f"[추적-DBG] 루프 시작: window_id={window_id}, agent={self.name}")
 
         while self._tracking_active.get(window_id, False):
             try:
+                loop_count += 1
                 tracker = self._trackers.get(window_id)
                 if not tracker or not tracker.has_target():
+                    print(f"[추적-DBG] 루프 종료: tracker={tracker is not None}, has_target={tracker.has_target() if tracker else 'N/A'}")
                     break
 
                 windows = self.ctrl.get_windows(self.name)
                 if window_id not in windows or windows[window_id].frame is None:
+                    if loop_count <= 3:
+                        print(f"[추적-DBG] 프레임 없음: window_id={window_id}, available={list(windows.keys())}")
                     _time.sleep(0.1)
                     continue
 
@@ -562,29 +569,33 @@ class AgentPanel(QGroupBox):
                             continue
                     filtered.append(m)
 
+                if loop_count <= 3:
+                    print(f"[추적-DBG] 매칭: total={len(matches)}, filtered={len(filtered)}")
+
                 if filtered:
                     nearest = min(filtered, key=lambda m:
                         ((m.x + m.w // 2 - cx) ** 2 + (m.y + m.h // 2 - cy) ** 2))
                     click_x = nearest.x + nearest.w // 2
                     click_y = nearest.y + nearest.h // 2
 
+                    print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f} agent={self.name}")
                     # 마우스 이동 — 수동 조작과 동일한 realtime_mouse_pos 경로 사용
                     self.ctrl.send_realtime_mouse_pos(self.name, click_x, click_y)
-                    print(f"[추적:{window_id}] 이동 ({click_x},{click_y}) score={nearest.score:.2f}")
 
                     # 클릭 쿨다운 체크 (이동은 항상, 클릭은 쿨다운 후)
                     now = _time.time()
                     if now - last_click >= click_cooldown:
-                        # TODO: 필요시 클릭 활성화
-                        # self.ctrl.send_command(self.name, "mouse_click",
-                        #     {"button": "RIGHT"}, human_like=False)
                         last_click = now
 
                 _time.sleep(0.1)  # 10Hz 매칭 주기
 
             except Exception as e:
                 print(f"[추적:{window_id}] 오류: {e}")
+                import traceback
+                traceback.print_exc()
                 _time.sleep(0.5)
+
+        print(f"[추적-DBG] 루프 종료: loop_count={loop_count}, active={self._tracking_active.get(window_id, False)}")
 
     def stop_tracking(self, window_id: str):
         """추적 중지 (프리셋은 유지)"""
