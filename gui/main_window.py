@@ -435,10 +435,17 @@ class AgentPanel(QGroupBox):
             btn_screenshot.setToolTip("현재 화면 저장")
             btn_screenshot.clicked.connect(lambda _, wid=window_id: self._save_screenshot(wid))
 
+            btn_track_stop = QPushButton("⏹")
+            btn_track_stop.setFixedWidth(32)
+            btn_track_stop.setStyleSheet("padding: 4px;")
+            btn_track_stop.setToolTip("추적 루프 완전 종료")
+            btn_track_stop.clicked.connect(lambda _, wid=window_id: self._full_stop_tracking(wid))
+
             btn_row = QHBoxLayout()
             btn_row.addWidget(btn_manual)
             btn_row.addWidget(btn_track)
             btn_row.addWidget(btn_track_toggle)
+            btn_row.addWidget(btn_track_stop)
             btn_row.addWidget(btn_screenshot)
 
             container = QVBoxLayout()
@@ -468,6 +475,9 @@ class AgentPanel(QGroupBox):
             return
 
         if on:
+            if not hasattr(self, '_tracking_killed'):
+                self._tracking_killed = {}
+            self._tracking_killed[window_id] = False
             self._tracking_active[window_id] = True
             exclude = getattr(self, '_exclude_rects', {}).get(window_id)
             if window_id in self.screen_widgets:
@@ -515,6 +525,8 @@ class AgentPanel(QGroupBox):
                                      verify_click_roi=existing_verify.get("click_roi"),
                                      verify_transition=existing_verify.get("transition"),
                                      verify_transition_roi=existing_verify.get("transition_roi"),
+                                     verify_battle_end=existing_verify.get("battle_end"),
+                                     verify_battle_end_roi=existing_verify.get("battle_end_roi"),
                                      parent=None)
 
         if dialog.exec() == TrackingSetupDialog.DialogCode.Accepted:
@@ -540,6 +552,8 @@ class AgentPanel(QGroupBox):
                     "click_roi": result.get("verify_click_roi"),
                     "transition": result.get("verify_transition"),
                     "transition_roi": result.get("verify_transition_roi"),
+                    "battle_end": result.get("verify_battle_end"),
+                    "battle_end_roi": result.get("verify_battle_end_roi"),
                 }
                 self._tracking_active[window_id] = False  # 토글로 직접 시작
 
@@ -598,6 +612,8 @@ class AgentPanel(QGroupBox):
         verify_click_roi = verify.get("click_roi")   # 고정 좌표 (x,y,w,h)
         verify_trans_img = verify.get("transition")  # 화면 전환 확인 (RGB)
         verify_trans_roi = verify.get("transition_roi")
+        verify_battle_img = verify.get("battle_end")  # 전투 종료 확인 (RGB)
+        verify_battle_roi = verify.get("battle_end_roi")
 
         print(f"[추적] 루프 시작: window_id={window_id}, "
               f"확인이미지: click={'있음' if verify_click_img is not None else '없음'}, "
@@ -687,10 +703,12 @@ class AgentPanel(QGroupBox):
                         print(f"[추적:{window_id}] 우클릭 확인 {i}/2 실패")
 
                 if click_ok:
-                    self.stop_tracking(window_id)
+                    # 전투 진입 확인됨 → 전투종료 대기 후 자동 재시작
+                    self._wait_battle_end_and_restart(
+                        window_id, verify_battle_img, verify_battle_roi)
                     break
 
-                # ── 3. 화면 전환 확인 (2초 간격, 최대 2회) ──
+                # ── 3. 화면 전환 확인 (3초 간격, 최대 2회) ──
                 trans_ok = False
                 if verify_trans_img is not None:
                     for i in range(1, 3):
@@ -699,13 +717,15 @@ class AgentPanel(QGroupBox):
                             break
                         if self._check_image(window_id, verify_trans_img, threshold=0.8,
                                              timeout=0.3, region=verify_trans_roi):
-                            print(f"[추적:{window_id}] ✓ 화면 전환 ({i}/2) → 추적 종료")
+                            print(f"[추적:{window_id}] ✓ 화면 전환 ({i}/2)")
                             trans_ok = True
                             break
                         print(f"[추적:{window_id}] 화면 전환 확인 {i}/2 실패")
 
                 if trans_ok:
-                    self.stop_tracking(window_id)
+                    # 전투 진입 확인됨 → 전투종료 대기 후 자동 재시작
+                    self._wait_battle_end_and_restart(
+                        window_id, verify_battle_img, verify_battle_roi)
                     break
 
                 # ── 전부 실패 → 다시 추적 ──
@@ -720,6 +740,61 @@ class AgentPanel(QGroupBox):
                 _time.sleep(0.5)
 
         print(f"[추적] 루프 종료: window_id={window_id}")
+
+    def _full_stop_tracking(self, window_id: str):
+        """추적 루프 완전 종료 (전투종료 대기 포함 모두 중단)"""
+        if not hasattr(self, '_tracking_killed'):
+            self._tracking_killed = {}
+        self._tracking_killed[window_id] = True
+        self.stop_tracking(window_id)
+        print(f"[{self.name}:{window_id}] 추적 루프 완전 종료")
+
+    def _is_killed(self, window_id: str) -> bool:
+        return getattr(self, '_tracking_killed', {}).get(window_id, False)
+
+    def _wait_battle_end_and_restart(self, window_id: str,
+                                       battle_img, battle_roi):
+        """전투종료 대기 → 확인되면 추적 자동 재시작"""
+        print(f"[추적:{window_id}] 추적 일시정지, 10초 후 전투종료 확인 시작...")
+        self.stop_tracking(window_id)
+
+        if battle_img is None:
+            print(f"[추적:{window_id}] 전투종료 확인 이미지 없음 → 종료")
+            return
+
+        _time.sleep(10.0)
+
+        # 1초 간격으로 전투종료 체크
+        print(f"[추적:{window_id}] 전투종료 확인 중... (1초 간격, roi={battle_roi})")
+        while not self._is_killed(window_id):
+            if self._check_image(window_id, battle_img, threshold=0.8,
+                                 timeout=0.3, region=battle_roi):
+                print(f"[추적:{window_id}] ✓ 전투 종료 확인 → 추적 재시작")
+                if not self._is_killed(window_id):
+                    self._restart_tracking(window_id)
+                return
+            _time.sleep(1.0)
+        print(f"[추적:{window_id}] 전투종료 대기 중단됨 (완전 종료)")
+
+    def _restart_tracking(self, window_id: str):
+        """추적 토글 ON + 루프 재시작"""
+        if not hasattr(self, '_tracking_killed'):
+            self._tracking_killed = {}
+        self._tracking_killed[window_id] = False
+        self._tracking_active[window_id] = True
+        if window_id in self.screen_widgets:
+            tracker = self._trackers.get(window_id)
+            exclude = getattr(self, '_exclude_rects', {}).get(window_id)
+            if tracker:
+                self.screen_widgets[window_id].set_tracker(tracker, exclude)
+        toggle_btn = getattr(self, '_track_toggle_buttons', {}).get(window_id)
+        if toggle_btn:
+            toggle_btn.setChecked(True)
+        print(f"[{self.name}:{window_id}] 추적 자동 재시작")
+        threading.Thread(
+            target=self._tracking_loop, args=(window_id,),
+            daemon=True
+        ).start()
 
     def _save_screenshot(self, window_id: str):
         """현재 화면을 screenshot/{agent}/{window_id}/ 에 저장"""

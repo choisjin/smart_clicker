@@ -22,7 +22,8 @@ PRESETS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 def save_preset(name: str, crops: List[np.ndarray], threshold: float,
                 exclude_rect: tuple = None,
                 verify_click: np.ndarray = None, verify_click_roi: tuple = None,
-                verify_transition: np.ndarray = None, verify_transition_roi: tuple = None):
+                verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
+                verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None):
     """프리셋 저장 (크롭 이미지 PNG + 확인 이미지 + 메타 JSON)"""
     from PIL import Image
     preset_dir = os.path.join(PRESETS_DIR, name)
@@ -41,16 +42,21 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
         Image.fromarray(verify_click).save(os.path.join(preset_dir, "verify_click.png"))
     if verify_transition is not None:
         Image.fromarray(verify_transition).save(os.path.join(preset_dir, "verify_transition.png"))
+    if verify_battle_end is not None:
+        Image.fromarray(verify_battle_end).save(os.path.join(preset_dir, "verify_battle_end.png"))
 
     meta = {"threshold": threshold, "count": len(crops),
             "has_verify_click": verify_click is not None,
-            "has_verify_transition": verify_transition is not None}
+            "has_verify_transition": verify_transition is not None,
+            "has_verify_battle_end": verify_battle_end is not None}
     if exclude_rect:
         meta["exclude_rect"] = list(exclude_rect)
     if verify_click_roi:
         meta["verify_click_roi"] = list(verify_click_roi)
     if verify_transition_roi:
         meta["verify_transition_roi"] = list(verify_transition_roi)
+    if verify_battle_end_roi:
+        meta["verify_battle_end_roi"] = list(verify_battle_end_roi)
     with open(os.path.join(preset_dir, "meta.json"), "w") as f:
         json.dump(meta, f)
 
@@ -87,6 +93,11 @@ def load_preset(name: str) -> Optional[dict]:
         result["verify_transition"] = np.array(Image.open(vt_path).convert("RGB"))
         if "verify_transition_roi" in meta:
             result["verify_transition_roi"] = tuple(meta["verify_transition_roi"])
+    vb_path = os.path.join(preset_dir, "verify_battle_end.png")
+    if meta.get("has_verify_battle_end") and os.path.exists(vb_path):
+        result["verify_battle_end"] = np.array(Image.open(vb_path).convert("RGB"))
+        if "verify_battle_end_roi" in meta:
+            result["verify_battle_end_roi"] = tuple(meta["verify_battle_end_roi"])
 
     return result
 
@@ -192,6 +203,7 @@ class TrackingSetupDialog(QDialog):
                  exclude_rect: Tuple[int, int, int, int] = None,
                  verify_click: np.ndarray = None, verify_click_roi: tuple = None,
                  verify_transition: np.ndarray = None, verify_transition_roi: tuple = None,
+                 verify_battle_end: np.ndarray = None, verify_battle_end_roi: tuple = None,
                  parent=None):
         """
         Args:
@@ -216,6 +228,8 @@ class TrackingSetupDialog(QDialog):
         self._verify_click_roi: Optional[Tuple[int, int, int, int]] = verify_click_roi
         self._verify_transition: Optional[np.ndarray] = verify_transition
         self._verify_transition_roi: Optional[Tuple[int, int, int, int]] = verify_transition_roi
+        self._verify_battle_end: Optional[np.ndarray] = verify_battle_end
+        self._verify_battle_end_roi: Optional[Tuple[int, int, int, int]] = verify_battle_end_roi
 
         layout = QVBoxLayout()
 
@@ -342,6 +356,20 @@ class TrackingSetupDialog(QDialog):
         self._verify_trans_preview.clicked.connect(lambda: self._clear_verify("transition"))
         verify_layout.addWidget(self._verify_trans_preview)
 
+        verify_layout.addSpacing(20)
+
+        # 전투 종료 확인
+        self._btn_verify_battle = QPushButton("전투 종료 확인")
+        self._btn_verify_battle.setCheckable(True)
+        self._btn_verify_battle.setStyleSheet("padding: 4px;")
+        self._btn_verify_battle.toggled.connect(lambda on: self._toggle_verify_mode("battle_end", on))
+        verify_layout.addWidget(self._btn_verify_battle)
+        self._verify_battle_preview = QPushButton()
+        self._verify_battle_preview.setFixedSize(60, 60)
+        self._verify_battle_preview.setToolTip("클릭하여 삭제")
+        self._verify_battle_preview.clicked.connect(lambda: self._clear_verify("battle_end"))
+        verify_layout.addWidget(self._verify_battle_preview)
+
         verify_layout.addStretch()
         verify_group.setLayout(verify_layout)
         layout.addWidget(verify_group)
@@ -390,19 +418,25 @@ class TrackingSetupDialog(QDialog):
 
     def _toggle_verify_mode(self, kind: str, on: bool):
         """확인 이미지 지정 모드 토글"""
-        btn = self._btn_verify_click if kind == "click" else self._btn_verify_trans
-        other = self._btn_verify_trans if kind == "click" else self._btn_verify_click
+        all_btns = {"click": self._btn_verify_click,
+                    "transition": self._btn_verify_trans,
+                    "battle_end": self._btn_verify_battle}
+        labels = {"click": "우클릭 성공 확인",
+                  "transition": "화면 전환 확인",
+                  "battle_end": "전투 종료 확인"}
+        btn = all_btns[kind]
         if on:
             self._setting_verify = kind
             self._setting_exclude = False
             self._btn_exclude.setChecked(False)
-            other.setChecked(False)
+            for k, b in all_btns.items():
+                if k != kind:
+                    b.setChecked(False)
             btn.setText("화면에서 드래그하세요...")
             btn.setStyleSheet("background-color: #cc6600; color: white; padding: 4px;")
         else:
             self._setting_verify = None
-            label = "우클릭 성공 확인" if kind == "click" else "화면 전환 확인"
-            btn.setText(label)
+            btn.setText(labels[kind])
             btn.setStyleSheet("padding: 4px;")
 
     def _clear_verify(self, kind: str):
@@ -410,9 +444,12 @@ class TrackingSetupDialog(QDialog):
         if kind == "click":
             self._verify_click = None
             self._verify_click_roi = None
-        else:
+        elif kind == "transition":
             self._verify_transition = None
             self._verify_transition_roi = None
+        elif kind == "battle_end":
+            self._verify_battle_end = None
+            self._verify_battle_end_roi = None
         self._refresh_verify_previews()
 
     def _refresh_verify_previews(self):
@@ -420,6 +457,7 @@ class TrackingSetupDialog(QDialog):
         for img, btn in [
             (self._verify_click, self._verify_click_preview),
             (self._verify_transition, self._verify_trans_preview),
+            (self._verify_battle_end, self._verify_battle_preview),
         ]:
             if img is not None:
                 h, w = img.shape[:2]
@@ -446,11 +484,16 @@ class TrackingSetupDialog(QDialog):
                 self._verify_click_roi = roi
                 self._btn_verify_click.setChecked(False)
                 print(f"[추적 셋팅] 우클릭 성공 확인 이미지 설정: {roi}")
-            else:
+            elif self._setting_verify == "transition":
                 self._verify_transition = crop
                 self._verify_transition_roi = roi
                 self._btn_verify_trans.setChecked(False)
                 print(f"[추적 셋팅] 화면 전환 확인 이미지 설정: {roi}")
+            elif self._setting_verify == "battle_end":
+                self._verify_battle_end = crop
+                self._verify_battle_end_roi = roi
+                self._btn_verify_battle.setChecked(False)
+                print(f"[추적 셋팅] 전투 종료 확인 이미지 설정: {roi}")
             self._refresh_verify_previews()
         elif self._setting_exclude:
             self._exclude_rect = roi
@@ -522,7 +565,8 @@ class TrackingSetupDialog(QDialog):
             save_preset(name.strip(), self._crop_images, self.slider.value() / 100.0,
                        self._exclude_rect,
                        self._verify_click, self._verify_click_roi,
-                       self._verify_transition, self._verify_transition_roi)
+                       self._verify_transition, self._verify_transition_roi,
+                       self._verify_battle_end, self._verify_battle_end_roi)
             self._refresh_preset_list()
             self._preset_combo.setCurrentText(name.strip())
             print(f"[프리셋] '{name.strip()}' 저장 완료 ({len(self._crop_images)}개 크롭)")
@@ -544,6 +588,8 @@ class TrackingSetupDialog(QDialog):
             self._verify_click_roi = data.get("verify_click_roi")
             self._verify_transition = data.get("verify_transition")
             self._verify_transition_roi = data.get("verify_transition_roi")
+            self._verify_battle_end = data.get("verify_battle_end")
+            self._verify_battle_end_roi = data.get("verify_battle_end_roi")
             self._refresh_previews()
             self._refresh_verify_previews()
             print(f"[프리셋] '{name}' 불러오기 완료 ({len(data['crops'])}개 크롭, 임계값 {data['threshold']:.2f})")
@@ -572,13 +618,17 @@ class TrackingSetupDialog(QDialog):
             if self._verify_transition is not None:
                 result["verify_transition"] = self._verify_transition.copy()
                 result["verify_transition_roi"] = self._verify_transition_roi
+            if self._verify_battle_end is not None:
+                result["verify_battle_end"] = self._verify_battle_end.copy()
+                result["verify_battle_end_roi"] = self._verify_battle_end_roi
 
             # 프리셋 불러온 상태면 적용 시 자동 저장
             if self._loaded_preset_name:
                 save_preset(self._loaded_preset_name, self._crop_images,
                            self.slider.value() / 100.0, self._exclude_rect,
                            self._verify_click, self._verify_click_roi,
-                           self._verify_transition, self._verify_transition_roi)
+                           self._verify_transition, self._verify_transition_roi,
+                           self._verify_battle_end, self._verify_battle_end_roi)
                 print(f"[프리셋] '{self._loaded_preset_name}' 자동 저장됨")
 
             return result
