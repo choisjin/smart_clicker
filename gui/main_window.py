@@ -530,29 +530,23 @@ class AgentPanel(QGroupBox):
                     "click": result.get("verify_click"),
                     "transition": result.get("verify_transition"),
                 }
-                self._tracking_active[window_id] = True
-
-                if window_id in self.screen_widgets:
-                    self.screen_widgets[window_id].set_tracker(
-                        tracker, self._exclude_rects.get(window_id))
+                self._tracking_active[window_id] = False  # 토글로 직접 시작
 
                 toggle_btn = self._track_toggle_buttons.get(window_id)
                 if toggle_btn:
                     toggle_btn.setEnabled(True)
-                    toggle_btn.setChecked(True)
+                    toggle_btn.setChecked(False)
 
-                print(f"[{self.name}:{window_id}] 추적 — 프리셋 {len(tracker.presets)}개, 임계값 {result['threshold']:.2f}")
-
-                # 자동 우클릭 루프 시작
-                threading.Thread(
-                    target=self._tracking_loop, args=(window_id,),
-                    daemon=True
-                ).start()
+                print(f"[{self.name}:{window_id}] 추적 설정 완료 — 프리셋 {len(tracker.presets)}개, 임계값 {result['threshold']:.2f} (▶ 토글로 시작)")
 
     def _check_image(self, window_id: str, template_rgb: np.ndarray,
                      threshold: float = 0.8, timeout: float = 3.0,
-                     interval: float = 0.3) -> bool:
-        """일정 시간 동안 화면에서 template 이미지가 나타나는지 반복 확인"""
+                     interval: float = 0.3,
+                     region: tuple = None) -> bool:
+        """일정 시간 동안 화면(또는 region 영역)에서 template 이미지가 나타나는지 반복 확인
+        Args:
+            region: (x, y, w, h) — 검색 범위 제한 (None이면 전체 화면)
+        """
         import cv2
         template_bgr = template_rgb[:, :, ::-1].copy()
         tmpl_gray = cv2.cvtColor(template_bgr, cv2.COLOR_BGR2GRAY)
@@ -567,7 +561,14 @@ class AgentPanel(QGroupBox):
                 continue
             frame = windows[window_id].frame
             bgr = frame[:, :, ::-1].copy() if frame.shape[2] == 3 else frame
+            # 검색 영역 제한
+            if region:
+                rx, ry, rw, rh = region
+                bgr = bgr[ry:ry+rh, rx:rx+rw]
             frame_gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+            if frame_gray.shape[0] < tmpl_gray.shape[0] or frame_gray.shape[1] < tmpl_gray.shape[1]:
+                _time.sleep(interval)
+                continue
             result = cv2.matchTemplate(frame_gray, tmpl_gray, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, _ = cv2.minMaxLoc(result)
             if max_val >= threshold:
@@ -658,10 +659,11 @@ class AgentPanel(QGroupBox):
                 # human-like 이동 시간 대기 (베지어 곡선 ~0.5~1.5초)
                 _time.sleep(1.5)
 
-                # ── 2. 우클릭 성공 확인 ──
+                # ── 2. 우클릭 성공 확인 (내 캐릭터 제외 영역에서만) ──
                 if verify_click_img is not None:
-                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초)")
-                    if self._check_image(window_id, verify_click_img, threshold=0.8, timeout=3.0):
+                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초, 제외영역={exclude})")
+                    if self._check_image(window_id, verify_click_img, threshold=0.8,
+                                         timeout=3.0, region=exclude):
                         print(f"[추적:{window_id}] ✓ 우클릭 성공 확인됨")
                         clicked_set.add(target_key)
 
