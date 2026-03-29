@@ -429,10 +429,17 @@ class AgentPanel(QGroupBox):
             self._track_toggle_buttons = getattr(self, '_track_toggle_buttons', {})
             self._track_toggle_buttons[window_id] = btn_track_toggle
 
+            btn_screenshot = QPushButton("📷")
+            btn_screenshot.setFixedWidth(32)
+            btn_screenshot.setStyleSheet("padding: 4px;")
+            btn_screenshot.setToolTip("현재 화면 저장")
+            btn_screenshot.clicked.connect(lambda _, wid=window_id: self._save_screenshot(wid))
+
             btn_row = QHBoxLayout()
             btn_row.addWidget(btn_manual)
             btn_row.addWidget(btn_track)
             btn_row.addWidget(btn_track_toggle)
+            btn_row.addWidget(btn_screenshot)
 
             container = QVBoxLayout()
             container.addWidget(screen)
@@ -662,32 +669,48 @@ class AgentPanel(QGroupBox):
                     asyncio.run_coroutine_threadsafe(
                         self.ctrl._send_fire_and_forget(agent, cmd), self.ctrl._loop)
 
-                # human-like 이동 시간 대기 (베지어 곡선 ~0.5~1.5초)
+                # human-like 이동 시간 대기
                 _time.sleep(1.5)
 
-                # ── 2. 우클릭 성공 확인 (내 캐릭터 제외 영역에서만) ──
+                # ── 2. 우클릭 성공 확인 (2초 간격, 최대 2회) ──
+                click_ok = False
                 if verify_click_img is not None:
-                    print(f"[추적:{window_id}] 우클릭 성공 확인 중... (3초, roi={verify_click_roi})")
-                    if self._check_image(window_id, verify_click_img, threshold=0.8,
-                                         timeout=3.0, region=verify_click_roi):
-                        print(f"[추적:{window_id}] ✓ 우클릭 성공 확인됨")
-                        clicked_set.add(target_key)
+                    for i in range(1, 3):
+                        _time.sleep(3.0)
+                        if not self._tracking_active.get(window_id, False):
+                            break
+                        if self._check_image(window_id, verify_click_img, threshold=0.8,
+                                             timeout=0.3, region=verify_click_roi):
+                            print(f"[추적:{window_id}] ✓ 우클릭 성공 ({i}/2) → 추적 종료")
+                            click_ok = True
+                            break
+                        print(f"[추적:{window_id}] 우클릭 확인 {i}/2 실패")
 
-                        # ── 3. 화면 전환 확인 ──
-                        if verify_trans_img is not None:
-                            print(f"[추적:{window_id}] 화면 전환 확인 중... (5초, roi={verify_trans_roi})")
-                            if self._check_image(window_id, verify_trans_img, threshold=0.8,
-                                                 timeout=5.0, region=verify_trans_roi):
-                                print(f"[추적:{window_id}] ✓ 화면 전환 확인됨")
-                            else:
-                                print(f"[추적:{window_id}] ✗ 화면 전환 안됨 → 다시 추적")
-                    else:
-                        print(f"[추적:{window_id}] ✗ 우클릭 실패 → 다시 추적")
-                else:
-                    # 확인 이미지 없으면 무조건 성공 처리
-                    clicked_set.add(target_key)
+                if click_ok:
+                    self.stop_tracking(window_id)
+                    break
 
-                # 쿨다운 후 다시 중심부터 추적
+                # ── 3. 화면 전환 확인 (2초 간격, 최대 2회) ──
+                trans_ok = False
+                if verify_trans_img is not None:
+                    for i in range(1, 3):
+                        _time.sleep(3.0)
+                        if not self._tracking_active.get(window_id, False):
+                            break
+                        if self._check_image(window_id, verify_trans_img, threshold=0.8,
+                                             timeout=0.3, region=verify_trans_roi):
+                            print(f"[추적:{window_id}] ✓ 화면 전환 ({i}/2) → 추적 종료")
+                            trans_ok = True
+                            break
+                        print(f"[추적:{window_id}] 화면 전환 확인 {i}/2 실패")
+
+                if trans_ok:
+                    self.stop_tracking(window_id)
+                    break
+
+                # ── 전부 실패 → 다시 추적 ──
+                print(f"[추적:{window_id}] ✗ 확인 실패 → 다시 추적")
+                clicked_set.add(target_key)
                 _time.sleep(click_cooldown)
 
             except Exception as e:
@@ -697,6 +720,23 @@ class AgentPanel(QGroupBox):
                 _time.sleep(0.5)
 
         print(f"[추적] 루프 종료: window_id={window_id}")
+
+    def _save_screenshot(self, window_id: str):
+        """현재 화면을 screenshot/{agent}/{window_id}/ 에 저장"""
+        from PIL import Image
+        from datetime import datetime
+        windows = self.ctrl.get_windows(self.name)
+        if window_id not in windows or windows[window_id].frame is None:
+            print(f"[{self.name}:{window_id}] 스크린샷 실패: 프레임 없음")
+            return
+        frame = windows[window_id].frame
+        base = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "screenshot", self.name, window_id)
+        os.makedirs(base, exist_ok=True)
+        filename = datetime.now().strftime("%Y%m%d_%H%M%S") + ".png"
+        path = os.path.join(base, filename)
+        Image.fromarray(frame).save(path)
+        print(f"[{self.name}:{window_id}] 스크린샷 저장: {path}")
 
     def stop_tracking(self, window_id: str):
         """추적 중지 (프리셋은 유지)"""

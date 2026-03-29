@@ -28,7 +28,10 @@ def save_preset(name: str, crops: List[np.ndarray], threshold: float,
     preset_dir = os.path.join(PRESETS_DIR, name)
     os.makedirs(preset_dir, exist_ok=True)
 
-    for f in Path(preset_dir).glob("*.png"):
+    # 기존 크롭만 삭제 (숫자.png), verify_*.png는 별도 처리
+    for f in Path(preset_dir).glob("[0-9]*.png"):
+        f.unlink()
+    for f in Path(preset_dir).glob("verify_*.png"):
         f.unlink()
 
     for i, crop in enumerate(crops):
@@ -208,6 +211,7 @@ class TrackingSetupDialog(QDialog):
         self._exclude_rect: Optional[Tuple[int, int, int, int]] = exclude_rect
         self._setting_exclude = False  # 제외 영역 지정 모드
         self._setting_verify: Optional[str] = None  # "click" or "transition"
+        self._loaded_preset_name: Optional[str] = None  # 불러온 프리셋 이름 (적용 시 자동 저장)
         self._verify_click: Optional[np.ndarray] = verify_click
         self._verify_click_roi: Optional[Tuple[int, int, int, int]] = verify_click_roi
         self._verify_transition: Optional[np.ndarray] = verify_transition
@@ -511,6 +515,8 @@ class TrackingSetupDialog(QDialog):
         if not self._crop_images:
             QMessageBox.warning(self, "저장 실패", "크롭 이미지가 없습니다.")
             return
+        self.raise_()
+        self.activateWindow()
         name, ok = QInputDialog.getText(self, "프리셋 저장", "프리셋 이름:")
         if ok and name.strip():
             save_preset(name.strip(), self._crop_images, self.slider.value() / 100.0,
@@ -526,6 +532,7 @@ class TrackingSetupDialog(QDialog):
         name = self._preset_combo.currentText()
         if not name or name.startswith("("):
             return
+        self._loaded_preset_name = name
         data = load_preset(name)
         if data:
             self._crop_images = data["crops"]
@@ -565,5 +572,14 @@ class TrackingSetupDialog(QDialog):
             if self._verify_transition is not None:
                 result["verify_transition"] = self._verify_transition.copy()
                 result["verify_transition_roi"] = self._verify_transition_roi
+
+            # 프리셋 불러온 상태면 적용 시 자동 저장
+            if self._loaded_preset_name:
+                save_preset(self._loaded_preset_name, self._crop_images,
+                           self.slider.value() / 100.0, self._exclude_rect,
+                           self._verify_click, self._verify_click_roi,
+                           self._verify_transition, self._verify_transition_roi)
+                print(f"[프리셋] '{self._loaded_preset_name}' 자동 저장됨")
+
             return result
         return None
